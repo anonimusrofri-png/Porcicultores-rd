@@ -12,16 +12,52 @@ export default function Chat() {
   const [nuevoMensaje, setNuevoMensaje] = useState('')
   const [cargando, setCargando] = useState(true)
   const mensajesRef = useRef<HTMLDivElement>(null)
+  const usuarioRef = useRef<any>(null)
+  const usuarioSeleccionadoRef = useRef<any>(null)
 
   useEffect(() => {
     cargarUsuario()
   }, [])
 
   useEffect(() => {
+    usuarioRef.current = usuario
+  }, [usuario])
+
+  useEffect(() => {
+    usuarioSeleccionadoRef.current = usuarioSeleccionado
+  }, [usuarioSeleccionado])
+
+  useEffect(() => {
     if (mensajesRef.current) {
       mensajesRef.current.scrollTop = mensajesRef.current.scrollHeight
     }
   }, [mensajes])
+
+  useEffect(() => {
+    if (!usuario) return
+
+    const canal = supabase
+      .channel('mensajes-tiempo-real')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'mensajes',
+      }, (payload) => {
+        const nuevo = payload.new as any
+        const yo = usuarioRef.current
+        const otro = usuarioSeleccionadoRef.current
+        if (yo && otro && (
+          (nuevo.de_usuario === yo.id && nuevo.para_usuario === otro.id) ||
+          (nuevo.de_usuario === otro.id && nuevo.para_usuario === yo.id)
+        )) {
+          setMensajes(prev => [...prev, nuevo])
+        }
+        cargarConversaciones(yo.id)
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(canal) }
+  }, [usuario])
 
   const cargarUsuario = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -35,18 +71,17 @@ export default function Chat() {
   const cargarConversaciones = async (userId: string) => {
     const { data } = await supabase
       .from('mensajes')
-      .select('*, de_usuario:perfiles!mensajes_de_usuario_fkey(id, nombre), para_usuario:perfiles!mensajes_para_usuario_fkey(id, nombre)')
+      .select('*, de_usuario:perfiles!mensajes_de_usuario_fkey(id, nombre, foto_perfil), para_usuario:perfiles!mensajes_para_usuario_fkey(id, nombre, foto_perfil)')
       .or(`de_usuario.eq.${userId},para_usuario.eq.${userId}`)
       .order('created_at', { ascending: false })
     if (!data) return
     const vistos = new Set()
     const unicas: any[] = []
     data.forEach((m) => {
-      const otroId = m.de_usuario.id === userId ? m.para_usuario.id : m.de_usuario.id
-      const otroNombre = m.de_usuario.id === userId ? m.para_usuario.nombre : m.de_usuario.nombre
-      if (!vistos.has(otroId)) {
-        vistos.add(otroId)
-        unicas.push({ id: otroId, nombre: otroNombre, ultimoMensaje: m.contenido })
+      const otro = m.de_usuario.id === userId ? m.para_usuario : m.de_usuario
+      if (!vistos.has(otro.id)) {
+        vistos.add(otro.id)
+        unicas.push({ id: otro.id, nombre: otro.nombre, foto_perfil: otro.foto_perfil, ultimoMensaje: m.contenido, fecha: m.created_at })
       }
     })
     setConversaciones(unicas)
@@ -68,16 +103,13 @@ export default function Chat() {
     if (!nuevoMensaje.trim() || !usuarioSeleccionado) return
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    const { data } = await supabase.from('mensajes').insert({
+    const contenido = nuevoMensaje.trim()
+    setNuevoMensaje('')
+    await supabase.from('mensajes').insert({
       de_usuario: user.id,
       para_usuario: usuarioSeleccionado.id,
-      contenido: nuevoMensaje.trim()
-    }).select().single()
-    if (data) {
-      setMensajes([...mensajes, data])
-      setNuevoMensaje('')
-      cargarConversaciones(user.id)
-    }
+      contenido
+    })
   }
 
   if (!usuario && !cargando) return (
@@ -112,9 +144,14 @@ export default function Chat() {
           ) : (
             conversaciones.map((conv) => (
               <div key={conv.id} onClick={() => cargarMensajes(conv)}
-                style={{ padding: '14px 16px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', backgroundColor: usuarioSeleccionado?.id === conv.id ? '#e0f2fe' : 'white' }}>
-                <div style={{ fontWeight: '700', color: '#0a2463', fontSize: '14px' }}>{conv.nombre}</div>
-                <div style={{ fontSize: '12px', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '2px' }}>{conv.ultimoMensaje}</div>
+                style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', backgroundColor: usuarioSeleccionado?.id === conv.id ? '#e0f2fe' : 'white', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#0a2463', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '14px', overflow: 'hidden', flexShrink: 0 }}>
+                  {conv.foto_perfil ? <img src={conv.foto_perfil} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : conv.nombre?.charAt(0).toUpperCase()}
+                </div>
+                <div style={{ overflow: 'hidden' }}>
+                  <div style={{ fontWeight: '700', color: '#0a2463', fontSize: '14px' }}>{conv.nombre}</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conv.ultimoMensaje}</div>
+                </div>
               </div>
             ))
           )}
@@ -127,7 +164,10 @@ export default function Chat() {
             </div>
           ) : (
             <>
-              <div style={{ backgroundColor: '#0a2463', color: 'white', padding: '14px 16px', fontWeight: '800', fontSize: '15px' }}>
+              <div style={{ backgroundColor: '#0a2463', color: 'white', padding: '14px 16px', fontWeight: '800', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', overflow: 'hidden', flexShrink: 0 }}>
+                  {usuarioSeleccionado.foto_perfil ? <img src={usuarioSeleccionado.foto_perfil} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null}
+                </div>
                 {usuarioSeleccionado.nombre}
               </div>
               <div ref={mensajesRef} style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
