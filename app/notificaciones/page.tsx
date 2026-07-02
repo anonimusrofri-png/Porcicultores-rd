@@ -4,8 +4,18 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
+interface Publicacion {
+  id: string
+  estado: string
+  tipo_animal: string
+  precio: number
+  provincia: string
+  descripcion: string
+  created_at: string
+}
+
 export default function Notificaciones() {
-  const [notificaciones, setNotificaciones] = useState<any[]>([])
+  const [notificaciones, setNotificaciones] = useState<Publicacion[]>([])
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
@@ -26,7 +36,7 @@ export default function Notificaciones() {
     setCargando(false)
   }
 
-  const getColor = (estado: string) => {
+  const getInfo = (estado: string) => {
     if (estado === 'aprobada') return { bg: '#dcfce7', color: '#16a34a', texto: 'Tu publicacion fue APROBADA y ya es visible en el marketplace.' }
     if (estado === 'rechazada') return { bg: '#fee2e2', color: '#dc2626', texto: 'Tu publicacion fue RECHAZADA por el administrador.' }
     if (estado === 'vendida') return { bg: '#e0e7ff', color: '#4338ca', texto: 'Tu publicacion fue marcada como VENDIDA.' }
@@ -50,9 +60,9 @@ export default function Notificaciones() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {notificaciones.map((n) => {
-            const { bg, color, texto } = getColor(n.estado)
+            const { bg, color, texto } = getInfo(n.estado)
             return (
-              <div key={n.id} style={{ backgroundColor: bg, borderRadius: '16px', padding: '20px', border: `1px solid ${color}20` }}>
+              <div key={n.id} style={{ backgroundColor: bg, borderRadius: '16px', padding: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                   <span style={{ backgroundColor: color, color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700' }}>
                     {n.estado.toUpperCase()}

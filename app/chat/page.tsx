@@ -4,16 +4,38 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
+interface Perfil {
+  id: string
+  nombre: string
+  foto_perfil?: string
+}
+
+interface Conversacion {
+  id: string
+  nombre: string
+  foto_perfil?: string
+  ultimoMensaje: string
+  fecha: string
+}
+
+interface Mensaje {
+  id: string
+  de_usuario: string
+  para_usuario: string
+  contenido: string
+  created_at: string
+}
+
 export default function Chat() {
-  const [usuario, setUsuario] = useState<any>(null)
-  const [conversaciones, setConversaciones] = useState<any[]>([])
-  const [mensajes, setMensajes] = useState<any[]>([])
-  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<any>(null)
+  const [usuario, setUsuario] = useState<Perfil | null>(null)
+  const [conversaciones, setConversaciones] = useState<Conversacion[]>([])
+  const [mensajes, setMensajes] = useState<Mensaje[]>([])
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<Conversacion | null>(null)
   const [nuevoMensaje, setNuevoMensaje] = useState('')
   const [cargando, setCargando] = useState(true)
   const mensajesRef = useRef<HTMLDivElement>(null)
-  const usuarioRef = useRef<any>(null)
-  const usuarioSeleccionadoRef = useRef<any>(null)
+  const usuarioRef = useRef<Perfil | null>(null)
+  const usuarioSeleccionadoRef = useRef<Conversacion | null>(null)
 
   useEffect(() => {
     cargarUsuario()
@@ -35,7 +57,6 @@ export default function Chat() {
 
   useEffect(() => {
     if (!usuario) return
-
     const canal = supabase
       .channel('mensajes-tiempo-real')
       .on('postgres_changes', {
@@ -43,7 +64,7 @@ export default function Chat() {
         schema: 'public',
         table: 'mensajes',
       }, (payload) => {
-        const nuevo = payload.new as any
+        const nuevo = payload.new as Mensaje
         const yo = usuarioRef.current
         const otro = usuarioSeleccionadoRef.current
         if (yo && otro && (
@@ -52,10 +73,9 @@ export default function Chat() {
         )) {
           setMensajes(prev => [...prev, nuevo])
         }
-        cargarConversaciones(yo.id)
+        if (yo) cargarConversaciones(yo.id)
       })
       .subscribe()
-
     return () => { supabase.removeChannel(canal) }
   }, [usuario])
 
@@ -75,9 +95,9 @@ export default function Chat() {
       .or(`de_usuario.eq.${userId},para_usuario.eq.${userId}`)
       .order('created_at', { ascending: false })
     if (!data) return
-    const vistos = new Set()
-    const unicas: any[] = []
-    data.forEach((m) => {
+    const vistos = new Set<string>()
+    const unicas: Conversacion[] = []
+    data.forEach((m: any) => {
       const otro = m.de_usuario.id === userId ? m.para_usuario : m.de_usuario
       if (!vistos.has(otro.id)) {
         vistos.add(otro.id)
@@ -87,7 +107,7 @@ export default function Chat() {
     setConversaciones(unicas)
   }
 
-  const cargarMensajes = async (otroUsuario: any) => {
+  const cargarMensajes = async (otroUsuario: Conversacion) => {
     setUsuarioSeleccionado(otroUsuario)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
@@ -141,20 +161,18 @@ export default function Chat() {
           <div style={{ backgroundColor: '#0a2463', color: 'white', padding: '14px 16px', fontWeight: '800', fontSize: '15px' }}>Conversaciones</div>
           {conversaciones.length === 0 ? (
             <p style={{ padding: '20px', color: '#94a3b8', fontSize: '14px', textAlign: 'center' }}>No tienes conversaciones todavia</p>
-          ) : (
-            conversaciones.map((conv) => (
-              <div key={conv.id} onClick={() => cargarMensajes(conv)}
-                style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', backgroundColor: usuarioSeleccionado?.id === conv.id ? '#e0f2fe' : 'white', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#0a2463', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '14px', overflow: 'hidden', flexShrink: 0 }}>
-                  {conv.foto_perfil ? <img src={conv.foto_perfil} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : conv.nombre?.charAt(0).toUpperCase()}
-                </div>
-                <div style={{ overflow: 'hidden' }}>
-                  <div style={{ fontWeight: '700', color: '#0a2463', fontSize: '14px' }}>{conv.nombre}</div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conv.ultimoMensaje}</div>
-                </div>
+          ) : conversaciones.map((conv) => (
+            <div key={conv.id} onClick={() => cargarMensajes(conv)}
+              style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', backgroundColor: usuarioSeleccionado?.id === conv.id ? '#e0f2fe' : 'white', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#0a2463', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '14px', overflow: 'hidden', flexShrink: 0 }}>
+                {conv.foto_perfil ? <img src={conv.foto_perfil} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : conv.nombre?.charAt(0).toUpperCase()}
               </div>
-            ))
-          )}
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{ fontWeight: '700', color: '#0a2463', fontSize: '14px' }}>{conv.nombre}</div>
+                <div style={{ fontSize: '12px', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conv.ultimoMensaje}</div>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: 'white' }}>
@@ -165,8 +183,8 @@ export default function Chat() {
           ) : (
             <>
               <div style={{ backgroundColor: '#0a2463', color: 'white', padding: '14px 16px', fontWeight: '800', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', overflow: 'hidden', flexShrink: 0 }}>
-                  {usuarioSeleccionado.foto_perfil ? <img src={usuarioSeleccionado.foto_perfil} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null}
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {usuarioSeleccionado.foto_perfil ? <img src={usuarioSeleccionado.foto_perfil} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : usuarioSeleccionado.nombre?.charAt(0).toUpperCase()}
                 </div>
                 {usuarioSeleccionado.nombre}
               </div>
