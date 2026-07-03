@@ -18,6 +18,10 @@ export default function Perfil() {
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
 
+  // ESTADO PARA LA CONTRASEÑA MAESTRA
+  const [claveEntrada, setClaveEntrada] = useState('')
+  const [errorClave, setErrorClave] = useState(false)
+
   // Estados del Panel de Administración Integrado
   const [tabActiva, setTabActiva] = useState('pendientes')
   const [adminPublicaciones, setAdminPublicaciones] = useState<any[]>([])
@@ -30,20 +34,16 @@ export default function Perfil() {
   })
 
   useEffect(() => {
-    cargarPerfilYAdmin()
+    cargarPerfilYData()
   }, [])
 
-  const cargarPerfilYAdmin = async () => {
+  const cargarPerfilYData = async () => {
     setCargando(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { 
       window.location.href = '/login'
       return 
     }
-    
-    // CORREO MAESTRO REAL RESTABLECIDO
-    const esAdminEmail = user.email === 'anonimusrofri@gmail.com'
-    setEsAdmin(esAdminEmail)
 
     // Cargar datos del perfil del usuario
     const { data: p } = await supabase.from('perfiles').select('*').eq('id', user.id).single()
@@ -56,29 +56,34 @@ export default function Perfil() {
     setPrevistaFoto(p?.foto_perfil || null)
     setPublicaciones(pubs || [])
 
-    // Si eres Admin, cargar toda la data del panel en tiempo real
-    if (esAdminEmail) {
-      await cargarDatosAdministracion()
-    }
-
     setCargando(false)
   }
 
+  // Función para activar el modo administrador con contraseña
+  const verificarAccesoAdmin = async () => {
+    // AQUÍ PUEDES CAMBIAR LA CONTRASEÑA SI DESEAS
+    if (claveEntrada === 'admin2026') {
+      setErrorClave(false)
+      setEsAdmin(true)
+      await cargarDatosAdministracion()
+    } else {
+      setErrorClave(true)
+      setEsAdmin(false)
+    }
+  }
+
   const cargarDatosAdministracion = async () => {
-    // 1. Obtener publicaciones pendientes
     const { data: pendientes } = await supabase
       .from('publicaciones')
       .select('*')
       .eq('estado', 'pendiente')
       .order('created_at', { ascending: false })
 
-    // 2. Obtener conteos para las tarjetas de estadísticas
     const { count: totalPendientes } = await supabase.from('publicaciones').select('*', { count: 'exact', head: true }).eq('estado', 'pendiente')
     const { count: totalUsuarios } = await supabase.from('perfiles').select('*', { count: 'exact', head: true })
     const { count: totalReportes } = await supabase.from('reportes').select('*', { count: 'exact', head: true })
     const { count: totalSuspendidos } = await supabase.from('perfiles').select('*', { count: 'exact', head: true }).eq('estado', 'suspendido')
     
-    // Calcular recaudación de apoyos aprobados
     const { data: apoyos } = await supabase.from('apoyos').select('monto')
     const totalRecaudado = apoyos?.reduce((sum, item) => sum + (item.monto || 0), 0) || 0
 
@@ -92,34 +97,19 @@ export default function Perfil() {
     })
   }
 
-  // Acciones de Moderación del Panel
   const modificarEstadoPublicacion = async (id: string, nuevoEstado: string) => {
-    const { error } = await supabase
-      .from('publicaciones')
-      .update({ estado: nuevoEstado })
-      .eq('id', id)
-
-    if (error) {
-      alert('Error al actualizar estado: ' + error.message)
-    } else {
-      alert(`Publicación ${nuevoEstado} con éxito.`)
-      await cargarDatosAdministracion()
-    }
+    const { error } = await supabase.from('publicaciones').update({ estado: nuevoEstado }).eq('id', id)
+    if (error) alert('Error: ' + error.message)
+    else await cargarDatosAdministracion()
   }
 
   const eliminarPublicacionAdmin = async (id: string) => {
-    if (!confirm('¿Seguro que deseas eliminar permanentemente esta publicación de la plataforma?')) return
+    if (!confirm('¿Eliminar permanentemente?')) return
     const { error } = await supabase.from('publicaciones').delete().eq('id', id)
-    
-    if (error) {
-      alert('Error al eliminar: ' + error.message)
-    } else {
-      alert('Publicación eliminada por completo.')
-      await cargarDatosAdministracion()
-    }
+    if (error) alert('Error: ' + error.message)
+    else await cargarDatosAdministracion()
   }
 
-  // Funciones básicas de perfil
   const handleFoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -146,16 +136,9 @@ export default function Perfil() {
       }
     }
 
-    await supabase.from('perfiles').update({ 
-      nombre, 
-      telefono, 
-      whatsapp: telefono, 
-      descripcion, 
-      foto_perfil: fotoUrl 
-    }).eq('id', user.id)
-
+    await supabase.from('perfiles').update({ nombre, telefono, whatsapp: telefono, descripcion, foto_perfil: fotoUrl }).eq('id', user.id)
     setEditando(false)
-    cargarPerfilYAdmin()
+    cargarPerfilYData()
     setGuardando(false)
   }
 
@@ -170,7 +153,7 @@ export default function Perfil() {
         <Link href="/" style={{ color: '#0a2463', textDecoration: 'none', fontSize: '15px', fontWeight: '700' }}>Inicio</Link>
       </div>
 
-      {/* Tarjeta de Perfil Estilo Normal */}
+      {/* Tarjeta de Perfil */}
       <div style={{ background: 'linear-gradient(135deg, #0a2463, #1e40af)', borderRadius: '20px', padding: '32px', marginBottom: '24px', color: 'white', boxShadow: '0 4px 15px rgba(10,36,99,0.15)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -193,11 +176,10 @@ export default function Perfil() {
           </button>
         </div>
 
-        {/* Bloques de Información de la Tarjeta */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginTop: '28px' }}>
           {[
             { label: 'Publicaciones', valor: publicaciones.length },
-            { label: 'Tipo', valor: perfil?.tipo || 'vendedor' },
+            { label: 'Tipo', valor: esAdmin ? 'Administrador' : (perfil?.tipo || 'vendedor') },
             { label: 'Estado', valor: perfil?.estado || 'activo' },
           ].map(s => (
             <div key={s.label} style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '14px', padding: '16px', textAlign: 'center', backdropFilter: 'blur(5px)' }}>
@@ -208,7 +190,33 @@ export default function Perfil() {
         </div>
       </div>
 
-      {/* Formulario Oculto/Editable de Datos */}
+      {/* SECCIÓN ACCESO SEGURO PARA ADMINISTRADOR */}
+      {!esAdmin && (
+        <div style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'between', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ flex: '1', minWidth: '250px' }}>
+            <h4 style={{ margin: '0 0 4px 0', color: '#0a2463', fontWeight: '800' }}>🔑 ¿Eres Administrador de la Plataforma?</h4>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>Ingresa el código maestro para habilitar tus herramientas de gestión.</p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input 
+              type="password" 
+              placeholder="Código maestro..." 
+              value={claveEntrada}
+              onChange={(e) => setClaveEntrada(e.target.value)}
+              style={{ padding: '10px 14px', borderRadius: '8px', border: errorClave ? '2px solid #dc2626' : '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+            />
+            <button 
+              onClick={verificarAccesoAdmin}
+              style={{ backgroundColor: '#0a2463', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}
+            >
+              Verificar
+            </button>
+          </div>
+          {errorClave && <p style={{ color: '#dc2626', fontSize: '12px', width: '100%', margin: '4px 0 0 0', fontWeight: '600' }}>⚠️ Código incorrecto. Inténtalo de nuevo.</p>}
+        </div>
+      )}
+
+      {/* Formulario Editable */}
       {editando && (
         <div style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
           <h3 style={{ color: '#0a2463', marginBottom: '16px', fontWeight: '700', margin: '0 0 16px 0' }}>Editar Datos de Perfil</h3>
@@ -226,16 +234,14 @@ export default function Perfil() {
         </div>
       )}
 
-      {/* Botones de Navegación de Usuario */}
+      {/* Botones de Navegación */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', flexWrap: 'wrap' }}>
         <Link href="/publicar" style={{ backgroundColor: '#0a2463', color: 'white', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Nueva Publicacion</Link>
         <Link href="/chat" style={{ backgroundColor: 'white', color: '#0a2463', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', border: '1px solid #e2e8f0' }}>Mensajes Privados</Link>
         <Link href="/resena" style={{ backgroundColor: 'white', color: '#0a2463', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', border: '1px solid #e2e8f0' }}>Dejar Resena</Link>
       </div>
 
-      {/* ========================================================= */}
-      {/* SECCIÓN DEL PANEL DE ADMINISTRACIÓN COMPLETO (SÓLO PARA TU CORREO REAL) */}
-      {/* ========================================================= */}
+      {/* PANEL DE ADMINISTRACIÓN COMPLETO */}
       {esAdmin && (
         <div style={{ marginTop: '20px', borderTop: '2px solid #e2e8f0', paddingTop: '32px', marginBottom: '40px' }}>
           
@@ -244,37 +250,29 @@ export default function Perfil() {
             <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>Moderacion y control de la plataforma</p>
           </div>
 
-          {/* Fila de Tarjetas de Estadísticas de Colores */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px', marginBottom: '28px' }}>
-            
             <div style={{ backgroundColor: '#fffbeb', border: '1px solid #fef08a', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '28px', fontWeight: '900', color: '#1e293b' }}>{stats.pendientes}</div>
               <div style={{ color: '#713f12', fontSize: '13px', fontWeight: '700', marginTop: '2px' }}>Pendientes</div>
             </div>
-
             <div style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '28px', fontWeight: '900', color: '#1e293b' }}>{stats.usuarios}</div>
               <div style={{ color: '#0369a1', fontSize: '13px', fontWeight: '700', marginTop: '2px' }}>Usuarios</div>
             </div>
-
             <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '28px', fontWeight: '900', color: '#1e293b' }}>{stats.reportes}</div>
               <div style={{ color: '#b91c1c', fontSize: '13px', fontWeight: '700', marginTop: '2px' }}>Reportes</div>
             </div>
-
             <div style={{ backgroundColor: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '28px', fontWeight: '900', color: '#1e293b' }}>{stats.suspendidos}</div>
               <div style={{ color: '#6b21a8', fontSize: '13px', fontWeight: '700', marginTop: '2px' }}>Suspendidos</div>
             </div>
-
             <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '24px', fontWeight: '900', color: '#16a34a' }}>RD$ {stats.recaudado.toLocaleString()}</div>
               <div style={{ color: '#166534', fontSize: '13px', fontWeight: '700', marginTop: '4px' }}>Recaudado</div>
             </div>
-
           </div>
 
-          {/* Selector de Pestañas / Tabs */}
           <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
             {[
               { id: 'pendientes', label: `Pendientes (${stats.pendientes})` },
@@ -283,110 +281,53 @@ export default function Perfil() {
               { id: 'apoyos', label: 'Apoyos (0)' },
               { id: 'precios', label: 'Precios' },
             ].map(t => (
-              <button
-                key={t.id}
-                onClick={() => setTabActiva(t.id)}
-                style={{
-                  backgroundColor: tabActiva === t.id ? '#0a2463' : '#e2e8f0',
-                  color: tabActiva === t.id ? 'white' : '#475569',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  fontWeight: '700',
-                  fontSize: '14px',
-                  cursor: 'pointer'
-                }}
-              >
+              <button key={t.id} onClick={() => setTabActiva(t.id)} style={{ backgroundColor: tabActiva === t.id ? '#0a2463' : '#e2e8f0', color: tabActiva === t.id ? 'white' : '#475569', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
                 {t.label}
               </button>
             ))}
           </div>
 
-          {/* Contenido de la pestaña activa de administración */}
           <div style={{ marginBottom: '32px' }}>
             {tabActiva === 'pendientes' && (
               <div>
                 {adminPublicaciones.length === 0 ? (
                   <p style={{ color: '#64748b', fontStyle: 'italic', backgroundColor: 'white', padding: '24px', borderRadius: '12px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                    No hay publicaciones pendientes de aprobación en este momento.
+                    No hay publicaciones pendientes de aprobación.
                   </p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {adminPublicaciones.map((pub) => (
                       <div key={pub.id} style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                        
                         <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
                           <div style={{ width: '100px', height: '100px', backgroundColor: '#f1f5f9', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {pub.foto_url ? (
-                              <img src={pub.foto_url} alt="Cerdo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <span style={{ fontSize: '30px' }}>🐖</span>
-                            )}
+                            {pub.foto_url ? <img src={pub.foto_url} alt="Cerdo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '30px' }}>🐖</span>}
                           </div>
-                          
                           <div>
                             <div style={{ display: 'flex', gap: '6px', marginBottom: '6px' }}>
                               <span style={{ backgroundColor: '#fef9c3', color: '#a16207', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '700' }}>Pendiente</span>
                               <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', textTransform: 'lowercase' }}>{pub.tipo_animal || 'cerdo'}</span>
                             </div>
-                            <div style={{ color: '#1e3a8a', fontWeight: '900', fontSize: '20px', marginBottom: '4px' }}>
-                              RD$ {pub.precio?.toLocaleString()}
-                            </div>
-                            <p style={{ color: '#475569', fontSize: '14px', margin: '2px 0', fontWeight: '500' }}>
-                              Provincia: {pub.provincia} — Peso: {pub.peso || 0} lbs
-                            </p>
-                            <p style={{ color: '#64748b', fontSize: '13px', margin: '2px 0' }}>
-                              <strong>Vendedor:</strong> {pub.vendedor_email || pub.usuario_email || 'usuario@correo.com'}
-                            </p>
-                            <p style={{ color: '#334155', fontSize: '14px', marginTop: '8px', fontStyle: 'italic' }}>
-                              "{pub.descripcion || 'Sin descripción'}"
-                            </p>
+                            <div style={{ color: '#1e3a8a', fontWeight: '900', fontSize: '20px', marginBottom: '4px' }}>RD$ {pub.precio?.toLocaleString()}</div>
+                            <p style={{ color: '#475569', fontSize: '14px', margin: '2px 0', fontWeight: '500' }}>Provincia: {pub.provincia} — Peso: {pub.peso || 0} lbs</p>
+                            <p style={{ color: '#334155', fontSize: '14px', marginTop: '8px', fontStyle: 'italic' }}>"{pub.descripcion || 'Sin descripción'}"</p>
                           </div>
                         </div>
-
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '140px' }}>
-                          <button
-                            onClick={() => modificarEstadoPublicacion(pub.id, 'aprobada')}
-                            style={{ backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}
-                          >
-                            Aprobar
-                          </button>
-                          <button
-                            onClick={() => modificarEstadoPublicacion(pub.id, 'rechazada')}
-                            style={{ backgroundColor: '#f97316', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}
-                          >
-                            Rechazar
-                          </button>
-                          <button
-                            onClick={() => eliminarPublicacionAdmin(pub.id)}
-                            style={{ backgroundColor: '#dc2626', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}
-                          >
-                            Eliminar
-                          </button>
+                          <button onClick={() => modificarEstadoPublicacion(pub.id, 'aprobada')} style={{ backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>Aprobar</button>
+                          <button onClick={() => modificarEstadoPublicacion(pub.id, 'rechazada')} style={{ backgroundColor: '#f97316', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>Rechazar</button>
+                          <button onClick={() => eliminarPublicacionAdmin(pub.id)} style={{ backgroundColor: '#dc2626', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>Eliminar</button>
                         </div>
-
                       </div>
                     ))}
                   </div>
                 )}
               </div>
             )}
-
-            {tabActiva !== 'pendientes' && (
-              <p style={{ color: '#64748b', fontStyle: 'italic', textAlign: 'center', backgroundColor: 'white', padding: '20px', borderRadius: '12px' }}>
-                Módulo "{tabActiva}" abierto. Listo para conectar bases de datos adicionales de control.
-              </p>
-            )}
           </div>
-
         </div>
       )}
 
-      {/* ========================================================= */}
-      {/* FIN SECCIÓN ADMINISTRATIVA / CONTINÚA MIS PUBLICACIONES */}
-      {/* ========================================================= */}
-
-      {/* Bloque de Mis Publicaciones de Usuario Final */}
+      {/* Mis Publicaciones de Usuario Final */}
       <h2 style={{ color: '#0a2463', marginBottom: '16px', fontWeight: '800', fontSize: '22px' }}>Mis Publicaciones ({publicaciones.length})</h2>
       {publicaciones.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
