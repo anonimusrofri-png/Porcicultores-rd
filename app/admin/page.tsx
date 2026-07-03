@@ -4,287 +4,428 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
-export default function Admin() {
-  const [tab, setTab] = useState('pendientes')
-  const [pendientes, setPendientes] = useState<any[]>([])
+export default function PanelAdmin() {
+  const [cargando, setCargando] = useState(true)
+  const [pestana, setPestana] = useState<'pendientes' | 'usuarios' | 'reportes' | 'apoyos' | 'precios'>('pendientes')
+  
+  // Estados de datos
+  const [publicaciones, setPublicaciones] = useState<any[]>([])
   const [usuarios, setUsuarios] = useState<any[]>([])
   const [reportes, setReportes] = useState<any[]>([])
   const [apoyos, setApoyos] = useState<any[]>([])
   const [precios, setPrecios] = useState<any[]>([])
-  const [editandoPrecio, setEditandoPrecio] = useState<any>(null)
-  const [cargando, setCargando] = useState(true)
+
+  // Estados para agregar/editar precios
+  const [nuevaProvincia, setNuevaProvincia] = useState('')
+  const [precioLibra, setPrecioLibra] = useState('')
+  const [precioKilo, setPrecioKilo] = useState('')
+  const [provinciaEditando, setProvinciaEditando] = useState<string | null>(null)
+
+  // Estados para editar publicaciones
+  const [pubEditandoId, setPubEditandoId] = useState<string | null>(null)
+  const [nuevoAnimalPub, setNuevoAnimalPub] = useState('')
+  const [nuevoPrecioPub, setNuevoPrecioPub] = useState('')
+  const [nuevoPesoPub, setNuevoPesoPub] = useState('')
 
   useEffect(() => {
-    cargarDatos()
+    validarYCargar()
   }, [])
 
-  const cargarDatos = async () => {
+  const validarYCargar = async () => {
     setCargando(true)
-    const [{ data: pend }, { data: u }, { data: r }, { data: a }, { data: p }] = await Promise.all([
-      supabase.from('publicaciones').select('*, perfiles(nombre, provincia)').eq('estado', 'pendiente').order('created_at', { ascending: false }),
-      supabase.from('perfiles').select('*').order('created_at', { ascending: false }),
-      supabase.from('reportes').select('*, reportado_por:perfiles!reportes_reportado_por_fkey(nombre), usuario_reportado:perfiles!reportes_usuario_reportado_fkey(nombre)').order('created_at', { ascending: false }),
-      supabase.from('apoyos').select('*').order('created_at', { ascending: false }),
-      supabase.from('precios_cerdo').select('*').order('provincia'),
-    ])
-    setPendientes(pend || [])
-    setUsuarios(u || [])
-    setReportes(r || [])
-    setApoyos(a || [])
-    setPrecios(p || [])
+    
+    // 1. Verificar sesión de usuario
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    // 2. Bloqueo estricto por tu correo de administrador
+    if (!user || user.email !== 'anonimusrofri@gmail.com') {
+      window.location.href = '/'
+      return
+    }
+
+    // 3. Bloqueo por tabla de administradores en la base de datos
+    const { data: adminCheck, error: adminError } = await supabase
+      .from('administradores')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+
+    if (adminError || !adminCheck) {
+      window.location.href = '/'
+      return
+    }
+
+    // 4. Si pasa, cargar todos los datos de la plataforma
+    await cargarTodosLosDatos()
     setCargando(false)
   }
 
-  const aprobarPublicacion = async (id: string) => {
-    await supabase.from('publicaciones').update({ estado: 'aprobada', activo: true }).eq('id', id)
-    cargarDatos()
+  const cargarTodosLosDatos = async () => {
+    const [pubRes, userRes, repRes, apoRes, preRes] = await Promise.all([
+      supabase.from('publicaciones').select('*').order('created_at', { ascending: false }),
+      supabase.from('perfiles').select('*').order('nombre', { ascending: true }),
+      supabase.from('reportes').select('*').order('created_at', { ascending: false }),
+      supabase.from('apoyos').select('*').order('created_at', { ascending: false }),
+      supabase.from('precios_cerdo').select('*').order('provincia', { ascending: true })
+    ])
+
+    setPublicaciones(pubRes.data || [])
+    setUsuarios(userRes.data || [])
+    setReportes(repRes.data || [])
+    setApoyos(apoRes.data || [])
+    setPrecios(preRes.data || [])
   }
 
-  const rechazarPublicacion = async (id: string) => {
-    await supabase.from('publicaciones').update({ estado: 'rechazada', activo: false }).eq('id', id)
-    cargarDatos()
+  // ACCIONES DE PUBLICACIONES
+  const cambiarEstadoPublicacion = async (id: string, nuevoEstado: string) => {
+    const { error } = await supabase
+      .from('publicaciones')
+      .update({ estado: nuevoEstado })
+      .eq('id', id)
+
+    if (!error) {
+      alert(`Publicación marcada como ${nuevoEstado}`)
+      cargarTodosLosDatos()
+    }
   }
 
-  const eliminarPublicacionAdmin = async (id: string) => {
-    await supabase.from('publicaciones').delete().eq('id', id)
-    cargarDatos()
+  const eliminarPublicacion = async (id: string) => {
+    if (!confirm('¿Seguro que deseas eliminar esta publicación permanentemente?')) return
+    const { error } = await supabase.from('publicaciones').delete().eq('id', id)
+    if (!error) {
+      alert('Publicación eliminada')
+      cargarTodosLosDatos()
+    }
   }
 
-  const marcarVendidaAdmin = async (id: string) => {
-    await supabase.from('publicaciones').update({ estado: 'vendida', activo: false }).eq('id', id)
-    cargarDatos()
+  const guardarCambiosPublicacion = async (id: string) => {
+    const { error } = await supabase
+      .from('publicaciones')
+      .update({
+        tipo_animal: nuevoAnimalPub,
+        precio: parseFloat(nuevoPrecioPub),
+        peso: parseFloat(nuevoPesoPub)
+      })
+      .eq('id', id)
+
+    if (!error) {
+      alert('Publicación modificada con éxito')
+      setPubEditandoId(null)
+      cargarTodosLosDatos()
+    }
   }
 
-  const suspenderUsuario = async (id: string) => {
-    await supabase.from('perfiles').update({ estado: 'suspendido' }).eq('id', id)
-    cargarDatos()
+  // ACCIONES DE PRECIOS (UPSERT COMPLETO)
+  const guardarPrecioProvincia = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const prov = provinciaEditando || nuevaProvincia
+    if (!prov || !precioLibra || !precioKilo) {
+      alert('Por favor, completa todos los campos de precios')
+      return
+    }
+
+    const { error } = await supabase
+      .from('precios_cerdo')
+      .upsert({
+        provincia: prov.trim(),
+        precio_libra: parseFloat(precioLibra),
+        precio_kilo: parseFloat(precioKilo),
+        fecha_actualizacion: new Date().toISOString().split('T')[0]
+      }, { onConflict: 'provincia' })
+
+    if (!error) {
+      alert('Precio guardado correctamente')
+      setNuevaProvincia('')
+      setPrecioLibra('')
+      setPrecioKilo('')
+      setProvinciaEditando(null)
+      cargarTodosLosDatos()
+    }
   }
 
-  const activarUsuario = async (id: string) => {
-    await supabase.from('perfiles').update({ estado: 'activo' }).eq('id', id)
-    cargarDatos()
+  // ACCIONES DE USUARIOS
+  const cambiarVerificacionUsuario = async (id: string, estadoVerificado: boolean) => {
+    const { error } = await supabase
+      .from('perfiles')
+      .update({ verificado: estadoVerificado })
+      .eq('id', id)
+
+    if (!error) {
+      alert(estadoVerificado ? 'Usuario verificado (Check Azul)' : 'Verificación removida')
+      cargarTodosLosDatos()
+    }
   }
 
-  const resolverReporte = async (id: string) => {
-    await supabase.from('reportes').update({ resuelto: true }).eq('id', id)
-    cargarDatos()
-  }
+  const totalRecaudado = apoyos.reduce((acc, curr) => acc + (curr.monto || 0), 0)
+  const publicacionesPendientes = publicaciones.filter(p => p.estado === 'pendiente' || !p.estado)
 
-  const guardarPrecio = async () => {
-    if (!editandoPrecio) return
-    await supabase.from('precios_cerdo').update({
-      precio_libra: parseFloat(editandoPrecio.precio_libra),
-      precio_kilo: parseFloat(editandoPrecio.precio_kilo),
-      fecha: new Date().toISOString().slice(0, 10)
-    }).eq('id', editandoPrecio.id)
-    setEditandoPrecio(null)
-    cargarDatos()
-  }
-
-  const totalRecaudado = apoyos.reduce((sum, a) => sum + (a.monto || 0), 0)
-
-  if (cargando) return <p style={{ padding: '40px', fontFamily: 'sans-serif' }}>Cargando panel...</p>
+  if (cargando) return <p style={{ padding: '40px', fontFamily: 'sans-serif', fontWeight: 'bold' }}>Cargando panel de control seguro...</p>
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      
+      {/* Encabezado */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '2px solid #e2e8f0', paddingBottom: '16px' }}>
         <div>
-          <h1 style={{ color: '#0a2463', fontSize: '24px', fontWeight: '800' }}>Panel de Administracion</h1>
-          <p style={{ color: '#64748b', fontSize: '14px' }}>Moderacion y control de la plataforma</p>
+          <h1 style={{ color: '#c1121f', fontSize: '28px', fontWeight: '900', margin: 0 }}>Panel de Administración</h1>
+          <p style={{ color: '#64748b', margin: '4px 0 0 0', fontSize: '14px' }}>Moderación y control absoluto de Porcicultores RD</p>
         </div>
-        <Link href="/" style={{ color: '#0a2463', textDecoration: 'none', fontSize: '14px' }}>Volver al inicio</Link>
+        <Link href="/perfil" style={{ backgroundColor: '#0a2463', color: 'white', padding: '10px 20px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Volver al perfil</Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '28px' }}>
-        {[
-          { label: 'Pendientes', valor: pendientes.length, color: '#fef9c3', border: '#fcd34d' },
-          { label: 'Usuarios', valor: usuarios.length, color: '#e0f2fe', border: '#7dd3fc' },
-          { label: 'Reportes', valor: reportes.filter(r => !r.resuelto).length, color: '#fee2e2', border: '#fca5a5' },
-          { label: 'Suspendidos', valor: usuarios.filter(u => u.estado === 'suspendido').length, color: '#f3e8ff', border: '#d8b4fe' },
-          { label: 'Recaudado', valor: `RD$ ${totalRecaudado.toLocaleString()}`, color: '#dcfce7', border: '#86efac' },
-        ].map(s => (
-          <div key={s.label} style={{ backgroundColor: s.color, border: `1px solid ${s.border}`, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '20px', fontWeight: '900', color: '#0a2463' }}>{s.valor}</div>
-            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>{s.label}</div>
-          </div>
-        ))}
+      {/* Tarjetas de Métricas Rápidas */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+        <div style={{ backgroundColor: '#fef9c3', padding: '16px', borderRadius: '12px', border: '1px solid #fef08a', textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', fontWeight: '900', color: '#a16207' }}>{publicacionesPendientes.length}</div>
+          <div style={{ fontSize: '12px', color: '#713f12', fontWeight: '600', marginTop: '4px' }}>Pendientes</div>
+        </div>
+        <div style={{ backgroundColor: '#e0f2fe', padding: '16px', borderRadius: '12px', border: '1px solid #bae6fd', textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', fontWeight: '900', color: '#0369a1' }}>{usuarios.length}</div>
+          <div style={{ fontSize: '12px', color: '#075985', fontWeight: '600', marginTop: '4px' }}>Usuarios</div>
+        </div>
+        <div style={{ backgroundColor: '#fee2e2', padding: '16px', borderRadius: '12px', border: '1px solid #fecaca', textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', fontWeight: '900', color: '#dc2626' }}>{reportes.length}</div>
+          <div style={{ fontSize: '12px', color: '#991b1b', fontWeight: '600', marginTop: '4px' }}>Reportes</div>
+        </div>
+        <div style={{ backgroundColor: '#dcfce7', padding: '16px', borderRadius: '12px', border: '1px solid #bbf7d0', textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', fontWeight: '900', color: '#16a34a' }}>RD$ {totalRecaudado.toLocaleString()}</div>
+          <div style={{ fontSize: '12px', color: '#166534', fontWeight: '600', marginTop: '4px' }}>Recaudado</div>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap', borderBottom: '2px solid #e2e8f0', paddingBottom: '12px' }}>
-        {[
-          { id: 'pendientes', label: `Pendientes (${pendientes.length})` },
-          { id: 'usuarios', label: `Usuarios (${usuarios.length})` },
-          { id: 'reportes', label: `Reportes (${reportes.filter(r => !r.resuelto).length})` },
-          { id: 'apoyos', label: `Apoyos (${apoyos.length})` },
-          { id: 'precios', label: `Precios` },
-        ].map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', backgroundColor: tab === t.id ? '#0a2463' : '#f1f5f9', color: tab === t.id ? 'white' : '#64748b' }}>
-            {t.label}
+      {/* Menú de pestañas internas */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+        {(['pendientes', 'usuarios', 'precios', 'reportes', 'apoyos'] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setPestana(t)}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: '700',
+              fontSize: '14px',
+              textTransform: 'capitalize',
+              backgroundColor: pestana === t ? '#c1121f' : '#f1f5f9',
+              color: pestana === t ? 'white' : '#475569'
+            }}
+          >
+            {t === 'pendientes' ? `Pendientes (${publicacionesPendientes.length})` : t}
           </button>
         ))}
       </div>
 
-      {tab === 'pendientes' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {pendientes.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8', backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-              No hay publicaciones pendientes
-            </div>
-          ) : pendientes.map((pub) => (
-            <div key={pub.id} style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
-              <div style={{ flex: 1 }}>
-                {pub.foto_url && <img src={pub.foto_url} alt="foto" style={{ width: '100px', height: '70px', objectFit: 'cover', borderRadius: '8px', marginBottom: '10px' }} />}
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                  <span style={{ backgroundColor: '#fef9c3', color: '#92400e', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>Pendiente</span>
-                  <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '3px 10px', borderRadius: '20px', fontSize: '12px' }}>{pub.tipo_animal}</span>
-                </div>
-                <p style={{ fontWeight: '700', color: '#0a2463', marginBottom: '4px', fontSize: '16px' }}>RD$ {pub.precio?.toLocaleString()}</p>
-                <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '4px' }}>Provincia: {pub.provincia} — Peso: {pub.peso} lbs</p>
-                <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '4px' }}>Vendedor: {pub.perfiles?.nombre}</p>
-                <p style={{ color: '#475569', fontSize: '14px', marginTop: '8px' }}>{pub.descripcion}</p>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '120px' }}>
-                <button onClick={() => aprobarPublicacion(pub.id)} style={{ backgroundColor: '#16a34a', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>Aprobar</button>
-                <button onClick={() => rechazarPublicacion(pub.id)} style={{ backgroundColor: '#f59e0b', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>Rechazar</button>
-                <button onClick={() => eliminarPublicacionAdmin(pub.id)} style={{ backgroundColor: '#dc2626', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>Eliminar</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {tab === 'usuarios' && (
-        <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#0a2463', color: 'white' }}>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '13px' }}>Nombre</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '13px' }}>Tipo</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '13px' }}>Provincia</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '13px' }}>Estado</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '13px' }}>Accion</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.map((u, i) => (
-              <tr key={u.id} style={{ backgroundColor: i % 2 === 0 ? '#f8fafc' : 'white', borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '12px 16px', fontWeight: '600', fontSize: '14px' }}>{u.nombre}</td>
-                <td style={{ padding: '12px 16px', fontSize: '14px', color: '#64748b' }}>{u.tipo}</td>
-                <td style={{ padding: '12px 16px', fontSize: '14px', color: '#64748b' }}>{u.provincia}</td>
-                <td style={{ padding: '12px 16px' }}>
-                  <span style={{ backgroundColor: u.estado === 'suspendido' ? '#fee2e2' : '#dcfce7', color: u.estado === 'suspendido' ? '#dc2626' : '#16a34a', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>
-                    {u.estado || 'activo'}
-                  </span>
-                </td>
-                <td style={{ padding: '12px 16px' }}>
-                  {u.estado === 'suspendido' ? (
-                    <button onClick={() => activarUsuario(u.id)} style={{ backgroundColor: '#16a34a', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Activar</button>
+      {/* CONTENIDO DE PESTAÑA: PENDIENTES */}
+      {pestana === 'pendientes' && (
+        <div>
+          <h2 style={{ color: '#0a2463', fontSize: '18px', fontWeight: '800', marginBottom: '16px' }}>Publicaciones en Espera de Moderación</h2>
+          {publicacionesPendientes.length === 0 ? (
+            <p style={{ color: '#64748b', padding: '20px', backgroundColor: '#f8fafc', borderRadius: '12px' }}>No hay publicaciones pendientes de aprobación.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {publicacionesPendientes.map((pub) => (
+                <div key={pub.id} style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px' }}>
+                  {pubEditandoId === pub.id ? (
+                    /* MODO EDICIÓN DE PUBLICACIÓN */
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <h4 style={{ margin: 0, color: '#c1121f' }}>Editar Datos de Publicación</h4>
+                      <input type="text" value={nuevoAnimalPub} onChange={(e) => setNuevoAnimalPub(e.target.value)} placeholder="Tipo de animal (ej. Cerdo)" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                      <input type="number" value={nuevoPrecioPub} onChange={(e) => setNuevoPrecioPub(e.target.value)} placeholder="Precio (RD$)" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                      <input type="number" value={nuevoPesoPub} onChange={(e) => setNuevoPesoPub(e.target.value)} placeholder="Peso (lbs)" style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => guardarCambiosPublicacion(pub.id)} style={{ backgroundColor: '#16a34a', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Guardar</button>
+                        <button onClick={() => setPubEditandoId(null)} style={{ backgroundColor: '#64748b', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer' }}>Cancelar</button>
+                      </div>
+                    </div>
                   ) : (
-                    <button onClick={() => suspenderUsuario(u.id)} style={{ backgroundColor: '#dc2626', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Suspender</button>
+                    /* MODO VISTA DE CONTROL */
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        {pub.foto_url && <img src={pub.foto_url} alt="cerdo" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px' }} />}
+                        <div>
+                          <span style={{ backgroundColor: '#fef9c3', color: '#854d0e', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700' }}>Pendiente</span>
+                          <h3 style={{ margin: '4px 0', fontSize: '18px', fontWeight: '800', color: '#0a2463' }}>{pub.tipo_animal || 'Cerdo'} - <span style={{ color: '#16a34a' }}>RD$ {pub.precio?.toLocaleString()}</span></h3>
+                          <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>Provincia: <strong>{pub.provincia}</strong> — Peso: <strong>{pub.peso} lbs</strong></p>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#475569' }}>{pub.descripcion}</p>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#94a3b8' }}>ID Vendedor: {pub.usuario_id}</p>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => cambiarEstadoPublicacion(pub.id, 'aprobada')} style={{ backgroundColor: '#dcfce7', color: '#16a34a', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>Aprobar</button>
+                        <button onClick={() => cambiarEstadoPublicacion(pub.id, 'rechazada')} style={{ backgroundColor: '#fee2e2', color: '#dc2626', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>Rechazar</button>
+                        <button onClick={() => {
+                          setPubEditandoId(pub.id)
+                          setNuevoAnimalPub(pub.tipo_animal || '')
+                          setNuevoPrecioPub(pub.precio || '')
+                          setNuevoPesoPub(pub.peso || '')
+                        }} style={{ backgroundColor: '#f1f5f9', color: '#475569', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>Editar</button>
+                        <button onClick={() => eliminarPublicacion(pub.id)} style={{ backgroundColor: '#334155', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>Eliminar</button>
+                      </div>
+                    </div>
                   )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {tab === 'reportes' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {reportes.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8', backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>No hay reportes</div>
-          ) : reportes.map((r) => (
-            <div key={r.id} style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontWeight: '700', color: '#0a2463', marginBottom: '4px' }}>Reportado: {r.usuario_reportado?.nombre}</p>
-                <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '4px' }}>Por: {r.reportado_por?.nombre}</p>
-                <p style={{ color: '#64748b', fontSize: '13px' }}>Motivo: {r.motivo}</p>
-                {r.descripcion && <p style={{ color: '#475569', fontSize: '13px', marginTop: '4px' }}>{r.descripcion}</p>}
-              </div>
-              <div>
-                <span style={{ backgroundColor: r.resuelto ? '#dcfce7' : '#fee2e2', color: r.resuelto ? '#16a34a' : '#dc2626', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', display: 'block', marginBottom: '8px', textAlign: 'center' }}>
-                  {r.resuelto ? 'Resuelto' : 'Pendiente'}
-                </span>
-                {!r.resuelto && <button onClick={() => resolverReporte(r.id)} style={{ backgroundColor: '#16a34a', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>Resolver</button>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {tab === 'apoyos' && (
-        <div>
-          <div style={{ backgroundColor: '#dcfce7', border: '1px solid #86efac', borderRadius: '12px', padding: '20px', marginBottom: '20px', textAlign: 'center' }}>
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '4px' }}>Total Recaudado</p>
-            <p style={{ color: '#16a34a', fontSize: '32px', fontWeight: '900' }}>RD$ {totalRecaudado.toLocaleString()}</p>
-            <p style={{ color: '#64748b', fontSize: '13px' }}>{apoyos.length} contribuciones recibidas</p>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {apoyos.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8', backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>No hay apoyos todavia</div>
-            ) : apoyos.map((a) => (
-              <div key={a.id} style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <p style={{ fontWeight: '700', color: '#16a34a', fontSize: '18px', marginBottom: '4px' }}>RD$ {a.monto?.toLocaleString()}</p>
-                  {a.mensaje && <p style={{ color: '#475569', fontSize: '14px' }}>{a.mensaje}</p>}
-                  <p style={{ color: '#94a3b8', fontSize: '12px', marginTop: '4px' }}>{a.created_at?.slice(0, 10)}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {tab === 'precios' && (
-        <div>
-          <h2 style={{ color: '#0a2463', fontWeight: '800', marginBottom: '16px' }}>Editar Precios del Mercado</h2>
-          {editandoPrecio && (
-            <div style={{ backgroundColor: '#e0f2fe', border: '1px solid #7dd3fc', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
-              <h3 style={{ color: '#0a2463', marginBottom: '12px', fontWeight: '700' }}>Editando: {editandoPrecio.provincia}</h3>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', marginBottom: '4px' }}>Precio por Libra (RD$)</label>
-                  <input type="number" value={editandoPrecio.precio_libra} onChange={(e) => setEditandoPrecio({ ...editandoPrecio, precio_libra: e.target.value })}
-                    style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '14px', width: '160px' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', marginBottom: '4px' }}>Precio por Kilo (RD$)</label>
-                  <input type="number" value={editandoPrecio.precio_kilo} onChange={(e) => setEditandoPrecio({ ...editandoPrecio, precio_kilo: e.target.value })}
-                    style={{ padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '14px', width: '160px' }} />
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                <button onClick={guardarPrecio} style={{ backgroundColor: '#16a34a', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }}>Guardar</button>
-                <button onClick={() => setEditandoPrecio(null)} style={{ backgroundColor: '#64748b', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }}>Cancelar</button>
-              </div>
+              ))}
             </div>
           )}
-          <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#0a2463', color: 'white' }}>
-                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '13px' }}>Provincia</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', fontSize: '13px' }}>Precio/Libra</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', fontSize: '13px' }}>Precio/Kilo</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', fontSize: '13px' }}>Fecha</th>
-                <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '13px' }}>Editar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {precios.map((p, i) => (
-                <tr key={p.id} style={{ backgroundColor: i % 2 === 0 ? '#f8fafc' : 'white', borderBottom: '1px solid #e2e8f0' }}>
-                  <td style={{ padding: '12px 16px', fontWeight: '700', color: '#0a2463' }}>{p.provincia}</td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', color: '#16a34a', fontWeight: '700' }}>RD$ {p.precio_libra}</td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', color: '#16a34a', fontWeight: '700' }}>RD$ {p.precio_kilo}</td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', color: '#94a3b8', fontSize: '12px' }}>{p.fecha}</td>
-                  <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                    <button onClick={() => setEditandoPrecio(p)} style={{ backgroundColor: '#0a2463', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>Editar</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       )}
+
+      {/* CONTENIDO DE PESTAÑA: USUARIOS (CON VERIFICACIÓN) */}
+      {pestana === 'usuarios' && (
+        <div>
+          <h2 style={{ color: '#0a2463', fontSize: '18px', fontWeight: '800', marginBottom: '16px' }}>Gestión de Usuarios</h2>
+          <div style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+              <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <tr>
+                  <th style={{ padding: '12px 16px' }}>Nombre</th>
+                  <th style={{ padding: '12px 16px' }}>Provincia</th>
+                  <th style={{ padding: '12px 16px' }}>Tipo</th>
+                  <th style={{ padding: '12px 16px' }}>Estado</th>
+                  <th style={{ padding: '12px 16px' }}>Verificación</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usuarios.map((u) => (
+                  <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '12px 16px', fontWeight: '600' }}>
+                      {u.nombre || 'Sin nombre'}
+                      {u.verificado && <span style={{ color: '#3b82f6', marginLeft: '4px' }} title="Verificado">✓</span>}
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>{u.provincia || 'No especificada'}</td>
+                    <td style={{ padding: '12px 16px', textTransform: 'uppercase', fontSize: '12px' }}>{u.tipo || 'comprador'}</td>
+                    <td style={{ padding: '12px 16px' }}>{u.estado || 'activo'}</td>
+                    <td style={{ padding: '12px 16px' }}>
+                      {u.verificado ? (
+                        <button onClick={() => cambiarVerificacionUsuario(u.id, false)} style={{ backgroundColor: '#fee2e2', color: '#dc2626', border: 'none', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>Quitar Check</button>
+                      ) : (
+                        <button onClick={() => cambiarVerificacionUsuario(u.id, true)} style={{ backgroundColor: '#e0f2fe', color: '#0369a1', border: 'none', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Verificar Vendedor</button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* CONTENIDO DE PESTAÑA: PRECIOS (AGREGAR NUEVOS Y EDITAR EXISTENTES) */}
+      {pestana === 'precios' && (
+        <div>
+          <h2 style={{ color: '#0a2463', fontSize: '18px', fontWeight: '800', marginBottom: '16px' }}>Precios del Mercado de Cerdos</h2>
+          
+          {/* Formulario unificado para Registrar nuevas provincias o actualizar existentes */}
+          <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
+            <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', color: '#c1121f', fontWeight: '700' }}>
+              {provinciaEditando ? `Modificando Precio de: ${provinciaEditando}` : 'Agregar Nueva Provincia o Actualizar Existente'}
+            </h3>
+            <form onSubmit={guardarPrecioProvincia} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              {!provinciaEditando && (
+                <div style={{ flex: 1, minWidth: '180px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Provincia</label>
+                  <input type="text" value={nuevaProvincia} onChange={(e) => setNuevaProvincia(e.target.value)} placeholder="Ej: Monte Cristi" style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                </div>
+              )}
+              <div style={{ width: '140px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Precio/Libra (RD$)</label>
+                <input type="number" value={precioLibra} onChange={(e) => setPrecioLibra(e.target.value)} placeholder="140" style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+              </div>
+              <div style={{ width: '140px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Precio/Kilo (RD$)</label>
+                <input type="number" value={precioKilo} onChange={(e) => setPrecioKilo(e.target.value)} placeholder="308" style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button type="submit" style={{ backgroundColor: '#16a34a', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', fontWeight: '700', cursor: 'pointer' }}>
+                  {provinciaEditando ? 'Actualizar' : 'Registrar Provincia'}
+                </button>
+                {provinciaEditando && (
+                  <button type="button" onClick={() => { setProvinciaEditando(null); setPrecioLibra(''); setPrecioKilo(''); }} style={{ backgroundColor: '#64748b', color: 'white', border: 'none', padding: '10px 14px', borderRadius: '6px', cursor: 'pointer' }}>Cancelar</button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          {/* Tabla de visualización de precios */}
+          <div style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+              <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <tr>
+                  <th style={{ padding: '12px 16px' }}>Provincia</th>
+                  <th style={{ padding: '12px 16px' }}>Precio / Libra</th>
+                  <th style={{ padding: '12px 16px' }}>Precio / Kilo</th>
+                  <th style={{ padding: '12px 16px' }}>Última Actualización</th>
+                  <th style={{ padding: '12px 16px' }}>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {precios.map((p) => (
+                  <tr key={p.provincia} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '12px 16px', fontWeight: '700', color: '#0a2463' }}>{p.provincia}</td>
+                    <td style={{ padding: '12px 16px', color: '#16a34a', fontWeight: '600' }}>RD$ {p.precio_libra}</td>
+                    <td style={{ padding: '12px 16px' }}>RD$ {p.precio_kilo}</td>
+                    <td style={{ padding: '12px 16px', color: '#64748b' }}>{p.fecha_actualizacion || 'Reciente'}</td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <button
+                        onClick={() => {
+                          setProvinciaEditando(p.provincia)
+                          setPrecioLibra(p.precio_libra?.toString() || '')
+                          setPrecioKilo(p.precio_kilo?.toString() || '')
+                        }}
+                        style={{ backgroundColor: '#f1f5f9', color: '#0a2463', border: '1px solid #cbd5e1', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '12px' }}
+                      >
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* CONTENIDO DE PESTAÑA: REPORTES */}
+      {pestana === 'reportes' && (
+        <div>
+          <h2 style={{ color: '#0a2463', fontSize: '18px', fontWeight: '800', marginBottom: '16px' }}>Reportes de Usuarios</h2>
+          {reportes.length === 0 ? (
+            <p style={{ color: '#64748b', padding: '20px', backgroundColor: '#f8fafc', borderRadius: '12px' }}>No hay reportes activos en la plataforma.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {reportes.map((rep) => (
+                <div key={rep.id} style={{ backgroundColor: 'white', border: '1px solid #fee2e2', borderRadius: '12px', padding: '16px' }}>
+                  <p style={{ margin: '0 0 6px 0', fontSize: '14px' }}><strong>Motivo:</strong> {rep.motivo}</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>Reportado por: {rep.reportado_por} → Usuario Infractor: {rep.usuario_reportado}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* CONTENIDO DE PESTAÑA: APOYOS */}
+      {pestana === 'apoyos' && (
+        <div>
+          <h2 style={{ color: '#0a2463', fontSize: '18px', fontWeight: '800', marginBottom: '16px' }}>Contribuciones y Apoyos Económicos</h2>
+          {apoyos.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#f8fafc', borderRadius: '16px' }}>
+              <p style={{ color: '#94a3b8', margin: 0 }}>No se han registrado transacciones de apoyo todavía.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {apoyos.map((apo) => (
+                <div key={apo.id} style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px' }}>
+                  <span style={{ color: '#16a34a', fontWeight: '900' }}>RD$ {apo.monto}</span>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>Usuario ID: {apo.usuario_id} — Fecha: {apo.created_at}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   )
 }
