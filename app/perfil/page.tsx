@@ -7,6 +7,7 @@ import Link from 'next/link'
 export default function Perfil() {
   const [perfil, setPerfil] = useState<any>(null)
   const [publicaciones, setPublicaciones] = useState<any[]>([])
+  const [esAdmin, setEsAdmin] = useState(false)
   const [editando, setEditando] = useState(false)
   const [nombre, setNombre] = useState('')
   const [telefono, setTelefono] = useState('')
@@ -24,14 +25,18 @@ export default function Perfil() {
     setCargando(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { window.location.href = '/login'; return }
+    
     const { data: p } = await supabase.from('perfiles').select('*').eq('id', user.id).single()
     const { data: pubs } = await supabase.from('publicaciones').select('*').eq('usuario_id', user.id).order('created_at', { ascending: false })
+    const { data: admin } = await supabase.from('administradores').select('id').eq('id', user.id).single()
+    
     setPerfil(p)
     setNombre(p?.nombre || '')
     setTelefono(p?.telefono || '')
     setDescripcion(p?.descripcion || '')
     setPrevistaFoto(p?.foto_perfil || null)
     setPublicaciones(pubs || [])
+    setEsAdmin(!!admin)
     setCargando(false)
   }
 
@@ -47,7 +52,6 @@ export default function Perfil() {
     setGuardando(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-
     let fotoUrl = perfil?.foto_perfil || null
     if (fotoPerfil) {
       const ext = fotoPerfil.name.split('.').pop()
@@ -58,7 +62,6 @@ export default function Perfil() {
         fotoUrl = urlData.publicUrl
       }
     }
-
     await supabase.from('perfiles').update({ nombre, telefono, whatsapp: telefono, descripcion, foto_perfil: fotoUrl }).eq('id', user.id)
     setEditando(false)
     cargarPerfil()
@@ -78,31 +81,26 @@ export default function Perfil() {
   if (cargando) return <p style={{ padding: '40px', fontFamily: 'sans-serif' }}>Cargando perfil...</p>
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1 style={{ color: '#0a2463', fontSize: '24px', fontWeight: '900' }}>Mi Perfil</h1>
         <Link href="/" style={{ color: '#0a2463', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Inicio</Link>
       </div>
 
+      {/* Tarjeta de perfil */}
       <div style={{ background: 'linear-gradient(135deg, #0a2463, #1565c0)', borderRadius: '20px', padding: '32px', marginBottom: '24px', color: 'white' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div onClick={() => editando && document.getElementById('inputFotoPerfil')?.click()}
               style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: '900', color: 'white', border: '3px solid rgba(255,255,255,0.4)', overflow: 'hidden', cursor: editando ? 'pointer' : 'default' }}>
-              {previstaFoto ? (
-                <img src={previstaFoto} alt="foto perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                perfil?.nombre?.charAt(0).toUpperCase()
-              )}
+              {previstaFoto ? <img src={previstaFoto} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : perfil?.nombre?.charAt(0).toUpperCase()}
             </div>
             <div>
               <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900' }}>{perfil?.nombre}</h2>
               <p style={{ margin: '4px 0', opacity: 0.8, fontSize: '14px' }}>{perfil?.provincia}</p>
+              {esAdmin && <span style={{ backgroundColor: '#c1121f', color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '700' }}>Administradora</span>}
               <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-                {[1,2,3,4,5].map(n => (
-                  <span key={n} style={{ color: n <= Math.round(perfil?.estrellas || 0) ? '#fbbf24' : 'rgba(255,255,255,0.3)', fontSize: '16px' }}>★</span>
-                ))}
-                <span style={{ opacity: 0.7, fontSize: '13px', marginLeft: '4px' }}>({perfil?.estrellas || 0})</span>
+                {[1,2,3,4,5].map(n => <span key={n} style={{ color: n <= Math.round(perfil?.estrellas || 0) ? '#fbbf24' : 'rgba(255,255,255,0.3)', fontSize: '16px' }}>★</span>)}
               </div>
             </div>
           </div>
@@ -111,7 +109,6 @@ export default function Perfil() {
             {editando ? 'Cancelar' : 'Editar'}
           </button>
         </div>
-
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '24px' }}>
           {[
             { label: 'Publicaciones', valor: publicaciones.length },
@@ -147,12 +144,40 @@ export default function Perfil() {
         </div>
       )}
 
+      {/* Botones de accion */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <Link href="/publicar" style={{ backgroundColor: '#0a2463', color: 'white', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Nueva Publicacion</Link>
-        <Link href="/chat" style={{ backgroundColor: '#f0f4f8', color: '#0a2463', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Mensajes Privados</Link>
+        <Link href="/chat" style={{ backgroundColor: '#f0f4f8', color: '#0a2463', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Mensajes</Link>
+        <Link href="/notificaciones" style={{ backgroundColor: '#f0f4f8', color: '#0a2463', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Notificaciones</Link>
         <Link href="/resena" style={{ backgroundColor: '#f0f4f8', color: '#0a2463', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Dejar Resena</Link>
+        {esAdmin && (
+          <Link href="/admin" style={{ backgroundColor: '#c1121f', color: 'white', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Panel Admin</Link>
+        )}
       </div>
 
+      {/* Panel Admin integrado - solo visible para admins */}
+      {esAdmin && (
+        <div style={{ backgroundColor: '#fef2f2', border: '2px solid #c1121f', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+          <h2 style={{ color: '#c1121f', fontSize: '18px', fontWeight: '800', marginBottom: '16px' }}>Panel de Administracion</h2>
+          <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '16px' }}>Tienes acceso completo al panel. Haz clic para gestionar la plataforma.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+            <Link href="/admin" style={{ backgroundColor: '#0a2463', color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', textAlign: 'center', display: 'block' }}>
+              Publicaciones Pendientes
+            </Link>
+            <Link href="/admin" style={{ backgroundColor: '#0a2463', color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', textAlign: 'center', display: 'block' }}>
+              Gestionar Usuarios
+            </Link>
+            <Link href="/admin" style={{ backgroundColor: '#0a2463', color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', textAlign: 'center', display: 'block' }}>
+              Directorio y Precios
+            </Link>
+            <Link href="/admin" style={{ backgroundColor: '#0a2463', color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', textAlign: 'center', display: 'block' }}>
+              Reportes y Apoyos
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Mis publicaciones */}
       <h2 style={{ color: '#0a2463', marginBottom: '16px', fontWeight: '800' }}>Mis Publicaciones ({publicaciones.length})</h2>
       {publicaciones.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
@@ -169,6 +194,7 @@ export default function Perfil() {
                   <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', marginRight: '8px' }}>{pub.tipo_animal}</span>
                   <span style={{ color: '#16a34a', fontWeight: '900', fontSize: '16px' }}>RD$ {pub.precio?.toLocaleString()}</span>
                   <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>{pub.provincia} — {pub.peso} lbs</p>
+                  <p style={{ color: '#64748b', fontSize: '12px' }}>{pub.descripcion}</p>
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
@@ -179,7 +205,7 @@ export default function Perfil() {
                   {pub.estado === 'aprobada' && (
                     <button onClick={() => marcarVendido(pub.id)}
                       style={{ backgroundColor: '#dcfce7', color: '#16a34a', border: 'none', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>
-                      Marcar Vendido
+                      Vendido
                     </button>
                   )}
                   <button onClick={() => eliminarPublicacion(pub.id)}
