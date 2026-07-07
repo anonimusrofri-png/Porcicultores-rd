@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
@@ -8,106 +7,82 @@ export default function Apoyanos() {
   const [monto, setMonto] = useState('')
   const [mensaje, setMensaje] = useState('')
   const [enviado, setEnviado] = useState(false)
-  const [error, setError] = useState('')
   const [cargando, setCargando] = useState(false)
 
-  const montosSugeridos = [100, 250, 500, 1000, 2500, 5000]
-
-  const handleEnviar = async () => {
-    if (!monto || parseFloat(monto) <= 0) {
-      setError('Por favor ingresa un monto valido')
-      return
-    }
+  const enviarApoyo = async () => {
+    if (!monto) return
     setCargando(true)
-    setError('')
     const { data: { user } } = await supabase.auth.getUser()
-    const { error } = await supabase.from('apoyos').insert({
+    await supabase.from('apoyos').insert({
       usuario_id: user?.id || null,
       monto: parseFloat(monto),
-      mensaje,
+      mensaje
     })
-    if (error) {
-      setError('Error al enviar. Intenta de nuevo.')
-    } else {
-      setEnviado(true)
-    }
+    setEnviado(true)
     setCargando(false)
   }
 
-  if (enviado) return (
-    <div style={{ maxWidth: '500px', margin: '80px auto', padding: '40px', fontFamily: 'sans-serif', textAlign: 'center', border: '1px solid #ddd', borderRadius: '16px', backgroundColor: 'white' }}>
-      <div style={{ fontSize: '48px', marginBottom: '16px' }}>❤️</div>
-      <h2 style={{ color: '#0a2463', marginBottom: '12px', fontWeight: '800' }}>Gracias por tu apoyo</h2>
-      <p style={{ color: '#64748b', marginBottom: '24px', lineHeight: 1.6 }}>Tu contribucion ayuda a mantener y mejorar Porcicultores RD. Gracias por ser parte de esta comunidad.</p>
-      <Link href="/" style={{ backgroundColor: '#0a2463', color: 'white', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600' }}>Volver al inicio</Link>
-    </div>
-  )
-
   return (
-    <div style={{ fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-
-      {/* HERO */}
-      <div style={{ background: 'linear-gradient(135deg, #0a2463 0%, #1565c0 100%)', padding: '60px 32px', textAlign: 'center', color: 'white' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: '900', marginBottom: '12px' }}>Apoya Porcicultores RD</h1>
-        <p style={{ fontSize: '16px', opacity: 0.85, maxWidth: '500px', margin: '0 auto' }}>Porcicultores RD es una plataforma creada para ayudar al sector porcino dominicano. Tu apoyo nos ayuda a seguir creciendo.</p>
+    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h1 style={{ color: '#0a2463', fontSize: '24px', fontWeight: '900', margin: 0 }}>Apoya Porcicultores RD</h1>
+        <Link href="/" style={{ color: '#0a2463', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Inicio</Link>
       </div>
 
-      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '48px 24px' }}>
+      <div style={{ background: 'linear-gradient(135deg, #0a2463, #1565c0)', borderRadius: '20px', padding: '32px', color: 'white', marginBottom: '24px', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: '900', marginBottom: '8px' }}>Tu apoyo mantiene esta plataforma viva</h2>
+        <p style={{ opacity: 0.85, fontSize: '15px', lineHeight: 1.7, margin: 0 }}>Porcicultores RD es una plataforma gratuita para el sector porcino dominicano. Tu contribucion voluntaria nos ayuda a mantener los servidores y seguir mejorando.</p>
+      </div>
 
-        {/* Beneficios */}
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', marginBottom: '24px', border: '1px solid #e2e8f0' }}>
-          <h2 style={{ color: '#0a2463', fontSize: '20px', fontWeight: '800', marginBottom: '20px' }}>Tu apoyo nos ayuda a:</h2>
+      <div style={{ backgroundColor: 'white', border: '2px solid #0a2463', borderRadius: '16px', padding: '28px', marginBottom: '24px' }}>
+        <h3 style={{ color: '#0a2463', fontWeight: '800', marginBottom: '20px', fontSize: '18px' }}>Datos para Transferencia Bancaria</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {[
-            'Mejorar la plataforma constantemente',
-            'Agregar nuevas funciones para el sector',
-            'Mantener el servicio activo y gratuito',
-            'Fortalecer la seguridad y la moderacion',
-            'Expandir el directorio agropecuario',
-          ].map((item) => (
-            <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ width: '24px', height: '24px', backgroundColor: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', fontWeight: '800', fontSize: '14px', flexShrink: 0 }}>✓</div>
-              <span style={{ color: '#475569', fontSize: '15px' }}>{item}</span>
+            { label: 'Banco', valor: 'BHD' },
+            { label: 'Tipo de Cuenta', valor: 'Cuenta de Ahorro' },
+            { label: 'Numero de Cuenta', valor: '40005920019' },
+            { label: 'Titular', valor: 'Noelia Frias' },
+          ].map(item => (
+            <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f8fafc', borderRadius: '10px', padding: '14px 18px' }}>
+              <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '600' }}>{item.label}</span>
+              <span style={{ color: '#0a2463', fontSize: '15px', fontWeight: '800' }}>{item.valor}</span>
             </div>
           ))}
         </div>
+        <div style={{ backgroundColor: '#fef9c3', border: '1px solid #fcd34d', borderRadius: '10px', padding: '14px', marginTop: '16px', fontSize: '13px', color: '#92400e', lineHeight: 1.6 }}>
+          Realiza tu transferencia directamente desde tu app bancaria y luego reportala abajo para que quede registrada.
+        </div>
+      </div>
 
-        {/* Formulario */}
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', border: '1px solid #e2e8f0' }}>
-          <h2 style={{ color: '#0a2463', fontSize: '20px', fontWeight: '800', marginBottom: '20px' }}>Realizar Contribucion Voluntaria</h2>
-
-          <label style={{ display: 'block', marginBottom: '10px', fontWeight: '700', fontSize: '14px' }}>Montos sugeridos (RD$)</label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
-            {montosSugeridos.map((m) => (
-              <button key={m} onClick={() => setMonto(m.toString())}
-                style={{ padding: '10px', borderRadius: '10px', border: '2px solid', borderColor: monto === m.toString() ? '#0a2463' : '#e2e8f0', backgroundColor: monto === m.toString() ? '#0a2463' : 'white', color: monto === m.toString() ? 'white' : '#1e293b', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
-                RD$ {m.toLocaleString()}
+      {enviado ? (
+        <div style={{ backgroundColor: '#dcfce7', border: '1px solid #86efac', borderRadius: '16px', padding: '40px', textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🐖</div>
+          <h3 style={{ color: '#16a34a', fontWeight: '800', marginBottom: '8px' }}>Gracias por tu apoyo</h3>
+          <p style={{ color: '#64748b', marginBottom: '24px' }}>Tu contribucion ha sido registrada. Porcicultores RD te lo agradece.</p>
+          <Link href="/" style={{ display: 'inline-block', backgroundColor: '#0a2463', color: 'white', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700' }}>Volver al Inicio</Link>
+        </div>
+      ) : (
+        <div style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px' }}>
+          <h3 style={{ color: '#0a2463', fontWeight: '800', marginBottom: '16px' }}>Reportar mi Transferencia</h3>
+          <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '16px' }}>Una vez realizada la transferencia, ingresa el monto aqui para que quede registrado.</p>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+            {['200', '500', '1000', '2000', '5000'].map(m => (
+              <button key={m} onClick={() => setMonto(m)}
+                style={{ backgroundColor: monto === m ? '#0a2463' : '#f0f4f8', color: monto === m ? 'white' : '#0a2463', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
+                RD$ {m}
               </button>
             ))}
           </div>
-
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '14px' }}>Otro monto (RD$)</label>
-          <input type="number" placeholder="Ingresa el monto que deseas aportar" value={monto} onChange={(e) => setMonto(e.target.value)}
+          <input type="number" placeholder="O escribe otro monto en RD$" value={monto} onChange={(e) => setMonto(e.target.value)}
+            style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
+          <textarea placeholder="Mensaje opcional..." value={mensaje} onChange={(e) => setMensaje(e.target.value)} rows={3}
             style={{ width: '100%', padding: '12px', marginBottom: '16px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
-
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '700', fontSize: '14px' }}>Mensaje o sugerencia (opcional)</label>
-          <textarea placeholder="Dejanos tu mensaje o sugerencia de mejora..." value={mensaje} onChange={(e) => setMensaje(e.target.value)}
-            rows={3}
-            style={{ width: '100%', padding: '12px', marginBottom: '20px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
-
-          {error && <p style={{ color: '#dc2626', marginBottom: '12px', fontSize: '14px' }}>{error}</p>}
-
-          <button onClick={handleEnviar} disabled={cargando}
-            style={{ width: '100%', padding: '14px', backgroundColor: '#c1121f', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '16px', fontWeight: '700' }}>
-            {cargando ? 'Enviando...' : 'Enviar Apoyo'}
+          <button onClick={enviarApoyo} disabled={cargando || !monto}
+            style={{ width: '100%', padding: '14px', backgroundColor: '#16a34a', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '16px', fontWeight: '700' }}>
+            {cargando ? 'Registrando...' : 'Registrar mi Apoyo'}
           </button>
-
-          <p style={{ color: '#94a3b8', fontSize: '12px', textAlign: 'center', marginTop: '12px' }}>Las contribuciones son completamente voluntarias. Cualquier monto es bienvenido.</p>
         </div>
-
-        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <Link href="/" style={{ color: '#0a2463', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Volver al inicio</Link>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
