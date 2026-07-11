@@ -6,6 +6,7 @@ import Link from 'next/link'
 export default function Perfil() {
   const [perfil, setPerfil] = useState<any>(null)
   const [publicaciones, setPublicaciones] = useState<any[]>([])
+  const [ventas, setVentas] = useState(0)
   const [esAdmin, setEsAdmin] = useState(false)
   const [editando, setEditando] = useState(false)
   const [nombre, setNombre] = useState('')
@@ -40,6 +41,7 @@ export default function Perfil() {
     setDescripcion(p?.descripcion || '')
     setPrevistaFoto(p?.foto_perfil || null)
     setPublicaciones(pubs || [])
+    setVentas(pubs?.filter((pub: any) => pub.estado === 'vendida').length || 0)
     if (p?.es_admin === true || p?.tipo === 'admin') {
       setEsAdmin(true)
       await cargarDatosAdmin()
@@ -73,7 +75,7 @@ export default function Perfil() {
 
   const cambiarEstadoPub = async (id: string, estado: string) => {
     const { error } = await supabase.from('publicaciones').update({ estado, activo: estado === 'aprobada' }).eq('id', id)
-    if (error) { alert('Error al actualizar: ' + error.message); return }
+    if (error) { alert('Error: ' + error.message); return }
     await cargarDatosAdmin()
   }
 
@@ -121,7 +123,7 @@ export default function Perfil() {
   }
 
   const eliminarNegocio = async (id: string) => {
-    if (!confirm('¿Eliminar este negocio del directorio?')) return
+    if (!confirm('¿Eliminar este negocio?')) return
     await supabase.from('directorio').delete().eq('id', id)
     cargarDatosAdmin()
   }
@@ -186,8 +188,9 @@ export default function Perfil() {
             </div>
             <div>
               <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: '700' }}>{perfil?.nombre}</h2>
-              <p style={{ margin: '0 0 6px 0', opacity: 0.8, fontSize: '13px' }}>📍 {perfil?.provincia}</p>
+              <p style={{ margin: '0 0 6px 0', opacity: 0.8, fontSize: '13px' }}>📍 {perfil?.provincia}, RD</p>
               {esAdmin && <span style={{ backgroundColor: '#EF4444', color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700' }}>⚙️ Administrador</span>}
+              {perfil?.verificado && !esAdmin && <span style={{ backgroundColor: '#10B981', color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700' }}>✅ Verificado</span>}
               <div style={{ display: 'flex', gap: '2px', marginTop: '6px' }}>
                 {[1,2,3,4,5].map(n => <span key={n} style={{ color: n <= Math.round(perfil?.estrellas || 0) ? '#F59E0B' : 'rgba(255,255,255,0.3)', fontSize: '16px' }}>★</span>)}
               </div>
@@ -198,11 +201,13 @@ export default function Perfil() {
             {editando ? 'Cancelar' : 'Editar'}
           </button>
         </div>
+
+        {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '24px' }}>
           {[
-            { label: 'Publicaciones', valor: publicaciones.length },
+            { label: 'Publicaciones', valor: publicaciones.filter(p => p.estado !== 'vendida').length },
+            { label: 'Ventas', valor: ventas },
             { label: 'Tipo', valor: esAdmin ? 'Admin' : (perfil?.tipo || 'usuario') },
-            { label: 'Estado', valor: perfil?.estado || 'activo' },
           ].map(s => (
             <div key={s.label} style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
               <div style={{ fontSize: '20px', fontWeight: '700', textTransform: 'capitalize' }}>{s.valor}</div>
@@ -212,9 +217,56 @@ export default function Perfil() {
         </div>
       </div>
 
+      {/* Mi Actividad */}
+      <div style={{ backgroundColor: 'white', borderRadius: '16px', marginBottom: '16px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #F3F4F6' }}>
+          <h3 style={{ color: '#111827', fontWeight: '600', fontSize: '15px', margin: 0 }}>Mi Actividad</h3>
+        </div>
+        {[
+          { href: '/publicar', icon: '📋', label: 'Mis Publicaciones', desc: 'Gestiona tus animales en venta' },
+          { href: '/chat', icon: '💬', label: 'Mensajes Privados', desc: 'Conversaciones con otros usuarios' },
+          { href: '/notificaciones', icon: '🔔', label: 'Notificaciones', desc: 'Alertas y actualizaciones' },
+        ].map((item, i, arr) => (
+          <Link key={item.href} href={item.href} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', textDecoration: 'none', borderBottom: i < arr.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>{item.icon}</div>
+              <div>
+                <p style={{ color: '#111827', fontWeight: '500', fontSize: '14px', margin: 0 }}>{item.label}</p>
+                <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>{item.desc}</p>
+              </div>
+            </div>
+            <span style={{ color: '#9CA3AF', fontSize: '18px' }}>›</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Configuración */}
+      <div style={{ backgroundColor: 'white', borderRadius: '16px', marginBottom: '16px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #F3F4F6' }}>
+          <h3 style={{ color: '#111827', fontWeight: '600', fontSize: '15px', margin: 0 }}>Configuración</h3>
+        </div>
+        {[
+          { href: '#', icon: '✏️', label: 'Editar Perfil', desc: 'Actualiza tu información', color: '#EFF6FF', onClick: () => setEditando(true) },
+          { href: '/resena', icon: '⭐', label: 'Dejar Reseña', desc: 'Califica a otro usuario', color: '#FFFBEB', onClick: null },
+          { href: '/reportar', icon: '⚠️', label: 'Reportar una Estafa', desc: 'Ayuda a mantener la comunidad segura', color: '#FFF7ED', onClick: null },
+        ].map((item, i, arr) => (
+          <Link key={item.label} href={item.href} onClick={item.onClick || undefined}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', textDecoration: 'none', borderBottom: i < arr.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>{item.icon}</div>
+              <div>
+                <p style={{ color: '#111827', fontWeight: '500', fontSize: '14px', margin: 0 }}>{item.label}</p>
+                <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>{item.desc}</p>
+              </div>
+            </div>
+            <span style={{ color: '#9CA3AF', fontSize: '18px' }}>›</span>
+          </Link>
+        ))}
+      </div>
+
       {/* Editar perfil */}
       {editando && (
-        <div style={{ backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '16px', padding: '24px', marginBottom: '20px' }}>
+        <div style={{ backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '16px', padding: '24px', marginBottom: '16px' }}>
           <h3 style={{ color: '#1A3C5E', marginBottom: '16px', fontWeight: '700' }}>Editar Perfil</h3>
           <input id="inputFotoPerfil" type="file" accept="image/*" onChange={handleFoto} style={{ display: 'none' }} />
           <button onClick={() => document.getElementById('inputFotoPerfil')?.click()}
@@ -237,29 +289,13 @@ export default function Perfil() {
         </div>
       )}
 
-      {/* Botones de acción */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {[
-          { href: '/publicar', label: '+ Nueva Publicación', bg: '#1A3C5E', color: 'white' },
-          { href: '/chat', label: '💬 Mensajes', bg: 'white', color: '#1A3C5E' },
-          { href: '/notificaciones', label: '🔔 Notificaciones', bg: 'white', color: '#1A3C5E' },
-          { href: '/resena', label: '⭐ Dejar Reseña', bg: 'white', color: '#1A3C5E' },
-        ].map(b => (
-          <Link key={b.href} href={b.href} style={{ backgroundColor: b.bg, color: b.color, padding: '10px 20px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '14px', border: b.bg === 'white' ? '1px solid #E5E7EB' : 'none' }}>
-            {b.label}
-          </Link>
-        ))}
-      </div>
-
-      {/* Panel Admin — solo si es admin */}
+      {/* Panel Admin */}
       {esAdmin && (
         <div style={{ backgroundColor: 'white', borderRadius: '20px', padding: '24px', marginBottom: '24px', border: '1px solid #E5E7EB' }}>
           <div style={{ marginBottom: '20px' }}>
-            <h2 style={{ color: '#1A3C5E', fontSize: '22px', fontWeight: '700', margin: '0 0 4px 0' }}>⚙️ Panel de Administración</h2>
+            <h2 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: '0 0 4px 0' }}>⚙️ Panel de Administración</h2>
             <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>Moderación y control de la plataforma</p>
           </div>
-
-          {/* Stats */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', marginBottom: '20px' }}>
             {[
               { label: 'Pendientes', valor: stats.pendientes, bg: '#FEF3C7', color: '#D97706' },
@@ -274,8 +310,6 @@ export default function Perfil() {
               </div>
             ))}
           </div>
-
-          {/* Tabs */}
           <div style={{ display: 'flex', gap: '6px', marginBottom: '20px', flexWrap: 'wrap' }}>
             {[
               { id: 'pendientes', label: `📋 Pendientes (${stats.pendientes})` },
@@ -291,7 +325,6 @@ export default function Perfil() {
             ))}
           </div>
 
-          {/* Tab: Pendientes */}
           {tabActiva === 'pendientes' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {adminPublicaciones.length === 0 ? (
@@ -316,15 +349,14 @@ export default function Perfil() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '110px' }}>
                     <button onClick={() => cambiarEstadoPub(pub.id, 'aprobada')} style={{ backgroundColor: '#10B981', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>✓ Aprobar</button>
                     <button onClick={() => cambiarEstadoPub(pub.id, 'rechazada')} style={{ backgroundColor: '#F59E0B', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>✕ Rechazar</button>
-                    <button onClick={() => eliminarPub(pub.id)} style={{ backgroundColor: '#EF4444', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>🗑 Eliminar</button>
                     <button onClick={() => cambiarEstadoPub(pub.id, 'vendida')} style={{ backgroundColor: '#6366F1', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>Vendida</button>
+                    <button onClick={() => eliminarPub(pub.id)} style={{ backgroundColor: '#EF4444', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>🗑 Eliminar</button>
                   </div>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Tab: Usuarios */}
           {tabActiva === 'usuarios' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {adminUsuarios.map((u) => (
@@ -354,7 +386,6 @@ export default function Perfil() {
             </div>
           )}
 
-          {/* Tab: Directorio */}
           {tabActiva === 'directorio' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {adminDirectorio.length === 0 ? (
@@ -371,7 +402,6 @@ export default function Perfil() {
             </div>
           )}
 
-          {/* Tab: Reportes */}
           {tabActiva === 'reportes' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {adminReportes.length === 0 ? (
@@ -391,7 +421,6 @@ export default function Perfil() {
             </div>
           )}
 
-          {/* Tab: Precios */}
           {tabActiva === 'precios' && (
             <div>
               {editandoPrecio && (
@@ -399,12 +428,12 @@ export default function Perfil() {
                   <h3 style={{ color: '#1A3C5E', margin: '0 0 12px 0', fontWeight: '700' }}>Editando: {editandoPrecio.provincia}</h3>
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '4px', color: '#374151' }}>Precio/Libra (RD$)</label>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>Precio/Libra (RD$)</label>
                       <input type="number" value={nuevoPrecioLibra} onChange={(e) => setNuevoPrecioLibra(e.target.value)}
                         style={{ padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', width: '150px' }} />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '4px', color: '#374151' }}>Precio/Kilo (RD$)</label>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>Precio/Kilo (RD$)</label>
                       <input type="number" value={nuevoPrecioKilo} onChange={(e) => setNuevoPrecioKilo(e.target.value)}
                         style={{ padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', width: '150px' }} />
                     </div>
@@ -455,7 +484,10 @@ export default function Perfil() {
           {publicaciones.map((pub) => (
             <div key={pub.id} style={{ backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '16px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                {pub.foto_url && <img src={pub.foto_url} alt="foto" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '10px', flexShrink: 0 }} />}
+                {pub.foto_url
+                  ? <img src={pub.foto_url} alt="foto" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '10px', flexShrink: 0 }} />
+                  : <div style={{ width: '60px', height: '60px', borderRadius: '10px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', flexShrink: 0 }}>🐷</div>
+                }
                 <div>
                   <span style={{ backgroundColor: '#DBEAFE', color: '#1D4ED8', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', marginRight: '8px' }}>{pub.tipo_animal}</span>
                   <span style={{ color: '#1D4ED8', fontWeight: '700', fontSize: '16px' }}>RD$ {pub.precio?.toLocaleString()}</span>
@@ -482,7 +514,7 @@ export default function Perfil() {
       {/* Aviso seguridad */}
       <div style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '16px', marginTop: '24px' }}>
         <p style={{ color: '#374151', fontSize: '13px', margin: 0, lineHeight: 1.6 }}>
-          ℹ️ <strong>Aviso de Seguridad:</strong> Porcicultores RD no se hace responsable de tratos realizados fuera de la plataforma. Verifica siempre la identidad del comprador o vendedor antes de hacer una transacción.
+          ℹ️ <strong>Aviso de Seguridad:</strong> Porcicultores RD no se hace responsable de tratos realizados fuera de la plataforma. Verifica siempre la identidad antes de hacer una transacción.
         </p>
       </div>
 
