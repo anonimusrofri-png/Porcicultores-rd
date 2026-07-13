@@ -49,7 +49,6 @@ export default function Transportistas() {
   return (
     <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px', fontFamily: "'Inter', sans-serif", backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
 
-      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
           <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: '0 0 2px 0' }}>Transportistas</h1>
@@ -58,18 +57,15 @@ export default function Transportistas() {
         <Link href="/" style={{ color: '#2563A8', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>← Inicio</Link>
       </div>
 
-      {/* Búsqueda */}
       <input placeholder="🔍 Buscar por nombre o provincia..." value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
         style={{ width: '100%', padding: '12px 14px', borderRadius: '12px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: 'white', boxSizing: 'border-box', marginBottom: '12px', outline: 'none' }} />
 
-      {/* Filtro provincia */}
       <select value={provincia} onChange={(e) => setProvincia(e.target.value)}
         style={{ width: '100%', padding: '11px 14px', marginBottom: '16px', borderRadius: '12px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: 'white', boxSizing: 'border-box' }}>
         {provincias.map(p => <option key={p} value={p}>{p}</option>)}
       </select>
 
-      {/* Banner bioseguridad */}
       <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '14px 16px', marginBottom: '16px', borderLeft: '4px solid #3B82F6', border: '1px solid #E5E7EB', borderLeftWidth: '4px', borderLeftColor: '#3B82F6' }}>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
           <span style={{ fontSize: '18px', flexShrink: 0 }}>🛡️</span>
@@ -79,13 +75,13 @@ export default function Transportistas() {
         </div>
       </div>
 
-      {/* Lista */}
       {cargando ? (
         <p style={{ textAlign: 'center', color: '#6B7280', padding: '40px' }}>Cargando transportistas...</p>
       ) : transportistasFiltrados.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
           <div style={{ fontSize: '40px', marginBottom: '12px' }}>🚛</div>
           <p style={{ color: '#9CA3AF', fontWeight: '600', fontSize: '14px' }}>No hay transportistas en esta provincia</p>
+          <p style={{ color: '#6B7280', fontSize: '13px', marginTop: '8px' }}>¿Eres transportista? Usa el botón de abajo para registrarte.</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '80px' }}>
@@ -107,16 +103,10 @@ export default function Transportistas() {
                   </div>
                 </div>
               </div>
-
-              {/* Separador */}
               <div style={{ borderTop: '1px solid #F3F4F6', paddingTop: '12px', marginBottom: '12px' }}>
-                {t.descripcion && (
-                  <p style={{ color: '#374151', fontSize: '13px', margin: '0 0 8px 0', lineHeight: 1.5 }}>🚛 {t.descripcion}</p>
-                )}
+                {t.descripcion && <p style={{ color: '#374151', fontSize: '13px', margin: '0 0 6px 0', lineHeight: 1.5 }}>🚛 {t.descripcion}</p>}
                 <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>🔄 Transportista registrado en Porcicultores RD</p>
               </div>
-
-              {/* Botones */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 <Link href={`/chat?usuario=${t.id}`}
                   style={{ backgroundColor: 'white', color: '#374151', border: '1px solid #E5E7EB', padding: '10px', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
@@ -134,13 +124,13 @@ export default function Transportistas() {
         </div>
       )}
 
-      {/* FAB — Ser Transportista */}
+      {/* FAB */}
       <button onClick={() => setMostrarModal(true)}
-        style={{ position: 'fixed', bottom: '24px', right: '24px', backgroundColor: '#1A3C5E', color: 'white', border: 'none', padding: '14px 20px', borderRadius: '24px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', boxShadow: '0 4px 20px rgba(26,60,94,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', gap: '8px' }}>
+        style={{ position: 'fixed', bottom: '24px', right: '24px', backgroundColor: '#1A3C5E', color: 'white', border: 'none', padding: '14px 20px', borderRadius: '24px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', boxShadow: '0 4px 20px rgba(26,60,94,0.4)', zIndex: 50 }}>
         🚛 + Ser Transportista
       </button>
 
-      {/* Modal inscripción */}
+      {/* Modal */}
       {mostrarModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
           onClick={(e) => { if (e.target === e.currentTarget) setMostrarModal(false) }}>
@@ -157,12 +147,11 @@ export default function Transportistas() {
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                   <h3 style={{ color: '#1A3C5E', fontWeight: '700', fontSize: '18px', margin: 0 }}>🚛 Ser Transportista</h3>
                   <button onClick={() => setMostrarModal(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#6B7280' }}>✕</button>
                 </div>
-                <p style={{ color: '#6B7280', fontSize: '13px', margin: '0 0 20px 0' }}>Completa el formulario y el administrador verificará tu perfil.</p>
-
+                <p style={{ color: '#6B7280', fontSize: '13px', margin: '0 0 16px 0' }}>Completa el formulario y el administrador verificará tu perfil.</p>
                 {[
                   { label: 'Nombre completo *', key: 'nombre', type: 'text', placeholder: 'Tu nombre o empresa' },
                   { label: 'Teléfono', key: 'telefono', type: 'tel', placeholder: '809-000-0000' },
@@ -177,7 +166,6 @@ export default function Transportistas() {
                       style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: '#F9FAFB', boxSizing: 'border-box', outline: 'none' }} />
                   </div>
                 ))}
-
                 <div style={{ marginBottom: '12px' }}>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>Provincia *</label>
                   <select value={form.provincia} onChange={(e) => setForm({ ...form, provincia: e.target.value })}
@@ -186,14 +174,12 @@ export default function Transportistas() {
                     {provincias.filter(p => p !== 'Todas').map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
-
                 <div style={{ marginBottom: '20px' }}>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>Descripción del servicio</label>
                   <textarea placeholder="Describe tu servicio, tipo de camión, rutas, etc." value={form.descripcion}
                     onChange={(e) => setForm({ ...form, descripcion: e.target.value })} rows={3}
                     style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: '#F9FAFB', boxSizing: 'border-box', resize: 'vertical', outline: 'none' }} />
                 </div>
-
                 <button onClick={enviarSolicitud} disabled={enviando || !form.nombre || !form.provincia || !form.whatsapp}
                   style={{ width: '100%', padding: '14px', background: enviando ? '#93C5FD' : 'linear-gradient(135deg, #1A3C5E, #2563A8)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '15px' }}>
                   {enviando ? '⏳ Enviando...' : '✓ Enviar Solicitud'}
