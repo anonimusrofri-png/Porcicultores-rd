@@ -1,94 +1,41 @@
+﻿'use client'
 import Link from 'next/link'
 
 export default function QuienesSomos() {
   return (
-    <div style={{ fontFamily: 'sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      <nav style={{ backgroundColor: '#0a2463', padding: '0 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '64px' }}>
-        <Link href="/" style={{ color: 'white', fontWeight: '800', fontSize: '18px', textDecoration: 'none' }}>Porcicultores RD</Link>
-        <Link href="/" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', textDecoration: 'none' }}>Volver al inicio</Link>
-      </nav>
-
-      <div style={{ background: 'linear-gradient(135deg, #0a2463 0%, #1565c0 100%)', padding: '60px 32px', textAlign: 'center', color: 'white' }}>
-        <h1 style={{ fontSize: '40px', fontWeight: '900', marginBottom: '16px' }}>¿Quienes Somos?</h1>
-        <p style={{ fontSize: '18px', opacity: 0.85, maxWidth: '600px', margin: '0 auto' }}>Conectamos — Informamos — Hacemos Crecer</p>
+    <div style={{ maxWidth: '680px', margin: '0 auto', padding: '20px', fontFamily: 'Inter, sans-serif', backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div>
+          <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: '0 0 2px 0' }}>\uD83D\uDC37 Qui\u00e9nes Somos</h1>
+          <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>Conoce Porcicultores RD</p>
+        </div>
+        <Link href="/" style={{ color: '#2563A8', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>\u2190 Inicio</Link>
       </div>
-
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '48px 24px' }}>
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '32px', marginBottom: '24px', border: '1px solid #e2e8f0' }}>
-          <h2 style={{ color: '#0a2463', fontSize: '22px', fontWeight: '800', marginBottom: '16px' }}>Como nacio Porcicultores RD</h2>
-          <p style={{ color: '#475569', lineHeight: 1.8, fontSize: '15px', marginBottom: '12px' }}>Porcicultores RD nacio de la necesidad real de conectar al sector porcino dominicano de manera organizada, segura y profesional. Durante anos, productores, compradores y proveedores de servicios del sector porcino en Republica Dominicana no contaban con una plataforma especializada donde pudieran encontrarse y hacer negocios de forma confiable.</p>
-          <p style={{ color: '#475569', lineHeight: 1.8, fontSize: '15px' }}>Viendo esta necesidad, nacio la idea de crear una plataforma 100% dominicana, enfocada exclusivamente en el sector porcino, donde cada usuario pueda comprar, vender, encontrar servicios y mantenerse informado sobre los precios del mercado en cada provincia del pais.</p>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ backgroundColor: '#0a2463', borderRadius: '16px', padding: '28px', color: 'white' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '12px' }}>Nuestra Mision</h3>
-            <p style={{ opacity: 0.85, lineHeight: 1.7, fontSize: '14px' }}>Facilitar la conexion entre compradores, vendedores, productores y proveedores de servicios del sector porcino dominicano, ofreciendo una plataforma segura, organizada y de facil acceso para todos.</p>
-          </div>
-          <div style={{ backgroundColor: '#c1121f', borderRadius: '16px', padding: '28px', color: 'white' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '12px' }}>Nuestra Vision</h3>
-            <p style={{ opacity: 0.85, lineHeight: 1.7, fontSize: '14px' }}>Convertirnos en el principal punto de encuentro digital del sector porcino de Republica Dominicana, contribuyendo al crecimiento y desarrollo del sector agropecuario nacional.</p>
-          </div>
-        </div>
-
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '32px', marginBottom: '24px', border: '1px solid #e2e8f0' }}>
-          <h2 style={{ color: '#0a2463', fontSize: '22px', fontWeight: '800', marginBottom: '20px' }}>Nuestros Valores</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            {[
-              { titulo: 'Transparencia', desc: 'Operamos con total honestidad y claridad en cada proceso de la plataforma.' },
-              { titulo: 'Seguridad', desc: 'Protegemos a nuestra comunidad con moderacion activa y sistema de reportes.' },
-              { titulo: 'Confianza', desc: 'Construimos relaciones solidas entre usuarios a traves de la reputacion y verificacion.' },
-              { titulo: 'Accesibilidad', desc: 'Diseno simple y claro para que cualquier persona pueda usar la plataforma facilmente.' },
-            ].map((v) => (
-              <div key={v.titulo} style={{ backgroundColor: '#f0f4f8', borderRadius: '12px', padding: '20px' }}>
-                <h4 style={{ color: '#0a2463', fontWeight: '800', marginBottom: '8px' }}>{v.titulo}</h4>
-                <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6 }}>{v.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '16px', padding: '32px', marginBottom: '24px' }}>
-          <h2 style={{ color: '#dc2626', fontSize: '22px', fontWeight: '800', marginBottom: '16px' }}>Politica Anti-Fraude</h2>
-          <p style={{ color: '#475569', lineHeight: 1.8, fontSize: '15px', marginBottom: '12px' }}>Porcicultores RD tiene tolerancia cero con el fraude, las estafas y los perfiles falsos. Toda publicacion pasa por revision administrativa antes de ser visible.</p>
-          <ul style={{ color: '#475569', lineHeight: 2, fontSize: '14px', paddingLeft: '20px' }}>
-            <li>Toda publicacion es revisada antes de publicarse.</li>
-            <li>Los perfiles falsos son eliminados inmediatamente.</li>
-            <li>Los usuarios reportados son investigados por el administrador.</li>
-            <li>Las cuentas involucradas en estafas son suspendidas permanentemente.</li>
-          </ul>
-        </div>
-
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '32px', marginBottom: '24px', border: '1px solid #e2e8f0' }}>
-          <h2 style={{ color: '#0a2463', fontSize: '22px', fontWeight: '800', marginBottom: '16px' }}>Terminos y Condiciones</h2>
-          <ul style={{ color: '#475569', lineHeight: 2, fontSize: '14px', paddingLeft: '20px' }}>
-            <li>Debes proporcionar informacion veridica al registrarte.</li>
-            <li>No puedes publicar animales o servicios falsos o inexistentes.</li>
-            <li>Eres responsable de las transacciones que realices con otros usuarios.</li>
-            <li>Porcicultores RD no participa en las negociaciones entre usuarios.</li>
-            <li>El incumplimiento puede resultar en la suspension de tu cuenta.</li>
-          </ul>
-        </div>
-
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '32px', marginBottom: '24px', border: '1px solid #e2e8f0' }}>
-          <h2 style={{ color: '#0a2463', fontSize: '22px', fontWeight: '800', marginBottom: '16px' }}>Politica de Privacidad</h2>
-          <ul style={{ color: '#475569', lineHeight: 2, fontSize: '14px', paddingLeft: '20px' }}>
-            <li>Tu informacion personal no es vendida ni compartida con terceros.</li>
-            <li>Solo usamos tus datos para mejorar tu experiencia en la plataforma.</li>
-            <li>Tu numero de telefono solo es visible si decides mostrarlo publicamente.</li>
-            <li>Puedes solicitar la eliminacion de tu cuenta en cualquier momento.</li>
-          </ul>
-        </div>
-
-        <div style={{ backgroundColor: '#fef9c3', border: '1px solid #fcd34d', borderRadius: '16px', padding: '24px', textAlign: 'center' }}>
-          <p style={{ color: '#92400e', lineHeight: 1.8, fontSize: '14px', fontWeight: '500' }}>Porcicultores RD es una plataforma de contacto entre compradores, vendedores y proveedores de servicios. No participa en las negociaciones ni garantiza las transacciones realizadas entre usuarios. Cada usuario es responsable de verificar la informacion antes de realizar cualquier acuerdo.</p>
-        </div>
+      <div style={{ background: 'linear-gradient(135deg, #1A3C5E, #2563A8)', borderRadius: '16px', padding: '28px', marginBottom: '16px', color: 'white', textAlign: 'center' }}>
+        <div style={{ fontSize: '48px', marginBottom: '12px' }}>\uD83D\uDC37</div>
+        <h2 style={{ fontWeight: '700', fontSize: '22px', margin: '0 0 8px 0' }}>Porcicultores RD</h2>
+        <p style={{ opacity: 0.85, fontSize: '14px', lineHeight: 1.7, margin: 0 }}>La plataforma digital del sector porcino dominicano. Conectamos compradores, vendedores, productores y servicios en toda la Rep\u00fablica Dominicana.</p>
       </div>
-
-      <footer style={{ backgroundColor: '#0a2463', color: '#94a3b8', padding: '32px', textAlign: 'center', marginTop: '40px' }}>
-        <p style={{ fontSize: '13px', marginBottom: '8px' }}>Porcicultores RD no se hace responsable de estafas o negocios mal realizados entre usuarios.</p>
-        <p style={{ fontSize: '13px' }}>2026 Porcicultores RD - Republica Dominicana</p>
-      </footer>
+      {[
+        { icon: '\uD83C\uDFAF', titulo: 'Nuestra Misi\u00f3n', texto: 'Facilitar el comercio y la comunicaci\u00f3n del sector porcino dominicano a trav\u00e9s de una plataforma segura, moderna y accesible para todos.' },
+        { icon: '\uD83D\uDC40', titulo: 'Nuestra Visi\u00f3n', texto: 'Ser la plataforma de referencia del sector porcino en Rep\u00fablica Dominicana, promoviendo el desarrollo y la profesionalizaci\u00f3n del sector.' },
+        { icon: '\uD83E\uDD1D', titulo: '\u00bfA qui\u00e9n servimos?', texto: 'Compradores, vendedores, consumidores, transportistas, veterinarias, farmacias veterinarias y todos los actores del sector porcino dominicano.' },
+        { icon: '\uD83D\uDEE1\uFE0F', titulo: 'Seguridad y Confianza', texto: 'Contamos con sistema de reputaci\u00f3n por estrellas, moderaci\u00f3n de publicaciones y sistema de reportes para mantener una comunidad segura.' },
+      ].map(s => (
+        <div key={s.titulo} style={{ backgroundColor: 'white', borderRadius: '14px', padding: '20px', marginBottom: '12px', border: '1px solid #E5E7EB', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+          <span style={{ fontSize: '28px', flexShrink: 0 }}>{s.icon}</span>
+          <div>
+            <h3 style={{ color: '#1A3C5E', fontWeight: '700', fontSize: '15px', margin: '0 0 6px 0' }}>{s.titulo}</h3>
+            <p style={{ color: '#6B7280', fontSize: '13px', margin: 0, lineHeight: 1.7 }}>{s.texto}</p>
+          </div>
+        </div>
+      ))}
+      <div style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '14px', padding: '20px', textAlign: 'center' }}>
+        <p style={{ color: '#374151', fontSize: '13px', margin: '0 0 14px 0', lineHeight: 1.7 }}>
+          \u00bfTienes preguntas o sugerencias? Contactanos directamente.
+        </p>
+        <Link href="/terminos/contacto" style={{ backgroundColor: '#1A3C5E', color: 'white', padding: '10px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px' }}>Contactar</Link>
+      </div>
     </div>
   )
 }

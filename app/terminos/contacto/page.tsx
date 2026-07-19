@@ -1,39 +1,36 @@
-'use client'
-import { useState } from 'react'
+﻿'use client'
 import Link from 'next/link'
 
 export default function Contacto() {
-  const [nombre, setNombre] = useState('')
-  const [email, setEmail] = useState('')
-  const [mensaje, setMensaje] = useState('')
-  const [enviado, setEnviado] = useState(false)
-
-  const enviar = () => {
-    if (!nombre || !email || !mensaje) return
-    setEnviado(true)
-  }
-
   return (
-    <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ color: '#0a2463', fontSize: '24px', fontWeight: '900', margin: 0 }}>Contactanos</h1>
-        <Link href="/" style={{ color: '#0a2463', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Inicio</Link>
+    <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px', fontFamily: 'Inter, sans-serif', backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: 0 }}>\uD83D\uDCDE Cont\u00e1ctanos</h1>
+        <Link href="/" style={{ color: '#2563A8', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>\u2190 Inicio</Link>
       </div>
-      {enviado ? (
-        <div style={{ backgroundColor: '#dcfce7', border: '1px solid #86efac', borderRadius: '16px', padding: '40px', textAlign: 'center' }}>
-          <h2 style={{ color: '#16a34a', marginBottom: '12px' }}>Mensaje enviado</h2>
-          <p style={{ color: '#64748b', marginBottom: '24px' }}>El administrador recibira tu mensaje y te respondera pronto.</p>
-          <Link href="/" style={{ backgroundColor: '#0a2463', color: 'white', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700' }}>Volver al Inicio</Link>
+      <div style={{ background: 'linear-gradient(135deg, #1A3C5E, #2563A8)', borderRadius: '16px', padding: '24px', marginBottom: '16px', color: 'white', textAlign: 'center' }}>
+        <div style={{ fontSize: '40px', marginBottom: '10px' }}>\uD83D\uDC37</div>
+        <h2 style={{ fontWeight: '700', fontSize: '18px', margin: '0 0 6px 0' }}>Estamos para ayudarte</h2>
+        <p style={{ opacity: 0.85, fontSize: '13px', margin: 0 }}>Responderemos en menos de 24 horas</p>
+      </div>
+      {[
+        { icon: '\uD83D\uDCAC', titulo: 'WhatsApp', valor: '+1 (809) 000-0000', href: 'https://wa.me/18090000000', btn: 'Escribir por WhatsApp', bg: '#25D366' },
+        { icon: '\uD83D\uDCE7', titulo: 'Correo Electr\u00f3nico', valor: 'info@porcicultoresrd.com', href: 'mailto:info@porcicultoresrd.com', btn: 'Enviar correo', bg: '#1A3C5E' },
+      ].map(c => (
+        <div key={c.titulo} style={{ backgroundColor: 'white', borderRadius: '14px', padding: '20px', marginBottom: '12px', border: '1px solid #E5E7EB' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <span style={{ fontSize: '24px' }}>{c.icon}</span>
+            <div>
+              <p style={{ fontWeight: '700', color: '#111827', fontSize: '14px', margin: 0 }}>{c.titulo}</p>
+              <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>{c.valor}</p>
+            </div>
+          </div>
+          <a href={c.href} target="_blank" style={{ display: 'block', backgroundColor: c.bg, color: 'white', padding: '11px', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontWeight: '700', fontSize: '13px' }}>{c.btn}</a>
         </div>
-      ) : (
-        <div style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '28px' }}>
-          <p style={{ color: '#64748b', marginBottom: '24px', lineHeight: 1.6 }}>Tienes alguna pregunta, sugerencia o problema? Escribenos y te responderemos lo antes posible.</p>
-          <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Tu correo electronico" style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
-          <textarea value={mensaje} onChange={(e) => setMensaje(e.target.value)} placeholder="Tu mensaje..." rows={5} style={{ width: '100%', padding: '12px', marginBottom: '20px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
-          <button onClick={enviar} disabled={!nombre || !email || !mensaje} style={{ width: '100%', padding: '14px', backgroundColor: '#0a2463', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '16px', fontWeight: '700' }}>Enviar Mensaje</button>
-        </div>
-      )}
+      ))}
+      <div style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '16px', textAlign: 'center' }}>
+        <p style={{ color: '#6B7280', fontSize: '12px', margin: 0, lineHeight: 1.7 }}>Horario de atenci\u00f3n: Lunes a Viernes 8am - 6pm\nS\u00e1bado 8am - 12pm</p>
+      </div>
     </div>
   )
 }
