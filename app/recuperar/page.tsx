@@ -1,61 +1,56 @@
-'use client'
-import { useState, useEffect } from 'react'
+﻿'use client'
+import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
-export default function Notificaciones() {
-  const [notificaciones, setNotificaciones] = useState<any[]>([])
-  const [cargando, setCargando] = useState(true)
+export default function Recuperar() {
+  const [email, setEmail] = useState('')
+  const [enviado, setEnviado] = useState(false)
+  const [cargando, setCargando] = useState(false)
+  const [error, setError] = useState('')
 
-  useEffect(() => { cargarNotificaciones() }, [])
-
-  const cargarNotificaciones = async () => {
+  const enviar = async () => {
+    if (!email) return
     setCargando(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setCargando(false); return }
-    const { data } = await supabase.from('publicaciones').select('*').eq('usuario_id', user.id).neq('estado', 'pendiente').order('created_at', { ascending: false })
-    setNotificaciones(data || [])
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://porcicultores-rd.vercel.app/nueva-contrasena' })
+    if (error) { setError('Error al enviar. Verifica el correo.') } else { setEnviado(true) }
     setCargando(false)
   }
 
-  const getInfo = (estado: string) => {
-    if (estado === 'aprobada') return { bg: '#dcfce7', color: '#16a34a', texto: 'Tu publicacion fue APROBADA y ya es visible en el marketplace.' }
-    if (estado === 'rechazada') return { bg: '#fee2e2', color: '#dc2626', texto: 'Tu publicacion fue RECHAZADA por el administrador.' }
-    if (estado === 'vendida') return { bg: '#e0e7ff', color: '#4338ca', texto: 'Tu publicacion fue marcada como VENDIDA.' }
-    return { bg: '#f1f5f9', color: '#64748b', texto: 'Tu publicacion fue actualizada.' }
-  }
-
   return (
-    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ color: '#0a2463', fontSize: '24px', fontWeight: '900' }}>Notificaciones</h1>
-        <Link href="/" style={{ color: '#0a2463', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Inicio</Link>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F4F6F9', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ backgroundColor: 'white', borderRadius: '20px', padding: '40px 24px', maxWidth: '420px', width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+        {enviado ? (
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '56px', marginBottom: '16px' }}>\uD83D\uDCE7</div>
+            <h2 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 10px 0' }}>Correo enviado</h2>
+            <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>Revisa tu bandeja de entrada y sigue el enlace para restablecer tu contrase\u00f1a.</p>
+            <Link href="/login" style={{ backgroundColor: '#1A3C5E', color: 'white', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Volver al Login</Link>
+          </div>
+        ) : (
+          <>
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>\uD83D\uDD10</div>
+              <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: '0 0 6px 0' }}>Recuperar Contrase\u00f1a</h1>
+              <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>Ingresa tu correo y te enviaremos un enlace</p>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Correo electr\u00f3nico</label>
+              <input type="email" placeholder="ejemplo@correo.do" value={email} onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && enviar()}
+                style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '14px', boxSizing: 'border-box', outline: 'none', backgroundColor: '#F9FAFB' }} />
+            </div>
+            {error && <div style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px', marginBottom: '16px', color: '#DC2626', fontSize: '13px' }}>\u26A0\uFE0F {error}</div>}
+            <button onClick={enviar} disabled={cargando || !email}
+              style={{ width: '100%', padding: '14px', background: cargando || !email ? '#E5E7EB' : 'linear-gradient(135deg, #1A3C5E, #2563A8)', color: cargando || !email ? '#9CA3AF' : 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '15px', marginBottom: '16px' }}>
+              {cargando ? '\u23F3 Enviando...' : 'Enviar enlace de recuperaci\u00f3n'}
+            </button>
+            <div style={{ textAlign: 'center' }}>
+              <Link href="/login" style={{ color: '#2563A8', fontSize: '13px', fontWeight: '600', textDecoration: 'none' }}>\u2190 Volver al inicio de sesi\u00f3n</Link>
+            </div>
+          </>
+        )}
       </div>
-      {cargando ? <p style={{ color: '#64748b' }}>Cargando...</p> : notificaciones.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-          <p style={{ color: '#94a3b8', fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>No tienes notificaciones</p>
-          <p style={{ color: '#94a3b8', fontSize: '14px' }}>Aqui apareceran las actualizaciones de tus publicaciones</p>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {notificaciones.map((n) => {
-            const { bg, color, texto } = getInfo(n.estado)
-            return (
-              <div key={n.id} style={{ backgroundColor: bg, borderRadius: '16px', padding: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <span style={{ backgroundColor: color, color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700' }}>{n.estado.toUpperCase()}</span>
-                  <span style={{ color: '#94a3b8', fontSize: '12px' }}>{n.created_at?.slice(0, 10)}</span>
-                </div>
-                <p style={{ color: '#1e293b', fontWeight: '700', fontSize: '15px', marginBottom: '4px' }}>{texto}</p>
-                <p style={{ color: '#475569', fontSize: '13px', marginBottom: '4px' }}>{n.tipo_animal} — RD$ {n.precio?.toLocaleString()} — {n.provincia}</p>
-                {n.estado === 'aprobada' && (
-                  <Link href="/marketplace" style={{ display: 'inline-block', marginTop: '12px', backgroundColor: '#0a2463', color: 'white', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>Ver en Marketplace</Link>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      )}
     </div>
   )
 }

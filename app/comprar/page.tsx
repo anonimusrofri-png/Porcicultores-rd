@@ -1,96 +1,103 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
-const provincias = ['Azua','Bahoruco','Barahona','Dajabón','Distrito Nacional','Duarte','Elías Piña','El Seibo','Espaillat','Hato Mayor','Hermanas Mirabal','Independencia','La Altagracia','La Romana','La Vega','María Trinidad Sánchez','Monseñor Nouel','Monte Cristi','Monte Plata','Pedernales','Peravia','Puerto Plata','Samaná','San Cristóbal','San José de Ocoa','San Juan','San Pedro de Macorís','Sánchez Ramírez','Santiago','Santiago Rodríguez','Santo Domingo','Valverde']
+const provincias = ['Azua','Bahoruco','Barahona','Dajab\u00f3n','Distrito Nacional','Duarte','El\u00edas Pi\u00f1a','El Seibo','Espaillat','Hato Mayor','Hermanas Mirabal','Independencia','La Altagracia','La Romana','La Vega','Mar\u00eda Trinidad S\u00e1nchez','Monse\u00f1or Nouel','Monte Cristi','Monte Plata','Pedernales','Peravia','Puerto Plata','Saman\u00e1','San Crist\u00f3bal','San Jos\u00e9 de Ocoa','San Juan','San Pedro de Macor\u00eds','S\u00e1nchez Ram\u00edrez','Santiago','Santiago Rodr\u00edguez','Santo Domingo','Valverde']
+const tiposAnimales = ['cerdo','lechon','cerda','verraco','reproductor','engorde']
 
 export default function Comprar() {
-  const [solicitudes, setSolicitudes] = useState<any[]>([])
-  const [usuario, setUsuario] = useState<any>(null)
-  const [tipoAnimal, setTipoAnimal] = useState('cerdo')
+  const [tipo, setTipo] = useState('cerdo')
   const [cantidad, setCantidad] = useState('')
   const [provincia, setProvincia] = useState('')
   const [descripcion, setDescripcion] = useState('')
-  const [presupuesto, setPresupuesto] = useState('')
   const [enviado, setEnviado] = useState(false)
-  const [cargando, setCargando] = useState(true)
+  const [cargando, setCargando] = useState(false)
 
-  useEffect(() => { cargarDatos() }, [])
-
-  const cargarDatos = async () => {
+  const enviar = async () => {
+    if (!provincia || !descripcion) return
     setCargando(true)
     const { data: { user } } = await supabase.auth.getUser()
-    setUsuario(user)
-    const { data } = await supabase.from('solicitudes_compra').select('*, perfiles(nombre, provincia, whatsapp, telefono)').eq('activo', true).order('created_at', { ascending: false })
-    setSolicitudes(data || [])
+    if (!user) { window.location.href = '/login'; return }
+    await supabase.from('reportes').insert({
+      motivo: 'Solicitud de compra: ' + tipo,
+      descripcion: `Tipo: ${tipo} | Cantidad: ${cantidad} | Provincia: ${provincia} | Desc: ${descripcion}`,
+      reportado_por: user.id
+    })
+    setEnviado(true)
     setCargando(false)
   }
 
-  const enviarSolicitud = async () => {
-    if (!provincia || !descripcion) return
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { window.location.href = '/login'; return }
-    await supabase.from('solicitudes_compra').insert({ usuario_id: user.id, tipo_animal: tipoAnimal, cantidad: parseInt(cantidad) || 1, provincia, descripcion, presupuesto: presupuesto ? parseFloat(presupuesto) : null, activo: true })
-    setEnviado(true)
-    cargarDatos()
-  }
+  if (enviado) return (
+    <div style={{ minHeight: '100vh', backgroundColor: '#F4F6F9', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ backgroundColor: 'white', borderRadius: '20px', padding: '40px 24px', maxWidth: '420px', textAlign: 'center', border: '1px solid #E5E7EB', width: '100%' }}>
+        <div style={{ fontSize: '56px', marginBottom: '16px' }}>\u2705</div>
+        <h2 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 10px 0' }}>Solicitud enviada</h2>
+        <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>Los vendedores disponibles te contactar\u00e1n pronto por WhatsApp o mensajes.</p>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <Link href="/marketplace" style={{ backgroundColor: '#1A3C5E', color: 'white', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Ver Marketplace</Link>
+          <Link href="/" style={{ backgroundColor: '#F4F6F9', color: '#1A3C5E', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '14px' }}>Inicio</Link>
+        </div>
+      </div>
+    </div>
+  )
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ color: '#0a2463', fontSize: '24px', fontWeight: '900', margin: 0 }}>Necesito Comprar</h1>
-        <Link href="/" style={{ color: '#0a2463', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Inicio</Link>
+    <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px', fontFamily: 'Inter, sans-serif', backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div>
+          <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: '0 0 2px 0' }}>Necesito Comprar</h1>
+          <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>Publica lo que necesitas y los vendedores te contactar\u00e1n</p>
+        </div>
+        <Link href="/" style={{ color: '#2563A8', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>\u2190 Inicio</Link>
       </div>
 
-      {usuario && !enviado && (
-        <div style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
-          <h3 style={{ color: '#0a2463', fontWeight: '800', marginBottom: '16px' }}>Publicar Solicitud de Compra</h3>
-          <select value={tipoAnimal} onChange={(e) => setTipoAnimal(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', backgroundColor: 'white' }}>
-            <option value="cerdo">Cerdo</option>
-            <option value="lechon">Lechon</option>
-            <option value="cerda">Cerda</option>
-            <option value="verraco">Barraco</option>
-            <option value="reproductor">Reproductor</option>
-          </select>
-          <input type="number" placeholder="Cantidad" value={cantidad} onChange={(e) => setCantidad(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
-          <select value={provincia} onChange={(e) => setProvincia(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', backgroundColor: 'white' }}>
-            <option value="">Selecciona tu provincia</option>
-            {provincias.map(p => <option key={p} value={p}>{p}</option>)}
-          </select>
-          <input type="number" placeholder="Presupuesto en RD$ (opcional)" value={presupuesto} onChange={(e) => setPresupuesto(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
-          <textarea placeholder="Describe lo que necesitas..." value={descripcion} onChange={(e) => setDescripcion(e.target.value)} rows={3} style={{ width: '100%', padding: '12px', marginBottom: '16px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box' }} />
-          <button onClick={enviarSolicitud} style={{ backgroundColor: '#0a2463', color: 'white', border: 'none', padding: '14px 28px', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '15px' }}>Publicar Solicitud</button>
-        </div>
-      )}
+      <div style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '14px', padding: '14px 16px', marginBottom: '20px', display: 'flex', gap: '10px' }}>
+        <span style={{ fontSize: '20px' }}>\uD83D\uDCA1</span>
+        <p style={{ color: '#374151', fontSize: '13px', margin: 0, lineHeight: 1.6 }}>Describe lo que necesitas y los vendedores disponibles te contactar\u00e1n directamente.</p>
+      </div>
 
-      {enviado && <div style={{ backgroundColor: '#dcfce7', border: '1px solid #86efac', borderRadius: '12px', padding: '20px', marginBottom: '24px', color: '#16a34a', fontWeight: '700' }}>Solicitud publicada. Los vendedores podran contactarte.</div>}
-
-      {!usuario && <div style={{ backgroundColor: '#fef9c3', border: '1px solid #fcd34d', borderRadius: '12px', padding: '16px', marginBottom: '24px', fontSize: '14px', color: '#92400e' }}>
-        <Link href="/login" style={{ color: '#0a2463', fontWeight: '700' }}>Inicia sesion</Link> para publicar tu solicitud de compra.
-      </div>}
-
-      <h2 style={{ color: '#0a2463', fontWeight: '800', marginBottom: '16px' }}>Solicitudes Activas ({solicitudes.length})</h2>
-      {cargando ? <p style={{ color: '#64748b' }}>Cargando...</p> : solicitudes.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', color: '#94a3b8' }}>No hay solicitudes activas</div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {solicitudes.map((sol) => (
-            <div key={sol.id} style={{ backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-              <div>
-                <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', marginBottom: '8px', display: 'inline-block' }}>Busco: {sol.tipo_animal === 'verraco' ? 'Barraco' : sol.tipo_animal}</span>
-                <p style={{ color: '#1e293b', fontSize: '14px', margin: '4px 0' }}>{sol.descripcion}</p>
-                <p style={{ color: '#64748b', fontSize: '13px', margin: '4px 0' }}>Cantidad: {sol.cantidad} — Provincia: {sol.provincia}</p>
-                {sol.presupuesto && <p style={{ color: '#16a34a', fontSize: '13px', fontWeight: '700', margin: '4px 0' }}>Presupuesto: RD$ {sol.presupuesto?.toLocaleString()}</p>}
-                <p style={{ color: '#94a3b8', fontSize: '12px', margin: '4px 0' }}>Comprador: {sol.perfiles?.nombre}</p>
+      <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', border: '1px solid #E5E7EB' }}>
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Tipo de animal que necesito</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {tiposAnimales.map(t => (
+              <div key={t} onClick={() => setTipo(t)}
+                style={{ padding: '10px 12px', borderRadius: '10px', border: `2px solid ${tipo === t ? '#2563A8' : '#E5E7EB'}`, cursor: 'pointer', backgroundColor: tipo === t ? '#EFF6FF' : 'white', textAlign: 'center', fontWeight: '600', fontSize: '13px', color: tipo === t ? '#1D4ED8' : '#374151' }}>
+                \uD83D\uDC37 {t.charAt(0).toUpperCase() + t.slice(1)}
               </div>
-              {sol.perfiles?.whatsapp && (
-                <a href={`https://wa.me/1${sol.perfiles.whatsapp.replace(/\D/g,'')}`} target="_blank" style={{ backgroundColor: '#25d366', color: 'white', padding: '12px 20px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: '700', whiteSpace: 'nowrap' }}>WhatsApp</a>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Cantidad aproximada</label>
+            <input type="number" placeholder="Ej: 10" value={cantidad} onChange={(e) => setCantidad(e.target.value)}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', boxSizing: 'border-box', backgroundColor: '#F9FAFB', outline: 'none' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Provincia <span style={{ color: '#EF4444' }}>*</span></label>
+            <select value={provincia} onChange={(e) => setProvincia(e.target.value)}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: '#F9FAFB' }}>
+              <option value="">Selecciona...</option>
+              {provincias.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Descripci\u00f3n de lo que necesitas <span style={{ color: '#EF4444' }}>*</span></label>
+          <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)}
+            placeholder="Describe el peso, caracter\u00edsticas, presupuesto, etc..." rows={4}
+            style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: '#F9FAFB', boxSizing: 'border-box', resize: 'vertical', outline: 'none' }} />
+        </div>
+
+        <button onClick={enviar} disabled={cargando || !provincia || !descripcion}
+          style={{ width: '100%', padding: '14px', background: cargando || !provincia || !descripcion ? '#E5E7EB' : 'linear-gradient(135deg, #1A3C5E, #2563A8)', color: cargando || !provincia || !descripcion ? '#9CA3AF' : 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '15px' }}>
+          {cargando ? '\u23F3 Enviando...' : '\uD83D\uDC37 Publicar Solicitud'}
+        </button>
+      </div>
     </div>
   )
 }
