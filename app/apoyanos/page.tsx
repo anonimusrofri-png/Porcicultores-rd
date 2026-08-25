@@ -17,8 +17,8 @@ export default function Apoyanos() {
         <p style={{ opacity: 0.85, fontSize: '14px', lineHeight: 1.7, margin: 0 }}>Tu apoyo nos permite mantener la plataforma activa, segura y en constante mejora para toda la comunidad porcina dominicana.</p>
       </div>
       {[
-        { icon: '\uD83D\uDCB3', titulo: 'Transferencia Bancaria', desc: 'Banco Popular Dominicano', detalle: 'Cuenta: 123-456789-0\nNombre: Porcicultores RD SRL' },
-        { icon: '\uD83D\uDCF1', titulo: 'PayPal', desc: 'Donaci\u00f3n r\u00e1pida y segura', detalle: 'paypal.me/porcicultoresrd' },
+      ,
+        { icon: '\uD83D\uDCF1', titulo: 'PayPal', desc: 'Donación Rapida y segura', detalle: 'paypal.me/porcicultoresrd' },
       ].map(m => (
         <div key={m.titulo} style={{ backgroundColor: 'white', borderRadius: '14px', padding: '20px', marginBottom: '12px', border: '1px solid #E5E7EB', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
           <span style={{ fontSize: '28px', flexShrink: 0 }}>{m.icon}</span>
@@ -31,7 +31,7 @@ export default function Apoyanos() {
       ))}
       <div style={{ backgroundColor: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '14px', padding: '16px', textAlign: 'center' }}>
         <p style={{ color: '#92400E', fontSize: '13px', margin: 0, lineHeight: 1.7 }}>
-          \uD83D\uDC4B Cada aporte, por peque\u00f1o que sea, hace una gran diferencia. \u00a1Gracias por apoyar el sector porcino dominicano!
+          Cada aporte, por pequeño que sea, hace una gran diferencia. Gracias por apoyar el sector porcino dominicano!
         </p>
       </div>
     </div>

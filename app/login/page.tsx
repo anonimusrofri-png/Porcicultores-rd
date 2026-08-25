@@ -1,4 +1,5 @@
 ﻿'use client'
+
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -16,65 +17,131 @@ export default function Login() {
     setCargando(true)
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { setError('Correo o contraseña incorrectos') } else { router.push('/') }
+    if (error) {
+      setError('Correo o contraseña incorrectos.')
+    } else {
+      router.push('/')
+    }
     setCargando(false)
   }
 
   const handleGoogle = async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/' } })
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/' },
+    })
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F4F6F9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ width: '100%', maxWidth: '440px', background: 'linear-gradient(135deg, #1A3C5E 0%, #2563A8 100%)', borderRadius: '20px 20px 0 0', padding: '32px 24px', textAlign: 'center' }}>
-        <Image src="/logo porcicultores rdv.jpeg" alt="Logo" width={64} height={64} style={{ objectFit: 'contain', borderRadius: '12px', marginBottom: '12px' }} />
-        <h1 style={{ color: 'white', fontSize: '22px', fontWeight: '700', margin: '0 0 4px 0' }}>Porcicultores RD</h1>
-        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '13px', margin: 0 }}>El Marketplace Porcino de República Dominicana</p>
+    <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-4 font-sans">
+      {/* Banner Header */}
+      <div className="w-full max-w-md bg-gradient-to-r from-slate-900 to-blue-900 rounded-t-2xl p-8 text-center shadow-md">
+        <div className="flex justify-center mb-3">
+          <Image
+            src="/logo porcicultores rdv.jpeg"
+            alt="Logo Porcicultores RD"
+            width={64}
+            height={64}
+            className="object-contain rounded-xl shadow-sm"
+          />
+        </div>
+        <h1 className="text-white text-2xl font-bold tracking-tight mb-1">Porcicultores RD</h1>
+        <p className="text-slate-300 text-xs">El Marketplace Porcino de República Dominicana</p>
       </div>
-      <div style={{ backgroundColor: 'white', width: '100%', maxWidth: '440px', borderRadius: '0 0 20px 20px', padding: '28px 24px', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
-        <div style={{ display: 'flex', backgroundColor: '#F4F6F9', borderRadius: '12px', padding: '4px', marginBottom: '24px' }}>
-          <div style={{ flex: 1, textAlign: 'center', padding: '10px', backgroundColor: '#1A3C5E', borderRadius: '10px', color: 'white', fontWeight: '700', fontSize: '14px' }}>
+
+      {/* Card Content */}
+      <div className="bg-white w-full max-w-md rounded-b-2xl p-7 shadow-xl border border-t-0 border-slate-200">
+        {/* Navigation Tabs */}
+        <div className="flex bg-slate-100 rounded-xl p-1 mb-6 border border-slate-200">
+          <div className="flex-1 text-center py-2 bg-slate-900 text-white font-bold text-xs md:text-sm rounded-lg shadow-sm">
             Iniciar Sesión
           </div>
-          <Link href="/registro" style={{ flex: 1, textAlign: 'center', padding: '10px', color: '#6B7280', fontWeight: '600', fontSize: '14px', textDecoration: 'none', borderRadius: '10px' }}>
+          <Link
+            href="/registro"
+            className="flex-1 text-center py-2 text-slate-500 hover:text-slate-800 font-semibold text-xs md:text-sm rounded-lg transition-all"
+          >
             Registrarse
           </Link>
         </div>
-        <button onClick={handleGoogle}
-          style={{ width: '100%', padding: '12px', backgroundColor: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: '12px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '18px' }}>G</span> Continuar con Google
+
+        {/* Google OAuth Button */}
+        <button
+          onClick={handleGoogle}
+          className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-semibold text-sm mb-4 flex items-center justify-center gap-2.5 transition-all shadow-sm"
+        >
+          <span className="font-black text-blue-600 text-base">G</span> Continuar con Google
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#E5E7EB' }} />
-          <span style={{ color: '#9CA3AF', fontSize: '12px' }}>o</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#E5E7EB' }} />
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-slate-400 text-xs">o</span>
+          <div className="flex-1 h-px bg-slate-200" />
         </div>
-        <div style={{ marginBottom: '14px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Correo Electrónico</label>
-          <input type="email" placeholder="ejemplo@correo.do" value={email} onChange={(e) => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '14px', boxSizing: 'border-box', outline: 'none', backgroundColor: '#F9FAFB' }} />
+
+        {/* Form Inputs */}
+        <div className="space-y-3.5 mb-2">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Correo Electrónico
+            </label>
+            <input
+              type="email"
+              placeholder="ejemplo@correo.do"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              placeholder="Tu contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+            />
+          </div>
         </div>
-        <div style={{ marginBottom: '8px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Contraseña</label>
-          <input type="password" placeholder="Tu contraseña" value={password} onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-            style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '14px', boxSizing: 'border-box', outline: 'none', backgroundColor: '#F9FAFB' }} />
+
+        <div className="text-right mb-5">
+          <Link
+            href="/recuperar"
+            className="text-blue-600 hover:text-blue-800 text-xs font-semibold transition-all"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
         </div>
-        <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-          <Link href="/recuperar" style={{ color: '#2563A8', fontSize: '13px', fontWeight: '600', textDecoration: 'none' }}>¿Olvidaste tu contraseña?</Link>
-        </div>
+
         {error && (
-          <div style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px', color: '#DC2626', fontSize: '13px' }}>
-            ⚠️ {error}
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-red-700 text-xs font-medium flex items-center gap-2">
+            <span>⚠️</span>
+            <span>{error}</span>
           </div>
         )}
-        <button onClick={handleLogin} disabled={cargando}
-          style={{ width: '100%', padding: '14px', background: cargando ? '#93C5FD' : 'linear-gradient(135deg, #1A3C5E, #2563A8)', color: 'white', border: 'none', borderRadius: '10px', cursor: cargando ? 'not-allowed' : 'pointer', fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>
+
+        <button
+          onClick={handleLogin}
+          disabled={cargando}
+          className="w-full py-3 bg-gradient-to-r from-slate-900 to-blue-900 hover:from-slate-800 hover:to-blue-800 text-white font-bold text-sm rounded-xl transition-all shadow-md mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           {cargando ? '⏳ Entrando...' : 'Iniciar Sesión'}
         </button>
-        <div style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-          <p style={{ color: '#6B7280', fontSize: '13px', margin: '0 0 8px 0' }}>¿No tienes cuenta?</p>
-          <Link href="/registro" style={{ color: '#1A3C5E', fontWeight: '700', fontSize: '14px', textDecoration: 'none' }}>Crear Cuenta Gratis →</Link>
+
+        {/* Footer Prompt */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+          <p className="text-slate-500 text-xs mb-1">¿No tienes cuenta?</p>
+          <Link
+            href="/registro"
+            className="text-slate-900 hover:text-blue-700 font-bold text-sm transition-all"
+          >
+            Crear Cuenta Gratis →
+          </Link>
         </div>
       </div>
     </div>

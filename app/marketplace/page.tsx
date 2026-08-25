@@ -1,10 +1,19 @@
 ﻿'use client'
+
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
-const provincias = ['Todas','Azua','Bahoruco','Barahona','Dajab\u00f3n','Distrito Nacional','Duarte','El\u00edas Pi\u00f1a','El Seibo','Espaillat','Hato Mayor','Hermanas Mirabal','Independencia','La Altagracia','La Romana','La Vega','Mar\u00eda Trinidad S\u00e1nchez','Monse\u00f1or Nouel','Monte Cristi','Monte Plata','Pedernales','Peravia','Puerto Plata','Saman\u00e1','San Crist\u00f3bal','San Jos\u00e9 de Ocoa','San Juan','San Pedro de Macor\u00eds','S\u00e1nchez Ram\u00edrez','Santiago','Santiago Rodr\u00edguez','Santo Domingo','Valverde']
-const tiposAnimales = ['Todos','cerdo','lechon','cerda','verraco','reproductor','engorde']
+const provincias = [
+  'Todas', 'Azua', 'Bahoruco', 'Barahona', 'Dajabón', 'Distrito Nacional', 'Duarte',
+  'Elías Piña', 'El Seibo', 'Espaillat', 'Hato Mayor', 'Hermanas Mirabal', 'Independencia',
+  'La Altagracia', 'La Romana', 'La Vega', 'María Trinidad Sánchez', 'Monseñor Nouel',
+  'Monte Cristi', 'Monte Plata', 'Pedernales', 'Peravia', 'Puerto Plata', 'Samaná',
+  'San Cristóbal', 'San José de Ocoa', 'San Juan', 'San Pedro de Macorís', 'Sánchez Ramírez',
+  'Santiago', 'Santiago Rodríguez', 'Santo Domingo', 'Valverde'
+]
+
+const tiposAnimales = ['Todos', 'Lechon', 'Cerda', 'Varraco', 'Reproductor', 'Engorde']
 
 export default function Marketplace() {
   const [publicaciones, setPublicaciones] = useState<any[]>([])
@@ -14,128 +23,261 @@ export default function Marketplace() {
   const [busqueda, setBusqueda] = useState('')
   const [cargando, setCargando] = useState(true)
 
-  useEffect(() => { cargarDatos() }, [provincia, tipo])
+  useEffect(() => {
+    cargarDatos()
+  }, [provincia, tipo])
 
   const cargarDatos = async () => {
     setCargando(true)
     const { data: { user } } = await supabase.auth.getUser()
     setUsuario(user)
-    if (!user) { setCargando(false); return }
-    let query = supabase.from('publicaciones').select('*, perfiles(id, nombre, provincia, whatsapp, telefono, foto_perfil)').eq('activo', true).eq('estado', 'aprobada')
+    if (!user) {
+      setCargando(false)
+      return
+    }
+
+    let query = supabase
+      .from('publicaciones')
+      .select('*, perfiles(id, nombre, provincia, whatsapp, telefono, foto_perfil)')
+      .eq('activo', true)
+      .eq('estado', 'aprobada')
+
     if (provincia !== 'Todas') query = query.eq('provincia', provincia)
     if (tipo !== 'Todos') query = query.eq('tipo_animal', tipo)
+
     const { data } = await query.order('created_at', { ascending: false })
     setPublicaciones(data || [])
     setCargando(false)
   }
 
-  const filtradas = publicaciones.filter(p =>
-    busqueda === '' || p.descripcion?.toLowerCase().includes(busqueda.toLowerCase()) || p.tipo_animal?.toLowerCase().includes(busqueda.toLowerCase()) || p.perfiles?.nombre?.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  const filtradas = publicaciones.filter((p) => {
+    if (!busqueda.trim()) return true
+    const q = busqueda.toLowerCase()
+    return (
+      p.descripcion?.toLowerCase().includes(q) ||
+      p.tipo_animal?.toLowerCase().includes(q) ||
+      p.perfiles?.nombre?.toLowerCase().includes(q)
+    )
+  })
 
-  const badgeColor = (tipo: string) => {
-    const colores: any = { cerdo: '#DBEAFE', lechon: '#D1FAE5', cerda: '#FEF3C7', verraco: '#EDE9FE', reproductor: '#FCE7F3', engorde: '#FEE2E2' }
-    return colores[tipo] || '#F3F4F6'
-  }
-  const badgeText = (tipo: string) => {
-    const textos: any = { cerdo: '#1D4ED8', lechon: '#065F46', cerda: '#D97706', verraco: '#6D28D9', reproductor: '#9D174D', engorde: '#DC2626' }
-    return textos[tipo] || '#374151'
+  const badgeStyle = (tipoStr: string) => {
+    const t = tipoStr?.toLowerCase() || ''
+    switch (t) {
+      case 'lechon':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200'
+      case 'cerda':
+        return 'bg-amber-100 text-amber-800 border-amber-200'
+      case 'verraco':
+      case 'varraco':
+        return 'bg-purple-100 text-purple-800 border-purple-200'
+      case 'reproductor':
+        return 'bg-pink-100 text-pink-800 border-pink-200'
+      case 'engorde':
+        return 'bg-red-100 text-red-800 border-red-200'
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200'
+    }
   }
 
-  if (!usuario && !cargando) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F4F6F9', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ backgroundColor: 'white', borderRadius: '20px', padding: '48px 24px', maxWidth: '420px', textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', width: '100%' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>\uD83D\uDD12</div>
-        <h2 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>Acceso exclusivo para miembros</h2>
-        <p style={{ color: '#6B7280', fontSize: '14px', lineHeight: 1.7, marginBottom: '28px' }}>Crea una cuenta gratuita para ver las publicaciones y contactar vendedores.</p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-          <Link href="/registro" style={{ backgroundColor: '#1A3C5E', color: 'white', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Crear Cuenta</Link>
-          <Link href="/login" style={{ backgroundColor: '#F4F6F9', color: '#1A3C5E', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Iniciar Sesi\u00f3n</Link>
+  if (!usuario && !cargando) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
+        <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-xl border border-slate-200">
+          <div className="text-5xl mb-4">🔒</div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Acceso exclusivo para miembros</h2>
+          <p className="text-slate-600 text-sm leading-relaxed mb-6">
+            Crea una cuenta gratuita para ver las publicaciones y contactar vendedores.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Link
+              href="/registro"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all shadow-sm"
+            >
+              Crear Cuenta
+            </Link>
+            <Link
+              href="/login"
+              className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm px-5 py-2.5 rounded-xl transition-all"
+            >
+              Iniciar Sesión
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '20px', fontFamily: 'Inter, sans-serif', backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
-
-      <div style={{ background: 'linear-gradient(135deg, #1A3C5E, #2563A8)', borderRadius: '16px', padding: '20px 24px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="max-w-5xl mx-auto p-4 md:p-6 font-sans bg-slate-50 min-h-screen">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-slate-900 to-blue-900 rounded-2xl p-6 mb-6 text-white shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 style={{ color: 'white', fontSize: '22px', fontWeight: '700', margin: '0 0 4px 0' }}>Marketplace Porcino</h1>
-          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '13px', margin: 0 }}>Rep\u00fablica Dominicana \u2022 {filtradas.length} publicaciones</p>
+          <h1 className="text-2xl font-bold tracking-tight">Marketplace Porcino</h1>
+          <p className="text-blue-200 text-sm mt-1">
+            República Dominicana • {filtradas.length} publicaciones
+          </p>
         </div>
-        <Link href="/publicar" style={{ backgroundColor: 'white', color: '#1A3C5E', padding: '10px 20px', borderRadius: '20px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>
-          + Publicar
+        <Link
+          href="/publicar"
+          className="bg-white text-slate-900 hover:bg-slate-100 font-bold text-sm px-5 py-2.5 rounded-full transition-all shadow-md inline-flex items-center gap-1.5"
+        >
+          <span>+</span> Publicar
         </Link>
       </div>
 
-      <div style={{ backgroundColor: 'white', borderRadius: '14px', padding: '16px', marginBottom: '16px', border: '1px solid #E5E7EB' }}>
-        <input placeholder="\uD83D\uDD0D Buscar cerdos, lechones, vendedores..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-          style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#F9FAFB', outline: 'none', marginBottom: '12px' }} />
+      {/* Control Panel / Filters */}
+      <div className="bg-white rounded-2xl p-4 md:p-5 mb-6 shadow-sm border border-slate-200 space-y-4">
+        {/* Búsqueda */}
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="🔍 Buscar cerdos, lechones, vendedores..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all"
+          />
+        </div>
 
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '12px' }}>
-          {tiposAnimales.map(t => (
-            <button key={t} onClick={() => setTipo(t)}
-              style={{ padding: '7px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: '600', backgroundColor: tipo === t ? '#1A3C5E' : '#F3F4F6', color: tipo === t ? 'white' : '#374151', fontSize: '13px', flexShrink: 0 }}>
+        {/* Tipos */}
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {tiposAnimales.map((t) => (
+            <button
+              key={t}
+              onClick={() => setTipo(t)}
+              className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                tipo === t
+                  ? 'bg-slate-900 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
               {t === 'Todos' ? 'Todos' : t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
           ))}
         </div>
 
-        <select value={provincia} onChange={(e) => setProvincia(e.target.value)}
-          style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: '#F9FAFB' }}>
-          {provincias.map(p => <option key={p} value={p}>{p}</option>)}
-        </select>
+        {/* Provincias */}
+        <div>
+          <select
+            value={provincia}
+            onChange={(e) => setProvincia(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
+          >
+            {provincias.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
+      {/* Grid Content */}
       {cargando ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: '#6B7280' }}>
-          <div style={{ fontSize: '40px', marginBottom: '12px' }}>\uD83D\uDC37</div>
-          <p>Cargando publicaciones...</p>
+        <div className="text-center py-16 text-slate-500">
+          <div className="text-5xl mb-3 animate-bounce">🐷</div>
+          <p className="text-sm font-medium">Cargando publicaciones...</p>
         </div>
       ) : filtradas.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>\uD83D\uDC37</div>
-          <p style={{ color: '#9CA3AF', fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>No hay publicaciones disponibles</p>
-          <Link href="/publicar" style={{ backgroundColor: '#1A3C5E', color: 'white', padding: '10px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>S\u00e9 el primero en publicar</Link>
+        <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+          <div className="text-5xl mb-3">🐷</div>
+          <p className="text-slate-700 font-semibold mb-2">No hay publicaciones disponibles</p>
+          <p className="text-slate-500 text-sm mb-6">Sé el primero en publicar una oferta en el mercado.</p>
+          <Link
+            href="/publicar"
+            className="inline-block bg-slate-900 text-white font-bold text-sm px-6 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-md"
+          >
+            Sé el primero en publicar
+          </Link>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtradas.map((pub) => (
-            <div key={pub.id} style={{ backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-              <div style={{ position: 'relative' }}>
-                {pub.foto_url
-                  ? <img src={pub.foto_url} alt="animal" style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
-                  : <div style={{ width: '100%', height: '180px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px' }}>\uD83D\uDC37</div>
-                }
-                <span style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: badgeColor(pub.tipo_animal), color: badgeText(pub.tipo_animal), padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700' }}>
+            <div
+              key={pub.id}
+              className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col"
+            >
+              <div className="relative aspect-video bg-slate-100">
+                {pub.foto_url ? (
+                  <img
+                    src={pub.foto_url}
+                    alt="animal"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-5xl">
+                    🐷
+                  </div>
+                )}
+                <span
+                  className={`absolute top-3 right-3 border px-2.5 py-1 rounded-full text-xs font-bold shadow-sm ${badgeStyle(
+                    pub.tipo_animal
+                  )}`}
+                >
                   {pub.tipo_animal}
                 </span>
               </div>
-              <div style={{ padding: '14px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <p style={{ color: '#1D4ED8', fontWeight: '700', fontSize: '20px', margin: 0 }}>RD$ {pub.precio?.toLocaleString()}</p>
-                  {pub.peso && <span style={{ backgroundColor: '#F3F4F6', color: '#6B7280', padding: '3px 8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600' }}>{pub.peso} lbs</span>}
-                </div>
-                <p style={{ color: '#374151', fontSize: '13px', marginBottom: '6px', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{pub.descripcion}</p>
-                <p style={{ color: '#9CA3AF', fontSize: '12px', marginBottom: '10px' }}>\uD83D\uDCCD {pub.provincia}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', paddingTop: '10px', borderTop: '1px solid #F3F4F6' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#1A3C5E', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', fontWeight: '700', overflow: 'hidden', flexShrink: 0 }}>
-                    {pub.perfiles?.foto_perfil ? <img src={pub.perfiles.foto_perfil} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : pub.perfiles?.nombre?.charAt(0).toUpperCase()}
+
+              <div className="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-baseline mb-2">
+                    <p className="text-blue-700 font-extrabold text-xl">
+                      RD$ {pub.precio?.toLocaleString()}
+                    </p>
+                    {pub.peso && (
+                      <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md text-xs font-semibold">
+                        {pub.peso} lbs
+                      </span>
+                    )}
                   </div>
-                  <Link href={"/usuario/" + pub.perfiles?.id} style={{ color: '#1A3C5E', fontSize: '13px', fontWeight: '600', textDecoration: 'none' }}>{pub.perfiles?.nombre}</Link>
+                  <p className="text-slate-700 text-sm line-clamp-2 mb-3 leading-snug">
+                    {pub.descripcion}
+                  </p>
+                  <p className="text-slate-500 text-xs mb-3 flex items-center gap-1">
+                    📍 <span>{pub.provincia}</span>
+                  </p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {pub.perfiles?.whatsapp && (
-                    <a href={"https://wa.me/1" + pub.perfiles.whatsapp.replace(/\D/g,'')} target="_blank"
-                      style={{ flex: 1, backgroundColor: '#25D366', color: 'white', padding: '10px', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
-                      WhatsApp
-                    </a>
-                  )}
-                  <Link href={"/chat?usuario=" + pub.perfiles?.id}
-                    style={{ flex: 1, backgroundColor: '#1A3C5E', color: 'white', padding: '10px', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
-                    Mensaje
-                  </Link>
+
+                <div>
+                  <div className="flex items-center gap-2.5 py-2.5 border-t border-slate-100 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold overflow-hidden shrink-0">
+                      {pub.perfiles?.foto_perfil ? (
+                        <img
+                          src={pub.perfiles.foto_perfil}
+                          alt="foto"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        pub.perfiles?.nombre?.charAt(0).toUpperCase() || 'U'
+                      )}
+                    </div>
+                    <Link
+                      href={`/usuario/${pub.perfiles?.id}`}
+                      className="text-slate-900 font-semibold text-sm hover:underline truncate"
+                    >
+                      {pub.perfiles?.nombre || 'Usuario'}
+                    </Link>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {pub.perfiles?.whatsapp && (
+                      <a
+                        href={`https://wa.me/1${pub.perfiles.whatsapp.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-3 rounded-xl text-center text-xs font-bold transition-all"
+                      >
+                        WhatsApp
+                      </a>
+                    )}
+                    <Link
+                      href={`/chat?usuario=${pub.perfiles?.id}`}
+                      className={`bg-slate-900 hover:bg-slate-800 text-white py-2 px-3 rounded-xl text-center text-xs font-bold transition-all ${
+                        !pub.perfiles?.whatsapp ? 'col-span-2' : ''
+                      }`}
+                    >
+                      Mensaje
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 ﻿'use client'
+
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
@@ -11,42 +12,84 @@ export default function Recuperar() {
 
   const enviar = async () => {
     if (!email) return
+    setError('')
     setCargando(true)
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://porcicultores-rd.vercel.app/nueva-contrasena' })
-    if (error) { setError('Error al enviar. Verifica el correo.') } else { setEnviado(true) }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://porcicultores-rd.vercel.app/nueva-contrasena',
+    })
+    if (error) {
+      setError('Error al enviar el correo. Verifica la dirección e inténtalo de nuevo.')
+    } else {
+      setEnviado(true)
+    }
     setCargando(false)
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F4F6F9', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ backgroundColor: 'white', borderRadius: '20px', padding: '40px 24px', maxWidth: '420px', width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
+      <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl border border-slate-200">
         {enviado ? (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '56px', marginBottom: '16px' }}>\uD83D\uDCE7</div>
-            <h2 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 10px 0' }}>Correo enviado</h2>
-            <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>Revisa tu bandeja de entrada y sigue el enlace para restablecer tu contrase\u00f1a.</p>
-            <Link href="/login" style={{ backgroundColor: '#1A3C5E', color: 'white', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Volver al Login</Link>
+          <div className="text-center">
+            <div className="text-5xl mb-4">📧</div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Correo enviado</h2>
+            <p className="text-slate-600 text-sm leading-relaxed mb-6">
+              Revisa tu bandeja de entrada y sigue el enlace para restablecer tu contraseña.
+            </p>
+            <Link
+              href="/login"
+              className="inline-block bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow-sm"
+            >
+              Volver al Login
+            </Link>
           </div>
         ) : (
           <>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div style={{ fontSize: '48px', marginBottom: '12px' }}>\uD83D\uDD10</div>
-              <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: '0 0 6px 0' }}>Recuperar Contrase\u00f1a</h1>
-              <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>Ingresa tu correo y te enviaremos un enlace</p>
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-3">🔑</div>
+              <h1 className="text-xl font-bold text-slate-900">Recuperar Contraseña</h1>
+              <p className="text-slate-500 text-xs mt-1">
+                Ingresa tu correo y te enviaremos un enlace de recuperación
+              </p>
             </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Correo electr\u00f3nico</label>
-              <input type="email" placeholder="ejemplo@correo.do" value={email} onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && enviar()}
-                style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '14px', boxSizing: 'border-box', outline: 'none', backgroundColor: '#F9FAFB' }} />
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Correo electrónico
+                </label>
+                <input
+                  type="email"
+                  placeholder="ejemplo@correo.do"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && enviar()}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+                />
+              </div>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-700 text-xs font-medium flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <button
+                onClick={enviar}
+                disabled={cargando || !email}
+                className="w-full py-3 bg-gradient-to-r from-slate-900 to-blue-900 hover:from-slate-800 hover:to-blue-800 text-white font-semibold text-sm rounded-xl transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {cargando ? '⏳ Enviando...' : 'Enviar enlace de recuperación'}
+              </button>
             </div>
-            {error && <div style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px', marginBottom: '16px', color: '#DC2626', fontSize: '13px' }}>\u26A0\uFE0F {error}</div>}
-            <button onClick={enviar} disabled={cargando || !email}
-              style={{ width: '100%', padding: '14px', background: cargando || !email ? '#E5E7EB' : 'linear-gradient(135deg, #1A3C5E, #2563A8)', color: cargando || !email ? '#9CA3AF' : 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '15px', marginBottom: '16px' }}>
-              {cargando ? '\u23F3 Enviando...' : 'Enviar enlace de recuperaci\u00f3n'}
-            </button>
-            <div style={{ textAlign: 'center' }}>
-              <Link href="/login" style={{ color: '#2563A8', fontSize: '13px', fontWeight: '600', textDecoration: 'none' }}>\u2190 Volver al inicio de sesi\u00f3n</Link>
+
+            <div className="text-center mt-6">
+              <Link
+                href="/login"
+                className="text-blue-600 hover:text-blue-800 text-xs font-semibold transition-all"
+              >
+                ← Volver al inicio de sesión
+              </Link>
             </div>
           </>
         )}
