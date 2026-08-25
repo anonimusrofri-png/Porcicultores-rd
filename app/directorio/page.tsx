@@ -4,407 +4,152 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
-const provincias = [
-  'Todas', 'Azua', 'Bahoruco', 'Barahona', 'Dajabón', 'Distrito Nacional', 'Duarte',
-  'Elías Piña', 'El Seibo', 'Espaillat', 'Hato Mayor', 'Hermanas Mirabal', 'Independencia',
-  'La Altagracia', 'La Romana', 'La Vega', 'María Trinidad Sánchez', 'Monseñor Nouel',
-  'Monte Cristi', 'Monte Plata', 'Pedernales', 'Peravia', 'Puerto Plata', 'Samaná',
-  'San Cristóbal', 'San José de Ocoa', 'San Juan', 'San Pedro de Macorís', 'Sánchez Ramírez',
-  'Santiago', 'Santiago Rodríguez', 'Santo Domingo', 'Valverde'
-]
-
-const categorias = ['Todas', 'veterinaria', 'farmacia_veterinaria', 'tienda_alimento', 'transportista', 'servicio_porcino']
-
-const labelCategoria = (c: string) =>
-  ({
-    veterinaria: 'Veterinaria',
-    farmacia_veterinaria: 'Farmacia Veterinaria',
-    tienda_alimento: 'Tienda de Alimento',
-    transportista: 'Transportista',
-    servicio_porcino: 'Servicio Porcino',
-  }[c] || c)
-
-const iconoCategoria = (c: string) =>
-  ({
-    veterinaria: '🏥',
-    farmacia_veterinaria: '💊',
-    tienda_alimento: '🌽',
-    transportista: '🚛',
-    servicio_porcino: '🐷',
-  }[c] || '📋')
+interface Negocio {
+  id: string
+  nombre: string
+  categoria: string
+  descripcion: string
+  provincia: string
+  telefono: string
+  whatsapp: string
+  direccion?: string
+  imagen_url?: string
+}
 
 export default function Directorio() {
-  const [negocios, setNegocios] = useState<any[]>([])
-  const [usuario, setUsuario] = useState<any>(null)
-  const [esAdmin, setEsAdmin] = useState(false)
-  const [provincia, setProvincia] = useState('Todas')
-  const [categoria, setCategoria] = useState('Todas')
+  const [negocios, setNegocios] = useState<Negocio[]>([])
   const [busqueda, setBusqueda] = useState('')
+  const [categoria, setCategoria] = useState('Todas')
   const [cargando, setCargando] = useState(true)
-  const [mostrarFormulario, setMostrarFormulario] = useState(false)
-  const [guardando, setGuardando] = useState(false)
-  const [form, setForm] = useState({
-    nombre: '',
-    categoria: 'veterinaria',
-    provincia: '',
-    telefono: '',
-    whatsapp: '',
-    direccion: '',
-    descripcion: '',
-  })
 
   useEffect(() => {
-    cargarDatos()
-  }, [provincia, categoria])
+    cargarDirectorio()
+  }, [])
 
-  const cargarDatos = async () => {
+  const cargarDirectorio = async () => {
     setCargando(true)
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    setUsuario(user)
+    const { data, error } = await supabase
+      .from('directorio')
+      .select('*')
+      .order('nombre', { ascending: true })
 
-    if (user) {
-      const { data: perfil } = await supabase
-        .from('perfiles')
-        .select('es_admin, tipo')
-        .eq('id', user.id)
-        .single()
-
-      // Reconocimiento directo de administrador sin contraseñas:
-      const esAdminUser =
-        user.email === 'anonimusrofri@gmail.com' ||
-        perfil?.es_admin === true ||
-        perfil?.tipo === 'admin'
-
-      setEsAdmin(esAdminUser)
+    if (!error && data) {
+      setNegocios(data)
     }
-
-    let query = supabase.from('directorio').select('*')
-    if (provincia !== 'Todas') query = query.eq('provincia', provincia)
-    if (categoria !== 'Todas') query = query.eq('categoria', categoria)
-
-    const { data } = await query.order('nombre')
-    setNegocios(data || [])
     setCargando(false)
   }
 
-  const agregarNegocio = async () => {
-    if (!form.nombre || !form.provincia) return
-    setGuardando(true)
-    await supabase.from('directorio').insert({ ...form })
-    setForm({
-      nombre: '',
-      categoria: 'veterinaria',
-      provincia: '',
-      telefono: '',
-      whatsapp: '',
-      direccion: '',
-      descripcion: '',
-    })
-    setMostrarFormulario(false)
-    setGuardando(false)
-    cargarDatos()
-  }
-
-  const eliminarNegocio = async (id: string) => {
-    if (!confirm('¿Eliminar este negocio del directorio?')) return
-    await supabase.from('directorio').delete().eq('id', id)
-    cargarDatos()
-  }
-
-  if (!usuario && !cargando) {
-    return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
-        <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-xl border border-slate-200">
-          <div className="text-5xl mb-4">🔒</div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Acceso exclusivo para miembros</h2>
-          <p className="text-slate-600 text-sm leading-relaxed mb-6">
-            Debes iniciar sesión para ver el directorio.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Link
-              href="/registro"
-              className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all shadow-sm"
-            >
-              Crear Cuenta
-            </Link>
-            <Link
-              href="/login"
-              className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm px-5 py-2.5 rounded-xl transition-all"
-            >
-              Iniciar Sesión
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   const negociosFiltrados = negocios.filter((n) => {
-    if (!busqueda.trim()) return true
-    const q = busqueda.toLowerCase()
-    return (
-      n.nombre?.toLowerCase().includes(q) ||
-      n.descripcion?.toLowerCase().includes(q)
-    )
+    const coincideBusqueda =
+      n.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+      n.descripcion?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      n.provincia?.toLowerCase().includes(busqueda.toLowerCase())
+    const coincideCategoria = categoria === 'Todas' || n.categoria === categoria
+    return coincideBusqueda && coincideCategoria
   })
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6 font-sans bg-slate-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-slate-900 to-blue-900 rounded-2xl p-6 mb-6 text-white shadow-lg flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Directorio Porcino</h1>
-          <p className="text-blue-200 text-sm mt-1">
-            Servicios especializados en República Dominicana
+    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 text-center md:text-left">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+            Directorio Porcino RD
+          </h1>
+          <p className="text-slate-600 text-sm">
+            Encuentra granjas, suplidores de alimento, servicios veterinarios y comercios del sector.
           </p>
         </div>
-        <Link href="/" className="text-blue-200 hover:text-white text-xs font-semibold transition-all">
-          ← Inicio
-        </Link>
-      </div>
 
-      {/* Botón Administrador */}
-      {esAdmin && (
-        <button
-          onClick={() => setMostrarFormulario(!mostrarFormulario)}
-          className="w-full py-3.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-sm shadow-md transition-all mb-4 flex items-center justify-center gap-2"
-        >
-          {mostrarFormulario ? '✕ Cancelar' : '+ Agregar Negocio al Directorio'}
-        </button>
-      )}
-
-      {/* Formulario Administrador */}
-      {esAdmin && mostrarFormulario && (
-        <div className="bg-white border border-emerald-200 rounded-2xl p-6 mb-6 shadow-sm">
-          <h3 className="text-slate-900 font-bold text-base mb-4">Nuevo Negocio</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Nombre *</label>
-              <input
-                type="text"
-                placeholder="Nombre del negocio"
-                value={form.nombre}
-                onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Teléfono</label>
-              <input
-                type="tel"
-                placeholder="809-000-0000"
-                value={form.telefono}
-                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">WhatsApp</label>
-              <input
-                type="tel"
-                placeholder="809-000-0000"
-                value={form.whatsapp}
-                onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Dirección</label>
-              <input
-                type="text"
-                placeholder="Dirección física"
-                value={form.direccion}
-                onChange={(e) => setForm({ ...form, direccion: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Categoría</label>
-              <select
-                value={form.categoria}
-                onChange={(e) => setForm({ ...form, categoria: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-              >
-                {categorias.filter((c) => c !== 'Todas').map((c) => (
-                  <option key={c} value={c}>
-                    {labelCategoria(c)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Provincia *</label>
-              <select
-                value={form.provincia}
-                onChange={(e) => setForm({ ...form, provincia: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-              >
-                <option value="">Selecciona...</option>
-                {provincias.filter((p) => p !== 'Todas').map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="mt-4">
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Descripción</label>
-            <textarea
-              placeholder="Descripción del negocio..."
-              value={form.descripcion}
-              onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
-              rows={3}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 resize-y"
-            />
-          </div>
-          <button
-            onClick={agregarNegocio}
-            disabled={guardando}
-            className="mt-4 py-2.5 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold shadow-md transition-all"
-          >
-            {guardando ? 'Guardando...' : '✓ Guardar Negocio'}
-          </button>
-        </div>
-      )}
-
-      {/* Filtros */}
-      <div className="bg-white rounded-2xl p-4 md:p-5 mb-6 shadow-sm border border-slate-200 space-y-3">
-        <input
-          type="text"
-          placeholder="🔍 Buscar veterinarias, alimento, servicios..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-        />
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {categorias.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCategoria(c)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                categoria === c
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              {c === 'Todas' ? 'Todos' : labelCategoria(c)}
-            </button>
-          ))}
-        </div>
-        <select
-          value={provincia}
-          onChange={(e) => setProvincia(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
-        >
-          {provincias.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Lista de Negocios */}
-      {cargando ? (
-        <p className="text-center text-slate-500 py-12 text-sm">Cargando directorio...</p>
-      ) : negociosFiltrados.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-          <div className="text-5xl mb-3">📋</div>
-          <p className="text-slate-700 font-semibold mb-1">No hay negocios en esta categoría o provincia</p>
-          {esAdmin && (
-            <p className="text-slate-500 text-xs">Agrega el primero usando el botón de arriba</p>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {negociosFiltrados.map((neg) => (
-            <div
-              key={neg.id}
-              className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex justify-between items-start gap-2 mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-blue-50 text-2xl flex items-center justify-center shrink-0 border border-blue-100">
-                      {iconoCategoria(neg.categoria)}
-                    </div>
-                    <div>
-                      <h3 className="text-slate-900 font-bold text-base leading-tight">
-                        {neg.nombre}
-                      </h3>
-                      <span className="text-blue-700 text-xs font-semibold">
-                        {labelCategoria(neg.categoria)}
-                      </span>
-                    </div>
-                  </div>
-                  {neg.verificado && (
-                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
-                      ✅ Verificado
-                    </span>
-                  )}
-                </div>
-
-                <p className="text-slate-500 text-xs mb-1">📍 {neg.provincia}</p>
-                {neg.direccion && <p className="text-slate-500 text-xs mb-1">📌 {neg.direccion}</p>}
-                {neg.descripcion && (
-                  <p className="text-slate-700 text-xs leading-relaxed my-2">{neg.descripcion}</p>
-                )}
-              </div>
-
-              <div className="border-t border-slate-100 pt-3 mt-3 flex gap-2">
-                {neg.whatsapp && (
-                  <a
-                    href={`https://wa.me/1${neg.whatsapp.replace(/\D/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2 rounded-xl text-center text-xs font-bold transition-all"
-                  >
-                    WhatsApp
-                  </a>
-                )}
-                {neg.telefono && (
-                  <a
-                    href={`tel:${neg.telefono}`}
-                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 py-2 rounded-xl text-center text-xs font-bold transition-all"
-                  >
-                    Llamar
-                  </a>
-                )}
-                {esAdmin && (
-                  <button
-                    onClick={() => eliminarNegocio(neg.id)}
-                    className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 rounded-xl text-xs font-bold transition-all"
-                    title="Eliminar negocio"
-                  >
-                    🗑
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Banner de Inscripción */}
-      {!esAdmin && (
-        <div className="bg-gradient-to-r from-slate-900 to-emerald-900 rounded-2xl p-6 mt-6 text-white text-center shadow-lg">
-          <h3 className="font-bold text-base mb-1">¿Tienes un negocio relacionado al sector porcino?</h3>
-          <p className="text-emerald-100 text-xs mb-4">
+        {/* Call to Action Banner con WhatsApp listo */}
+        <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-emerald-900 text-white rounded-2xl p-6 md:p-8 text-center shadow-lg mb-8 border border-emerald-800/30">
+          <h2 className="text-lg md:text-xl font-bold mb-2">
+            ¿Tienes un negocio relacionado al sector porcino?
+          </h2>
+          <p className="text-slate-300 text-xs md:text-sm mb-5">
             Contacta al administrador para inscribir tu negocio en el directorio.
           </p>
           <a
-            href="https://wa.me/18093708359"
+            href="https://wa.me/18098373120?text=Hola,%20me%20interesa%20inscribir%20mi%20negocio%20en%20el%20directorio%20porcino."
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-white text-slate-900 font-bold text-xs px-6 py-2.5 rounded-xl hover:bg-slate-100 transition-all shadow-md"
+            className="inline-block bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-md hover:scale-[1.02]"
           >
             Contactar por WhatsApp
           </a>
         </div>
-      )}
+
+        {/* Filtros */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row gap-4">
+          <input
+            type="text"
+            placeholder="Buscar por nombre, descripción o provincia..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all"
+          />
+          <select
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all"
+          >
+            <option value="Todas">Todas las categorías</option>
+            <option value="Granja">Granjas</option>
+            <option value="Alimentos">Alimentos y Nutrición</option>
+            <option value="Veterinaria">Veterinarias y Medicamentos</option>
+            <option value="Equipos">Equipos y Maquinaria</option>
+            <option value="Transporte">Transporte</option>
+          </select>
+        </div>
+
+        {/* Listado */}
+        {cargando ? (
+          <div className="text-center py-12 text-slate-500 text-sm">Cargando directorio...</div>
+        ) : negociosFiltrados.length === 0 ? (
+          <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 text-slate-500 text-sm">
+            No se encontraron negocios con esos criterios.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {negociosFiltrados.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-all"
+              >
+                <div>
+                  <span className="inline-block bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-lg mb-3">
+                    {item.categoria}
+                  </span>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">{item.nombre}</h3>
+                  <p className="text-xs text-slate-500 mb-3">📍 {item.provincia}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-4">{item.descripcion}</p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 flex gap-2">
+                  {item.whatsapp && (
+                    <a
+                      href={`https://wa.me/1${item.whatsapp.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2 text-center bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl transition-all"
+                    >
+                      WhatsApp
+                    </a>
+                  )}
+                  {item.telefono && (
+                    <a
+                      href={`tel:${item.telefono}`}
+                      className="flex-1 py-2 text-center bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl transition-all"
+                    >
+                      Llamar
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
