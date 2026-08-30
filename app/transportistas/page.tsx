@@ -1,184 +1,239 @@
 ﻿'use client'
+
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 
-const provincias = ['Todas','Azua','Bahoruco','Barahona','Dajab\u00f3n','Distrito Nacional','Duarte','El\u00edas Pi\u00f1a','El Seibo','Espaillat','Hato Mayor','Hermanas Mirabal','Independencia','La Altagracia','La Romana','La Vega','Mar\u00eda Trinidad S\u00e1nchez','Monse\u00f1or Nouel','Monte Cristi','Monte Plata','Pedernales','Peravia','Puerto Plata','Saman\u00e1','San Crist\u00f3bal','San Jos\u00e9 de Ocoa','San Juan','San Pedro de Macor\u00eds','S\u00e1nchez Ram\u00edrez','Santiago','Santiago Rodr\u00edguez','Santo Domingo','Valverde']
+export default function TransportistaPerfil() {
+  const params = useParams()
+  const id = params?.id as string
 
-export default function Transportistas() {
-  const [transportistas, setTransportistas] = useState<any[]>([])
-  const [provincia, setProvincia] = useState('Todas')
-  const [busqueda, setBusqueda] = useState('')
+  const [perfil, setPerfil] = useState<any>(null)
+  const [publicaciones, setPublicaciones] = useState<any[]>([])
+  const [resenas, setResenas] = useState<any[]>([])
   const [cargando, setCargando] = useState(true)
-  const [mostrarModal, setMostrarModal] = useState(false)
-  const [form, setForm] = useState({ nombre: '', provincia: '', telefono: '', whatsapp: '', descripcion: '', capacidad: '', experiencia: '' })
-  const [enviando, setEnviando] = useState(false)
-  const [enviado, setEnviado] = useState(false)
+  const [usuarioActual, setUsuarioActual] = useState<any>(null)
 
-  useEffect(() => { cargarDatos() }, [provincia])
+  useEffect(() => {
+    if (id) {
+      cargarDatos()
+    } else {
+      setCargando(false)
+    }
+  }, [id])
 
   const cargarDatos = async () => {
     setCargando(true)
-    let query = supabase.from('perfiles').select('*').eq('tipo', 'transportista')
-    if (provincia !== 'Todas') query = query.eq('provincia', provincia)
-    const { data } = await query.order('estrellas', { ascending: false })
-    setTransportistas(data || [])
+    const { data: { user } } = await supabase.auth.getUser()
+    setUsuarioActual(user)
+
+    const { data: p } = await supabase.from('perfiles').select('*').eq('id', id).single()
+    const { data: pubs } = await supabase.from('publicaciones').select('*').eq('usuario_id', id).eq('estado', 'aprobada').eq('activo', true).order('created_at', { ascending: false })
+    const { data: revs } = await supabase.from('resenas').select('*, perfiles(nombre, foto_perfil)').eq('para_usuario', id).order('created_at', { ascending: false })
+
+    setPerfil(p)
+    setPublicaciones(pubs || [])
+    setResenas(revs || [])
     setCargando(false)
   }
 
-  const filtrados = transportistas.filter(t =>
-    busqueda === '' ||
-    t.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    t.provincia?.toLowerCase().includes(busqueda.toLowerCase())
-  )
-
-  const enviarSolicitud = async () => {
-    if (!form.nombre || !form.provincia || !form.whatsapp) return
-    setEnviando(true)
-    await supabase.from('reportes').insert({
-      motivo: 'Solicitud transportista: ' + form.nombre,
-      descripcion: `Provincia: ${form.provincia} | WA: ${form.whatsapp} | Capacidad: ${form.capacidad} | Exp: ${form.experiencia} | Desc: ${form.descripcion}`,
-    })
-    setEnviado(true)
-    setEnviando(false)
+  if (cargando) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F4F6F9', fontFamily: "'Inter', sans-serif" }}>
+        <p style={{ color: '#6B7280' }}>Cargando información...</p>
+      </div>
+    )
   }
 
+  if (!perfil) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F4F6F9', fontFamily: "'Inter', sans-serif" }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#6B7280', fontSize: '16px', marginBottom: '16px' }}>Perfil de transportista no encontrado</p>
+          <Link href="/" style={{ color: '#2563A8', fontWeight: '600' }}>← Volver al inicio</Link>
+        </div>
+      </div>
+    )
+  }
+
+  const esTransportista = perfil?.tipo?.toLowerCase() === 'transportista'
+  const reputacion = resenas.length > 0 ? Math.round((resenas.reduce((s, r) => s + (r.estrellas || 0), 0) / resenas.length) * 10) / 10 : 0
+  const whatsappLimpio = perfil?.whatsapp ? String(perfil.whatsapp).replace(/\D/g, '') : ''
+  const mensajeWhatsapp = encodeURIComponent('Hola, me interesa consultar disponibilidad para un flete/transporte.')
+
   return (
-    <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px', fontFamily: 'Inter, sans-serif', backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
+    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '20px', fontFamily: "'Inter', sans-serif", backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div>
-          <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: '0 0 2px 0' }}>Transportistas</h1>
-          <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>Transporte especializado de ganado porcino</p>
-        </div>
-        <Link href="/" style={{ color: '#2563A8', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>\u2190 Inicio</Link>
+        <Link href="/directorio" style={{ color: '#2563A8', fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>← Volver</Link>
+        <Link href="/" style={{ color: '#6B7280', fontSize: '13px', textDecoration: 'none' }}>Inicio</Link>
       </div>
 
-      <input placeholder="\uD83D\uDD0D Buscar por nombre o provincia..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-        style={{ width: '100%', padding: '12px 14px', borderRadius: '12px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: 'white', boxSizing: 'border-box', marginBottom: '12px', outline: 'none' }} />
-
-      <select value={provincia} onChange={(e) => setProvincia(e.target.value)}
-        style={{ width: '100%', padding: '11px 14px', marginBottom: '16px', borderRadius: '12px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: 'white', boxSizing: 'border-box' }}>
-        {provincias.map(p => <option key={p} value={p}>{p}</option>)}
-      </select>
-
-      <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '14px 16px', marginBottom: '16px', borderLeft: '4px solid #3B82F6' }}>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <span style={{ fontSize: '18px' }}>\uD83D\uDEE1\uFE0F</span>
-          <p style={{ color: '#374151', fontSize: '12px', margin: 0, lineHeight: 1.6 }}>Transportistas con protocolos de bioseguridad para el manejo seguro de porcinos en Rep\u00fablica Dominicana.</p>
+      {/* Tarjeta Principal */}
+      <div style={{ 
+        background: 'linear-gradient(180deg, #1E293B 0%, #3B82F6 50%, #1D4ED8 100%)', 
+        borderRadius: '20px', padding: '32px 24px', marginBottom: '16px', color: 'white', textAlign: 'center' 
+      }}>
+        <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: '700', color: '#1A3C5E', margin: '0 auto 16px', overflow: 'hidden', border: '3px solid rgba(255,255,255,0.5)' }}>
+          {perfil.foto_perfil ? <img src={perfil.foto_perfil} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : perfil.nombre?.charAt(0).toUpperCase()}
         </div>
-      </div>
 
-      {cargando ? (
-        <p style={{ textAlign: 'center', color: '#6B7280', padding: '40px' }}>Cargando transportistas...</p>
-      ) : filtrados.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '48px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
-          <div style={{ fontSize: '40px', marginBottom: '12px' }}>\uD83D\uDE9B</div>
-          <p style={{ color: '#9CA3AF', fontWeight: '600', fontSize: '14px' }}>No hay transportistas en esta provincia</p>
-          <p style={{ color: '#6B7280', fontSize: '13px', marginTop: '8px' }}>\u00BFEres transportista? Usa el bot\u00f3n de abajo.</p>
+        <h1 style={{ fontSize: '22px', fontWeight: '700', margin: '0 0 6px 0' }}>{perfil.nombre}</h1>
+        <p style={{ opacity: 0.9, fontSize: '14px', margin: '0 0 8px 0' }}>📍 {perfil.provincia}, RD</p>
+
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '10px' }}>
+          <span style={{ backgroundColor: '#F59E0B', color: '#78350F', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700' }}>
+            🚚 Transportista de Cerdos / Ganado
+          </span>
+          {perfil.verificado && (
+            <span style={{ backgroundColor: '#10B981', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>
+              ✅ Verificado
+            </span>
+          )}
         </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '80px' }}>
-          {filtrados.map((t) => (
-            <div key={t.id} style={{ backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '16px', padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
-                <div style={{ width: '56px', height: '56px', borderRadius: '10px', backgroundColor: '#1A3C5E', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '700', fontSize: '20px', overflow: 'hidden', flexShrink: 0 }}>
-                  {t.foto_perfil ? <img src={t.foto_perfil} alt="foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : t.nombre?.charAt(0).toUpperCase()}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <p style={{ fontWeight: '700', color: '#111827', margin: '0 0 2px 0', fontSize: '15px' }}>{t.nombre}</p>
-                    {t.verificado && <span style={{ backgroundColor: '#D1FAE5', color: '#065F46', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>\u2705 Verificado</span>}
-                  </div>
-                  <p style={{ color: '#6B7280', fontSize: '13px', margin: '0 0 6px 0' }}>\uD83D\uDCCD {t.provincia}</p>
-                  <div style={{ display: 'flex', gap: '2px' }}>
-                    {[1,2,3,4,5].map(n => <span key={n} style={{ color: n <= Math.round(t.estrellas || 0) ? '#F59E0B' : '#E5E7EB', fontSize: '14px' }}>\u2605</span>)}
-                    <span style={{ color: '#6B7280', fontSize: '12px', marginLeft: '4px' }}>({t.estrellas || 0})</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ borderTop: '1px solid #F3F4F6', paddingTop: '12px', marginBottom: '12px' }}>
-                {t.descripcion && <p style={{ color: '#374151', fontSize: '13px', margin: '0 0 6px 0', lineHeight: 1.5 }}>\uD83D\uDE9B {t.descripcion}</p>}
-                <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>\uD83D\uDD04 Transportista registrado en Porcicultores RD</p>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <Link href={"/chat?usuario=" + t.id} style={{ backgroundColor: 'white', color: '#374151', border: '1px solid #E5E7EB', padding: '10px', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
-                  \uD83D\uDCAC Chat Privado
-                </Link>
-                {t.whatsapp && (
-                  <a href={"https://wa.me/1" + t.whatsapp.replace(/\D/g,'')} target="_blank"
-                    style={{ backgroundColor: '#1A3C5E', color: 'white', padding: '10px', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
-                    WhatsApp
-                  </a>
-                )}
-              </div>
-            </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '10px', alignItems: 'center' }}>
+          {[1, 2, 3, 4, 5].map(n => (
+            <span key={n} style={{ color: n <= Math.round(reputacion) ? '#F59E0B' : 'rgba(255,255,255,0.3)', fontSize: '20px' }}>★</span>
           ))}
+          <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', marginLeft: '6px' }}>({reputacion})</span>
+        </div>
+      </div>
+
+      {/* Estadísticas */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '16px' }}>
+        {[
+          { label: 'Fletes / Rutas', valor: publicaciones.length, icon: '🚚' },
+          { label: 'Reseñas', valor: resenas.length, icon: '⭐' },
+          { label: 'Reputación', valor: reputacion > 0 ? `${reputacion}/5` : 'Nueva', icon: '🏆' },
+        ].map(s => (
+          <div key={s.label} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '16px', textAlign: 'center', border: '1px solid #E5E7EB' }}>
+            <div style={{ fontSize: '20px', marginBottom: '4px' }}>{s.icon}</div>
+            <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>{s.valor}</div>
+            <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Detalles del Servicio */}
+      <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', marginBottom: '16px', border: '1px solid #E5E7EB' }}>
+        <h3 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 14px 0', fontSize: '15px' }}>Información del Servicio</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px', borderBottom: '1px solid #F3F4F6' }}>
+            <span style={{ color: '#6B7280', fontSize: '13px' }}>Base principal</span>
+            <span style={{ color: '#111827', fontSize: '13px', fontWeight: '600' }}>{perfil.provincia}</span>
+          </div>
+          {perfil.capacidad_camion && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px', borderBottom: '1px solid #F3F4F6' }}>
+              <span style={{ color: '#6B7280', fontSize: '13px' }}>Capacidad / Vehículo</span>
+              <span style={{ color: '#111827', fontSize: '13px', fontWeight: '600' }}>{perfil.capacidad_camion}</span>
+            </div>
+          )}
+          {perfil.rutas_cobertura && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px', borderBottom: '1px solid #F3F4F6' }}>
+              <span style={{ color: '#6B7280', fontSize: '13px' }}>Cobertura</span>
+              <span style={{ color: '#111827', fontSize: '13px', fontWeight: '600' }}>{perfil.rutas_cobertura}</span>
+            </div>
+          )}
+          {perfil.descripcion && (
+            <div>
+              <span style={{ color: '#6B7280', fontSize: '13px', display: 'block', marginBottom: '4px' }}>Descripción / Servicios</span>
+              <span style={{ color: '#374151', fontSize: '13px', lineHeight: 1.6 }}>{perfil.descripcion}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Botones de contacto */}
+      {usuarioActual && usuarioActual.id !== id && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+          {whatsappLimpio && (
+            <a 
+              href={`https://wa.me/1${whatsappLimpio}?text=${mensajeWhatsapp}`} 
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ backgroundColor: '#25D366', color: 'white', padding: '14px', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}
+            >
+              💬 Cotizar por WhatsApp
+            </a>
+          )}
+          <Link href={`/chat?usuario=${id}`}
+            style={{ backgroundColor: '#1A3C5E', color: 'white', padding: '14px', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>
+            ✉️ Mensaje
+          </Link>
+          <Link href={`/resena?para=${id}`}
+            style={{ backgroundColor: 'white', color: '#1A3C5E', padding: '14px', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '600', fontSize: '14px', border: '1px solid #E5E7EB' }}>
+            ⭐ Dejar Reseña
+          </Link>
+          <Link href={`/reportar?usuario=${id}`}
+            style={{ backgroundColor: 'white', color: '#EF4444', padding: '14px', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '600', fontSize: '14px', border: '1px solid #FECACA' }}>
+            ⚠️ Reportar
+          </Link>
         </div>
       )}
 
-      <button onClick={() => setMostrarModal(true)}
-        style={{ position: 'fixed', bottom: '24px', right: '24px', backgroundColor: '#1A3C5E', color: 'white', border: 'none', padding: '14px 20px', borderRadius: '24px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', boxShadow: '0 4px 20px rgba(26,60,94,0.4)', zIndex: 50 }}>
-        \uD83D\uDE9B + Ser Transportista
-      </button>
-
-      {mostrarModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
-          onClick={(e) => { if (e.target === e.currentTarget) setMostrarModal(false) }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '20px 20px 0 0', padding: '24px', width: '100%', maxWidth: '480px', maxHeight: '85vh', overflowY: 'auto' }}>
-            {enviado ? (
-              <div style={{ textAlign: 'center', padding: '32px 16px' }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>\u2705</div>
-                <h3 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 8px 0' }}>\u00A1Solicitud enviada!</h3>
-                <p style={{ color: '#6B7280', fontSize: '14px', margin: '0 0 20px 0' }}>El administrador revisar\u00e1 tu solicitud y te contactar\u00e1 pronto.</p>
-                <button onClick={() => { setMostrarModal(false); setEnviado(false); setForm({ nombre: '', provincia: '', telefono: '', whatsapp: '', descripcion: '', capacidad: '', experiencia: '' }) }}
-                  style={{ backgroundColor: '#1A3C5E', color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
-                  Cerrar
-                </button>
+      {/* Publicaciones / Rutas */}
+      {publicaciones.length > 0 && (
+        <div style={{ marginBottom: '16px' }}>
+          <h3 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 12px 0', fontSize: '15px' }}>
+            Rutas y servicios activos ({publicaciones.length})
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
+            {publicaciones.map(pub => (
+              <div key={pub.id} style={{ backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E5E7EB', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                {pub.foto_url
+                  ? <img src={pub.foto_url} alt="servicio" style={{ width: '100%', height: '140px', objectFit: 'cover' }} />
+                  : <div style={{ width: '100%', height: '140px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px' }}>🚚</div>
+                }
+                <div style={{ padding: '12px' }}>
+                  <span style={{ backgroundColor: '#DBEAFE', color: '#1D4ED8', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>{pub.tipo_animal || 'Flete'}</span>
+                  <p style={{ color: '#1D4ED8', fontWeight: '700', fontSize: '16px', margin: '6px 0 2px 0' }}>
+                    {pub.precio ? `RD$ ${pub.precio.toLocaleString()}` : 'A convenir'}
+                  </p>
+                  <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>📍 {pub.provincia}</p>
+                </div>
               </div>
-            ) : (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <h3 style={{ color: '#1A3C5E', fontWeight: '700', fontSize: '18px', margin: 0 }}>\uD83D\uDE9B Ser Transportista</h3>
-                  <button onClick={() => setMostrarModal(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#6B7280' }}>\u2715</button>
-                </div>
-                <p style={{ color: '#6B7280', fontSize: '13px', margin: '0 0 16px 0' }}>Completa el formulario y el administrador verificar\u00e1 tu perfil.</p>
-                {[
-                  { label: 'Nombre completo *', key: 'nombre', type: 'text', placeholder: 'Tu nombre o empresa' },
-                  { label: 'Tel\u00e9fono', key: 'telefono', type: 'tel', placeholder: '809-000-0000' },
-                  { label: 'WhatsApp *', key: 'whatsapp', type: 'tel', placeholder: '809-000-0000' },
-                  { label: 'Capacidad', key: 'capacidad', type: 'text', placeholder: 'Ej: Hasta 50 cerdos' },
-                  { label: 'A\u00f1os de experiencia', key: 'experiencia', type: 'text', placeholder: 'Ej: 10 a\u00f1os' },
-                ].map(f => (
-                  <div key={f.key} style={{ marginBottom: '12px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>{f.label}</label>
-                    <input type={f.type} placeholder={f.placeholder} value={(form as any)[f.key]}
-                      onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-                      style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: '#F9FAFB', boxSizing: 'border-box', outline: 'none' }} />
-                  </div>
-                ))}
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>Provincia *</label>
-                  <select value={form.provincia} onChange={(e) => setForm({ ...form, provincia: e.target.value })}
-                    style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: '#F9FAFB' }}>
-                    <option value="">Selecciona tu provincia</option>
-                    {provincias.filter(p => p !== 'Todas').map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>Descripci\u00f3n del servicio</label>
-                  <textarea placeholder="Describe tu servicio, tipo de cami\u00f3n, rutas, etc." value={form.descripcion}
-                    onChange={(e) => setForm({ ...form, descripcion: e.target.value })} rows={3}
-                    style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', backgroundColor: '#F9FAFB', boxSizing: 'border-box', resize: 'vertical', outline: 'none' }} />
-                </div>
-                <button onClick={enviarSolicitud} disabled={enviando || !form.nombre || !form.provincia || !form.whatsapp}
-                  style={{ width: '100%', padding: '14px', background: enviando ? '#93C5FD' : 'linear-gradient(135deg, #1A3C5E, #2563A8)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '15px' }}>
-                  {enviando ? '\u23F3 Enviando...' : '\u2713 Enviar Solicitud'}
-                </button>
-              </>
-            )}
+            ))}
           </div>
         </div>
       )}
+
+      {/* Reseñas */}
+      <div>
+        <h3 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 12px 0', fontSize: '15px' }}>Reseñas ({resenas.length})</h3>
+        {resenas.length === 0 ? (
+          <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px', textAlign: 'center', border: '1px solid #E5E7EB' }}>
+            <p style={{ color: '#9CA3AF', fontSize: '14px', margin: 0 }}>Este transportista aún no tiene reseñas</p>
+          </div>
+        ) : (
+          resenas.map(r => (
+            <div key={r.id} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '16px', marginBottom: '10px', border: '1px solid #E5E7EB' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#1A3C5E', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '13px', fontWeight: '700', overflow: 'hidden' }}>
+                    {r.perfiles?.foto_perfil ? <img src={r.perfiles.foto_perfil} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : r.perfiles?.nombre?.charAt(0).toUpperCase()}
+                  </div>
+                  <span style={{ fontWeight: '600', color: '#111827', fontSize: '13px' }}>{r.perfiles?.nombre}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '2px' }}>
+                  {[1, 2, 3, 4, 5].map(n => (
+                    <span key={n} style={{ color: n <= r.estrellas ? '#F59E0B' : '#E5E7EB', fontSize: '14px' }}>★</span>
+                  ))}
+                </div>
+              </div>
+              {r.comentario && <p style={{ color: '#374151', fontSize: '13px', margin: 0, lineHeight: 1.6 }}>{r.comentario}</p>}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Aviso legal */}
+      <div style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '14px', marginTop: '20px' }}>
+        <p style={{ color: '#374151', fontSize: '12px', margin: 0, lineHeight: 1.6 }}>
+          ℹ️ Porcicultores RD no se hace responsable de tratos o coordinaciones de flete realizados fuera de la plataforma. Verifica siempre los detalles del transporte antes de acordar un servicio.
+        </p>
+      </div>
     </div>
   )
 }

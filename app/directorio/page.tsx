@@ -1,26 +1,32 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
-interface Negocio {
-  id: string
-  nombre: string
-  categoria: string
-  descripcion: string
-  provincia: string
-  telefono: string
-  whatsapp: string
-  direccion?: string
-  imagen_url?: string
-}
+const provincias = [
+  'Todas', 'Azua', 'Bahoruco', 'Barahona', 'Dajabón', 'Distrito Nacional', 'Duarte', 'Elías Piña', 
+  'El Seibo', 'Espaillat', 'Hato Mayor', 'Hermanas Mirabal', 'Independencia', 'La Altagracia', 
+  'La Romana', 'La Vega', 'María Trinidad Sánchez', 'Monseñor Nouel', 'Monte Cristi', 
+  'Monte Plata', 'Pedernales', 'Peravia', 'Puerto Plata', 'Samaná', 'San Cristóbal', 
+  'San José de Ocoa', 'San Juan', 'San Pedro de Macorís', 'Sánchez Ramírez', 'Santiago', 
+  'Santiago Rodríguez', 'Santo Domingo', 'Valverde'
+]
+
+const categorias = [
+  'Todas',
+  'Granja Porcina',
+  'Alimentos y Nutrición',
+  'Veterinaria y Medicina',
+  'Equipos e Insumos',
+  'Transporte y Logística'
+]
 
 export default function Directorio() {
-  const [negocios, setNegocios] = useState<Negocio[]>([])
-  const [busqueda, setBusqueda] = useState('')
-  const [categoria, setCategoria] = useState('Todas')
+  const [negocios, setNegocios] = useState<any[]>([])
   const [cargando, setCargando] = useState(true)
+  const [busqueda, setBusqueda] = useState('')
+  const [provinciaFiltro, setProvinciaFiltro] = useState('Todas')
+  const [categoriaFiltro, setCategoriaFiltro] = useState('Todas')
 
   useEffect(() => {
     cargarDirectorio()
@@ -33,115 +39,117 @@ export default function Directorio() {
       .select('*')
       .order('nombre', { ascending: true })
 
-    if (!error && data) {
-      setNegocios(data)
+    if (error) {
+      console.error('Error cargando directorio:', error.message)
+    } else {
+      setNegocios(data || [])
     }
     setCargando(false)
   }
 
+  // Filtrado de la lista
   const negociosFiltrados = negocios.filter((n) => {
-    const coincideBusqueda =
-      n.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      n.descripcion?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      n.provincia?.toLowerCase().includes(busqueda.toLowerCase())
-    const coincideCategoria = categoria === 'Todas' || n.categoria === categoria
-    return coincideBusqueda && coincideCategoria
+    const coincideBusqueda = n.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+                            n.descripcion?.toLowerCase().includes(busqueda.toLowerCase())
+    const coincideProvincia = provinciaFiltro === 'Todas' || n.provincia === provinciaFiltro
+    const coincideCategoria = categoriaFiltro === 'Todas' || n.categoria === categoriaFiltro
+
+    return coincideBusqueda && coincideProvincia && coincideCategoria
   })
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 text-center md:text-left">
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-            Directorio Porcino RD
-          </h1>
-          <p className="text-slate-600 text-sm">
-            Encuentra granjas, suplidores de alimento, servicios veterinarios y comercios del sector.
-          </p>
-        </div>
+    <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: "'Inter', sans-serif", backgroundColor: '#FFFFFF', minHeight: '100vh', boxShadow: '0 0 20px rgba(0,0,0,0.05)' }}>
 
-        {/* Call to Action Banner con WhatsApp listo */}
-        <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-emerald-900 text-white rounded-2xl p-6 md:p-8 text-center shadow-lg mb-8 border border-emerald-800/30">
-          <h2 className="text-lg md:text-xl font-bold mb-2">
-            ¿Tienes un negocio relacionado al sector porcino?
-          </h2>
-          <p className="text-slate-300 text-xs md:text-sm mb-5">
-            Contacta al administrador para inscribir tu negocio en el directorio.
-          </p>
-          <a
-            href="https://wa.me/18098373120?text=Hola,%20me%20interesa%20inscribir%20mi%20negocio%20en%20el%20directorio%20porcino."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-md hover:scale-[1.02]"
-          >
-            Contactar por WhatsApp
-          </a>
+      {/* Encabezado Principal */}
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div>
+          <h1 style={{ fontSize: '18px', fontWeight: '700', color: '#1E293B', margin: 0 }}>Directorio Porcino</h1>
+          <p style={{ fontSize: '12px', color: '#64748B', margin: '2px 0 0 0' }}>Granjas, alimentos y servicios en RD</p>
         </div>
+        <Link href="/" style={{ color: '#0253A3', textDecoration: 'none', fontSize: '13px', fontWeight: '600', backgroundColor: '#EFF6FF', padding: '6px 12px', borderRadius: '20px' }}>
+          ← Inicio
+        </Link>
+      </div>
 
-        {/* Filtros */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row gap-4">
+      <div style={{ padding: '16px 20px' }}>
+
+        {/* Buscador de Texto */}
+        <div style={{ marginBottom: '14px' }}>
           <input
             type="text"
-            placeholder="Buscar por nombre, descripción o provincia..."
+            placeholder="🔍 Buscar por nombre o servicio..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all"
+            style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC', fontSize: '14px', outline: 'none', color: '#1E293B', boxSizing: 'border-box' }}
           />
-          <select
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all"
-          >
-            <option value="Todas">Todas las categorías</option>
-            <option value="Granja">Granjas</option>
-            <option value="Alimentos">Alimentos y Nutrición</option>
-            <option value="Veterinaria">Veterinarias y Medicamentos</option>
-            <option value="Equipos">Equipos y Maquinaria</option>
-            <option value="Transporte">Transporte</option>
-          </select>
         </div>
 
-        {/* Listado */}
+        {/* Filtros Dropdown (Provincia y Categoría) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: '#64748B', marginBottom: '4px' }}>Provincia</label>
+            <select
+              value={provinciaFiltro}
+              onChange={(e) => setProvinciaFiltro(e.target.value)}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC', fontSize: '13px', color: '#1E293B', outline: 'none', boxSizing: 'border-box' }}>
+              {provincias.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: '#64748B', marginBottom: '4px' }}>Categoría</label>
+            <select
+              value={categoriaFiltro}
+              onChange={(e) => setCategoriaFiltro(e.target.value)}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC', fontSize: '13px', color: '#1E293B', outline: 'none', boxSizing: 'border-box' }}>
+              {categorias.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* Carga o Resultados */}
         {cargando ? (
-          <div className="text-center py-12 text-slate-500 text-sm">Cargando directorio...</div>
+          <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748B', fontSize: '14px' }}>
+            Cargando directorio...
+          </div>
         ) : negociosFiltrados.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 text-slate-500 text-sm">
-            No se encontraron negocios con esos criterios.
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94A3B8' }}>
+            <div style={{ fontSize: '40px', marginBottom: '10px' }}>🏢</div>
+            <p style={{ fontSize: '14px', margin: 0, fontWeight: '600', color: '#475569' }}>No se encontraron negocios</p>
+            <p style={{ fontSize: '12px', marginTop: '4px' }}>Prueba cambiando los filtros de búsqueda.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {negociosFiltrados.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-all"
-              >
-                <div>
-                  <span className="inline-block bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-lg mb-3">
-                    {item.categoria}
-                  </span>
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">{item.nombre}</h3>
-                  <p className="text-xs text-slate-500 mb-3">📍 {item.provincia}</p>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-4">{item.descripcion}</p>
+              <div key={item.id} style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', padding: '16px', border: '1px solid #E2E8F0', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', margin: 0 }}>{item.nombre}</h3>
+                  {item.categoria && (
+                    <span style={{ backgroundColor: '#EFF6FF', color: '#0253A3', fontSize: '11px', fontWeight: '600', padding: '3px 8px', borderRadius: '12px' }}>
+                      {item.categoria}
+                    </span>
+                  )}
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex gap-2">
-                  {item.whatsapp && (
-                    <a
-                      href={`https://wa.me/1${item.whatsapp.replace(/\D/g, '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 py-2 text-center bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl transition-all"
-                    >
-                      WhatsApp
+                <p style={{ color: '#64748B', fontSize: '12px', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>📍</span> {item.provincia || 'República Dominicana'}
+                </p>
+
+                {item.descripcion && (
+                  <p style={{ color: '#334155', fontSize: '13px', margin: '0 0 14px 0', lineHeight: '1.4' }}>
+                    {item.descripcion}
+                  </p>
+                )}
+
+                {/* Acciones de Contacto */}
+                <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid #F1F5F9', paddingTop: '12px', marginTop: '4px' }}>
+                  {item.telefono && (
+                    <a href={`tel:${item.telefono}`} style={{ flex: 1, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', color: '#1E293B', textDecoration: 'none', padding: '8px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '600', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      📞 Llamar
                     </a>
                   )}
-                  {item.telefono && (
-                    <a
-                      href={`tel:${item.telefono}`}
-                      className="flex-1 py-2 text-center bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl transition-all"
-                    >
-                      Llamar
+                  {item.whatsapp && (
+                    <a href={`https://wa.me/${item.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, backgroundColor: '#25D366', color: 'white', textDecoration: 'none', padding: '8px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '600', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      💬 WhatsApp
                     </a>
                   )}
                 </div>
@@ -149,6 +157,7 @@ export default function Directorio() {
             ))}
           </div>
         )}
+
       </div>
     </div>
   )
