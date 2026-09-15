@@ -1,39 +1,96 @@
-﻿'use client'
-import Link from 'next/link'
+﻿'use client';
 
-export default function Apoyanos() {
+import React from 'react';
+
+export default function ApoyanosPage() {
+  const numeroTelefono = "18293982463";
+  const mensajeWhatsApp = encodeURIComponent("¡Hola! Me gustaría ponerme en contacto con el equipo de Porcicultores RD para apoyar el proyecto.");
+  const linkWhatsApp = `https://wa.me/${numeroTelefono}?text=${mensajeWhatsApp}`;
+  const linkPayPal = "https://www.paypal.com/paypalme/tuusuario";
+
   return (
-    <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px', fontFamily: 'Inter, sans-serif', backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div>
-          <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: '0 0 2px 0' }}>\u2764\uFE0F Ap\u00f3yanos</h1>
-          <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>Ayuda a mantener Porcicultores RD</p>
+    <main style={{ minHeight: '100vh', backgroundColor: '#f8fafc', padding: '2.5rem 1rem' }}>
+      <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
+        
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#0f172a', marginBottom: '0.5rem' }}>
+            Apóyanos a seguir creciendo
+          </h1>
+          <p style={{ color: '#475569', fontSize: '1rem', maxWidth: '36rem', margin: '0 auto' }}>
+            Tu apoyo ayuda a mantener <strong>Porcicultores RD</strong> como una herramienta gratuita y accesible para todos los productores porcinos de la República Dominicana.
+          </p>
         </div>
-        <Link href="/" style={{ color: '#2563A8', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>\u2190 Inicio</Link>
-      </div>
-      <div style={{ background: 'linear-gradient(135deg, #1A3C5E, #2563A8)', borderRadius: '16px', padding: '28px', marginBottom: '20px', color: 'white', textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '12px' }}>\uD83D\uDC37</div>
-        <h2 style={{ fontWeight: '700', fontSize: '20px', margin: '0 0 8px 0' }}>Porcicultores RD es gratuito</h2>
-        <p style={{ opacity: 0.85, fontSize: '14px', lineHeight: 1.7, margin: 0 }}>Tu apoyo nos permite mantener la plataforma activa, segura y en constante mejora para toda la comunidad porcina dominicana.</p>
-      </div>
-      {[
-      ,
-        { icon: '\uD83D\uDCF1', titulo: 'PayPal', desc: 'Donación Rapida y segura', detalle: 'paypal.me/porcicultoresrd' },
-      ].map(m => (
-        <div key={m.titulo} style={{ backgroundColor: 'white', borderRadius: '14px', padding: '20px', marginBottom: '12px', border: '1px solid #E5E7EB', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-          <span style={{ fontSize: '28px', flexShrink: 0 }}>{m.icon}</span>
-          <div>
-            <h3 style={{ color: '#1A3C5E', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>{m.titulo}</h3>
-            <p style={{ color: '#6B7280', fontSize: '12px', margin: '0 0 6px 0' }}>{m.desc}</p>
-            <p style={{ color: '#374151', fontSize: '13px', margin: 0, fontFamily: 'monospace', backgroundColor: '#F9FAFB', padding: '8px 12px', borderRadius: '8px', whiteSpace: 'pre-line' }}>{m.detalle}</p>
-          </div>
+
+        {/* Tarjetas */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+          
+          {/* WhatsApp */}
+          <a
+            href={linkWhatsApp}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '1.5rem',
+              backgroundColor: '#ffffff',
+              borderRadius: '1rem',
+              border: '1px solid #e2e8f0',
+              textDecoration: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between'
+            }}
+          >
+            <div>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#0f172a', marginBottom: '0.5rem' }}>
+                Contactar por WhatsApp 💬
+              </h2>
+              <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>
+                Comunícate directamente con nosotros al +1 (829) 398-2463 para coordinar tu apoyo o colaboración.
+              </p>
+            </div>
+            <span style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#059669', fontWeight: 600 }}>
+              Escribir ahora →
+            </span>
+          </a>
+
+          {/* PayPal */}
+          <a
+            href={linkPayPal}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '1.5rem',
+              backgroundColor: '#ffffff',
+              borderRadius: '1rem',
+              border: '1px solid #e2e8f0',
+              textDecoration: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between'
+            }}
+          >
+            <div>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#0f172a', marginBottom: '0.5rem' }}>
+                Donar con PayPal 💳
+              </h2>
+              <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>
+                Realiza un aporte rápido y seguro desde cualquier lugar a través de PayPal o tarjeta.
+              </p>
+            </div>
+            <span style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#2563eb', fontWeight: 600 }}>
+              Ir a PayPal →
+            </span>
+          </a>
+
         </div>
-      ))}
-      <div style={{ backgroundColor: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '14px', padding: '16px', textAlign: 'center' }}>
-        <p style={{ color: '#92400E', fontSize: '13px', margin: 0, lineHeight: 1.7 }}>
-          Cada aporte, por pequeño que sea, hace una gran diferencia. Gracias por apoyar el sector porcino dominicano!
-        </p>
+
+        {/* Nota Instagram */}
+        <div style={{ padding: '1rem', backgroundColor: '#f1f5f9', borderRadius: '0.75rem', textAlign: 'center', color: '#64748b', fontSize: '0.875rem' }}>
+          📷 Próximamente estaremos habilitando nuestra cuenta oficial de Instagram. ¡Mantente atento!
+        </div>
+
       </div>
-    </div>
-  )
+    </main>
+  );
 }
