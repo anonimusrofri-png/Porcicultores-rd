@@ -1,38 +1,180 @@
 ﻿'use client'
+
 import Link from 'next/link'
 
+interface MetodoApoyo {
+  icon: string
+  titulo: string
+  desc: string
+  detalle: string
+}
+
 export default function Apoyanos() {
+  const numeroWhatsapp = "8091234567" // Cambia por tu número real
+  const mensajeWhatsapp = encodeURIComponent("¡Hola! Me gustaría apoyar el proyecto Porcicultores RD.")
+  const enlacePaypal = "https://paypal.me/tucuenta" // Cambia por tu enlace real
+
+  const metodos: MetodoApoyo[] = [
+    {
+      icon: '💬',
+      titulo: 'WhatsApp',
+      desc: 'Contacto directo',
+      detalle: 'Escríbenos para alianzas o soporte',
+    },
+    {
+      icon: '💳',
+      titulo: 'PayPal',
+      desc: 'Donación rápida y segura',
+      detalle: 'Apoya el mantenimiento del servidor',
+    },
+  ]
+
   return (
-    <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px', fontFamily: 'Inter, sans-serif', backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div
+      style={{
+        maxWidth: '480px',
+        margin: '0 auto',
+        padding: '20px',
+        fontFamily: 'Inter, sans-serif',
+        backgroundColor: '#F4F6F9',
+        minHeight: '100vh',
+        boxSizing: 'border-box',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
         <div>
-          <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: '0 0 2px 0' }}>\u2764\uFE0F Ap\u00f3yanos</h1>
-          <p style={{ color: '#6B7280', fontSize: '13px', margin: 0 }}>Ayuda a mantener Porcicultores RD</p>
+          <h1
+            style={{
+              color: '#1A3C5E',
+              fontSize: '22px',
+              fontWeight: '700',
+              margin: '0 0 4px 0',
+            }}
+          >
+            Apóyanos 🤝
+          </h1>
+          <p
+            style={{
+              color: '#6B7280',
+              fontSize: '13px',
+              margin: 0,
+            }}
+          >
+            Ayúdanos a mantener viva la comunidad porcina
+          </p>
         </div>
-        <Link href="/" style={{ color: '#2563A8', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>\u2190 Inicio</Link>
+
+        <Link
+          href="/"
+          style={{
+            color: '#2563A8',
+            textDecoration: 'none',
+            fontSize: '13px',
+            fontWeight: '600',
+          }}
+        >
+          ← Inicio
+        </Link>
       </div>
-      <div style={{ background: 'linear-gradient(135deg, #1A3C5E, #2563A8)', borderRadius: '16px', padding: '28px', marginBottom: '20px', color: 'white', textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '12px' }}>\uD83D\uDC37</div>
-        <h2 style={{ fontWeight: '700', fontSize: '20px', margin: '0 0 8px 0' }}>Porcicultores RD es gratuito</h2>
-        <p style={{ opacity: 0.85, fontSize: '14px', lineHeight: 1.7, margin: 0 }}>Tu apoyo nos permite mantener la plataforma activa, segura y en constante mejora para toda la comunidad porcina dominicana.</p>
-      </div>
-      {[
-      ,
-        { icon: '\uD83D\uDCF1', titulo: 'PayPal', desc: 'Donaci n Rapida y segura', detalle: 'paypal.me/porcicultoresrd' },
-      ].map(m => (
-        <div key={m.titulo} style={{ backgroundColor: 'white', borderRadius: '14px', padding: '20px', marginBottom: '12px', border: '1px solid #E5E7EB', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-          <span style={{ fontSize: '28px', flexShrink: 0 }}>{m.icon}</span>
-          <div>
-            <h3 style={{ color: '#1A3C5E', fontWeight: '700', fontSize: '15px', margin: '0 0 4px 0' }}>{m.titulo}</h3>
-            <p style={{ color: '#6B7280', fontSize: '12px', margin: '0 0 6px 0' }}>{m.desc}</p>
-            <p style={{ color: '#374151', fontSize: '13px', margin: 0, fontFamily: 'monospace', backgroundColor: '#F9FAFB', padding: '8px 12px', borderRadius: '8px', whiteSpace: 'pre-line' }}>{m.detalle}</p>
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          marginBottom: '24px',
+        }}
+      >
+        {metodos.map((m: MetodoApoyo) => (
+          <div
+            key={m.titulo}
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '14px',
+              padding: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '14px',
+              border: '1px solid #E5E7EB',
+            }}
+          >
+            <span style={{ fontSize: '28px', flexShrink: 0 }}>{m.icon}</span>
+            <div>
+              <h3
+                style={{
+                  color: '#1A3C5E',
+                  fontWeight: '700',
+                  fontSize: '15px',
+                  margin: '0 0 2px 0',
+                }}
+              >
+                {m.titulo}
+              </h3>
+              <p
+                style={{
+                  color: '#4B5563',
+                  fontSize: '13px',
+                  margin: '0 0 2px 0',
+                  fontWeight: '600',
+                }}
+              >
+                {m.desc}
+              </p>
+              <p style={{ color: '#9CA3AF', fontSize: '12px', margin: 0 }}>
+                {m.detalle}
+              </p>
+            </div>
           </div>
-        </div>
-      ))}
-      <div style={{ backgroundColor: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '14px', padding: '16px', textAlign: 'center' }}>
-        <p style={{ color: '#92400E', fontSize: '13px', margin: 0, lineHeight: 1.7 }}>
-          Cada aporte, por peque o que sea, hace una gran diferencia. Gracias por apoyar el sector porcino dominicano!
-        </p>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <a
+          href={`https://wa.me/${numeroWhatsapp}?text=${mensajeWhatsapp}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#25D366',
+            color: 'white',
+            padding: '14px',
+            borderRadius: '12px',
+            textDecoration: 'none',
+            fontWeight: '700',
+            fontSize: '15px',
+          }}
+        >
+          💬 Escribir por WhatsApp
+        </a>
+
+        <a
+          href={enlacePaypal}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#0070BA',
+            color: 'white',
+            padding: '14px',
+            borderRadius: '12px',
+            textDecoration: 'none',
+            fontWeight: '700',
+            fontSize: '15px',
+          }}
+        >
+          💳 Donar con PayPal
+        </a>
       </div>
     </div>
   )
