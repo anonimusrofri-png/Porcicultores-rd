@@ -56,7 +56,7 @@ export default function Login() {
       })
 
       if (signInError) {
-        setError('Credenciales incorrectas. Verifica tu correo y contraseña.')
+        setError('Credenciales incorrectas. Verifica tu correo y contrase a.')
       } else {
         window.location.href = '/perfil'
       }
@@ -69,7 +69,7 @@ export default function Login() {
       
       {/* Encabezado */}
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '8px' }}>🐷</div>
+        <div style={{ fontSize: '48px', marginBottom: '8px' }}>??</div>
         <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#0253A3', margin: '0 0 6px 0' }}>Porcicultores RD</h1>
         <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
           {esRegistro ? 'Crea tu cuenta para publicar' : 'Ingresa a tu cuenta'}
@@ -87,7 +87,7 @@ export default function Login() {
               <input
                 type="text"
                 required
-                placeholder="Ej. Juan Pérez"
+                placeholder="Ej. Juan P rez"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC', fontSize: '14px', color: '#1E293B', outline: 'none', boxSizing: 'border-box' }}
@@ -96,7 +96,7 @@ export default function Login() {
 
             <div>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
-                Teléfono / WhatsApp <span style={{ color: '#EF4444' }}>*</span>
+                Tel fono / WhatsApp <span style={{ color: '#EF4444' }}>*</span>
               </label>
               <input
                 type="tel"
@@ -112,7 +112,7 @@ export default function Login() {
 
         <div>
           <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
-            Correo electrónico <span style={{ color: '#EF4444' }}>*</span>
+            Correo electr nico <span style={{ color: '#EF4444' }}>*</span>
           </label>
           <input
             type="email"
@@ -126,12 +126,12 @@ export default function Login() {
 
         <div>
           <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
-            Contraseña <span style={{ color: '#EF4444' }}>*</span>
+            Contrase a <span style={{ color: '#EF4444' }}>*</span>
           </label>
           <input
             type="password"
             required
-            placeholder="••••••••"
+            placeholder="        "
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC', fontSize: '14px', color: '#1E293B', outline: 'none', boxSizing: 'border-box' }}
@@ -140,7 +140,7 @@ export default function Login() {
 
         {error && (
           <div style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA', borderRadius: '10px', padding: '10px 12px', color: '#DC2626', fontSize: '12px', fontWeight: '500' }}>
-            ⚠️ {error}
+            ?? {error}
           </div>
         )}
 
@@ -148,7 +148,7 @@ export default function Login() {
           type="submit"
           disabled={cargando}
           style={{ width: '100%', padding: '14px', backgroundColor: cargando ? '#94A3B8' : '#0253A3', color: 'white', border: 'none', borderRadius: '12px', cursor: cargando ? 'not-allowed' : 'pointer', fontSize: '15px', fontWeight: '700', marginTop: '6px', boxShadow: '0 4px 12px rgba(2, 83, 163, 0.2)' }}>
-          {cargando ? '⏳ Procesando...' : esRegistro ? 'Crear Cuenta' : 'Iniciar Sesión'}
+          {cargando ? '? Procesando...' : esRegistro ? 'Crear Cuenta' : 'Iniciar Sesi n'}
         </button>
       </form>
 
@@ -160,13 +160,13 @@ export default function Login() {
             setError('')
           }}
           style={{ background: 'none', border: 'none', color: '#0253A3', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-          {esRegistro ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate aquí'}
+          {esRegistro ? ' Ya tienes cuenta? Inicia sesi n' : ' No tienes cuenta? Reg strate aqu '}
         </button>
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '30px' }}>
         <Link href="/" style={{ color: '#64748B', fontSize: '12px', textDecoration: 'none' }}>
-          ← Volver al Inicio
+          ? Volver al Inicio
         </Link>
       </div>
 

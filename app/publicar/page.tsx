@@ -4,21 +4,21 @@ import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
 const provincias = [
-  'Azua', 'Bahoruco', 'Barahona', 'Dajabón', 'Distrito Nacional', 'Duarte', 'Elías Piña', 
+  'Azua', 'Bahoruco', 'Barahona', 'Dajab n', 'Distrito Nacional', 'Duarte', 'El as Pi a', 
   'El Seibo', 'Espaillat', 'Hato Mayor', 'Hermanas Mirabal', 'Independencia', 'La Altagracia', 
-  'La Romana', 'La Vega', 'María Trinidad Sánchez', 'Monseñor Nouel', 'Monte Cristi', 
-  'Monte Plata', 'Pedernales', 'Peravia', 'Puerto Plata', 'Samaná', 'San Cristóbal', 
-  'San José de Ocoa', 'San Juan', 'San Pedro de Macorís', 'Sánchez Ramírez', 'Santiago', 
-  'Santiago Rodríguez', 'Santo Domingo', 'Valverde'
+  'La Romana', 'La Vega', 'Mar a Trinidad S nchez', 'Monse or Nouel', 'Monte Cristi', 
+  'Monte Plata', 'Pedernales', 'Peravia', 'Puerto Plata', 'Saman ', 'San Crist bal', 
+  'San Jos  de Ocoa', 'San Juan', 'San Pedro de Macor s', 'S nchez Ram rez', 'Santiago', 
+  'Santiago Rodr guez', 'Santo Domingo', 'Valverde'
 ]
 
 const tiposAnimales = [
-  { valor: 'cerdo', label: '🐷 Cerdo', desc: 'Cerdo en general' },
-  { valor: 'lechon', label: '🐷 Lechón', desc: 'Menos de 3 meses' },
-  { valor: 'cerda', label: '🐷 Cerda', desc: 'Hembra adulta' },
-  { valor: 'verraco', label: '🐷 Barraco', desc: 'Macho reproductor' },
-  { valor: 'reproductor', label: '🐷 Reproductor', desc: 'Para cría' },
-  { valor: 'engorde', label: '🐷 Engorde', desc: 'Listo para mercado' },
+  { valor: 'cerdo', label: '?? Cerdo', desc: 'Cerdo en general' },
+  { valor: 'lechon', label: '?? Lech n', desc: 'Menos de 3 meses' },
+  { valor: 'cerda', label: '?? Cerda', desc: 'Hembra adulta' },
+  { valor: 'verraco', label: '?? Barraco', desc: 'Macho reproductor' },
+  { valor: 'reproductor', label: '?? Reproductor', desc: 'Para cr a' },
+  { valor: 'engorde', label: '?? Engorde', desc: 'Listo para mercado' },
 ]
 
 export default function Publicar() {
@@ -56,7 +56,7 @@ export default function Publicar() {
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { 
-      setError('Debes iniciar sesión para publicar')
+      setError('Debes iniciar sesi n para publicar')
       setCargando(false)
       return 
     }
@@ -91,19 +91,19 @@ export default function Publicar() {
     setCargando(false)
   }
 
-  // Pantalla de Confirmación tras enviar
+  // Pantalla de Confirmaci n tras enviar
   if (enviado) return (
     <div style={{ maxWidth: '440px', margin: '0 auto', minHeight: '100vh', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: "'Inter', sans-serif" }}>
       <div style={{ backgroundColor: '#F8FAFC', borderRadius: '24px', padding: '36px 24px', textAlign: 'center', border: '1px solid #E2E8F0', width: '100%' }}>
         <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: '#D1FAE5', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', margin: '0 auto 20px' }}>
-          ✓
+          ?
         </div>
-        <h2 style={{ color: '#1E293B', fontWeight: '700', margin: '0 0 8px 0', fontSize: '22px' }}>Publicación enviada</h2>
+        <h2 style={{ color: '#1E293B', fontWeight: '700', margin: '0 0 8px 0', fontSize: '22px' }}>Publicaci n enviada</h2>
         <p style={{ color: '#64748B', fontSize: '14px', marginBottom: '6px', lineHeight: 1.5 }}>
-          Tu publicación fue enviada exitosamente para revisión.
+          Tu publicaci n fue enviada exitosamente para revisi n.
         </p>
         <p style={{ color: '#94A3B8', fontSize: '13px', marginBottom: '28px' }}>
-          El equipo administrador la revisará en 24-48 horas.
+          El equipo administrador la revisar  en 24-48 horas.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <Link href="/perfil" style={{ backgroundColor: '#0253A3', color: 'white', padding: '14px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>
@@ -123,17 +123,17 @@ export default function Publicar() {
       {/* Encabezado */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <h1 style={{ color: '#1E293B', fontSize: '22px', fontWeight: '700', margin: '0 0 2px 0' }}>Nueva Publicación</h1>
+          <h1 style={{ color: '#1E293B', fontSize: '22px', fontWeight: '700', margin: '0 0 2px 0' }}>Nueva Publicaci n</h1>
           <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Publica tus animales en el marketplace</p>
         </div>
         <Link href="/" style={{ color: '#0253A3', textDecoration: 'none', fontSize: '13px', fontWeight: '600', backgroundColor: '#EFF6FF', padding: '6px 12px', borderRadius: '20px' }}>
-          ← Inicio
+          ? Inicio
         </Link>
       </div>
 
-      {/* Aviso de revisión */}
+      {/* Aviso de revisi n */}
       <div style={{ backgroundColor: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '14px', padding: '12px 14px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <span style={{ fontSize: '18px' }}>⏳</span>
+        <span style={{ fontSize: '18px' }}>?</span>
         <p style={{ color: '#92400E', fontSize: '12px', margin: 0, lineHeight: 1.4, fontWeight: '500' }}>
           Las publicaciones son revisadas por el administrador antes de ser visibles (24 a 48 horas).
         </p>
@@ -150,13 +150,13 @@ export default function Publicar() {
             <img src={previstaImagen} alt="Vista previa" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
             <div style={{ textAlign: 'center', color: '#0253A3' }}>
-              <div style={{ fontSize: '36px', marginBottom: '6px' }}>📷</div>
+              <div style={{ fontSize: '36px', marginBottom: '6px' }}>??</div>
               <div style={{ fontSize: '14px', fontWeight: '600' }}>Toca para agregar foto</div>
               <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>JPG o PNG hasta 5MB</div>
             </div>
           )}
         </div>
-        {previstaImagen && <p style={{ fontSize: '12px', color: '#10B981', fontWeight: '600', marginTop: '8px', marginBottom: 0 }}>✓ Foto seleccionada</p>}
+        {previstaImagen && <p style={{ fontSize: '12px', color: '#10B981', fontWeight: '600', marginTop: '8px', marginBottom: 0 }}>? Foto seleccionada</p>}
         <input id="inputImagen" type="file" accept="image/*" onChange={handleImagen} style={{ display: 'none' }} />
       </div>
 
@@ -178,7 +178,7 @@ export default function Publicar() {
 
       {/* Detalles del Anuncio */}
       <div style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', padding: '16px', marginBottom: '20px', border: '1px solid #E2E8F0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-        <p style={{ fontSize: '13px', fontWeight: '600', color: '#1E293B', marginBottom: '14px' }}>Detalles de la publicación</p>
+        <p style={{ fontSize: '13px', fontWeight: '600', color: '#1E293B', marginBottom: '14px' }}>Detalles de la publicaci n</p>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
           <div>
@@ -203,8 +203,8 @@ export default function Publicar() {
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>Descripción <span style={{ color: '#EF4444' }}>*</span></label>
-          <textarea placeholder="Describe el animal: alimentación, vacunas, características..." value={descripcion}
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>Descripci n <span style={{ color: '#EF4444' }}>*</span></label>
+          <textarea placeholder="Describe el animal: alimentaci n, vacunas, caracter sticas..." value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)} rows={4}
             style={{ width: '100%', padding: '11px 12px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', boxSizing: 'border-box', resize: 'vertical', outline: 'none', backgroundColor: '#F8FAFC', lineHeight: 1.5, color: '#1E293B' }} />
         </div>
@@ -213,20 +213,20 @@ export default function Publicar() {
       {/* Errores si existen */}
       {error && (
         <div style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA', borderRadius: '12px', padding: '12px 14px', marginBottom: '16px', color: '#DC2626', fontSize: '13px', fontWeight: '500' }}>
-          ⚠️ {error}
+          ?? {error}
         </div>
       )}
 
-      {/* Botón Guardar / Publicar */}
+      {/* Bot n Guardar / Publicar */}
       <button onClick={handlePublicar} disabled={cargando}
         style={{ width: '100%', padding: '14px', backgroundColor: cargando ? '#94A3B8' : '#0253A3', color: 'white', border: 'none', borderRadius: '12px', cursor: cargando ? 'not-allowed' : 'pointer', fontSize: '15px', fontWeight: '700', marginBottom: '16px', boxShadow: '0 4px 12px rgba(2, 83, 163, 0.2)' }}>
-        {cargando ? '⏳ Enviando...' : '🐷 Enviar para Revisión'}
+        {cargando ? '? Enviando...' : '?? Enviar para Revisi n'}
       </button>
 
       {/* Descargo de responsabilidad */}
       <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
         <p style={{ color: '#64748B', fontSize: '11px', margin: 0, lineHeight: 1.5 }}>
-          ℹ️ Al publicar aceptas que Porcicultores RD no se hace responsable de las transacciones ni acuerdos realizados entre usuarios.
+          ?? Al publicar aceptas que Porcicultores RD no se hace responsable de las transacciones ni acuerdos realizados entre usuarios.
         </p>
       </div>
 

@@ -125,7 +125,7 @@ export default function Chat() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {chatActivo && (
             <button onClick={() => setChatActivo(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#0253A3', padding: 0 }}>
-              ←
+              ?
             </button>
           )}
           <h1 style={{ fontSize: '18px', fontWeight: '700', color: '#1E293B', margin: 0 }}>
@@ -142,7 +142,7 @@ export default function Chat() {
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {conversaciones.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94A3B8' }}>
-              <div style={{ fontSize: '40px', marginBottom: '10px' }}>💬</div>
+              <div style={{ fontSize: '40px', marginBottom: '10px' }}>??</div>
               <p style={{ fontSize: '14px', margin: 0 }}>No tienes conversaciones activas.</p>
               <p style={{ fontSize: '12px', marginTop: '4px' }}>Contacta a un vendedor desde las publicaciones.</p>
             </div>
@@ -167,9 +167,9 @@ export default function Chat() {
           )}
         </div>
       ) : (
-        /* Ventana de Conversación Activa */
+        /* Ventana de Conversaci n Activa */
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
-          {/* Área de Mensajes */}
+          {/*  rea de Mensajes */}
           <div style={{ flex: 1, padding: '16px', overflowY: 'auto', backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {mensajes.map((m) => {
               const esMio = m.emisor_id === user?.id
@@ -197,7 +197,7 @@ export default function Chat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Formulario / Input de Envío */}
+          {/* Formulario / Input de Env o */}
           <form onSubmit={enviarMensaje} style={{ padding: '12px 16px', backgroundColor: '#FFFFFF', borderTop: '1px solid #E2E8F0', display: 'flex', gap: '8px', alignItems: 'center' }}>
             <input
               type="text"
@@ -223,7 +223,7 @@ export default function Chat() {
                 fontSize: '16px',
                 transition: 'background-color 0.2s'
               }}>
-              ➔
+              ?
             </button>
           </form>
         </div>

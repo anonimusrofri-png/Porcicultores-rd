@@ -5,12 +5,12 @@ import { supabase } from '../../lib/supabase'
 import Link from 'next/link'
 
 const provincias = [
-  'Todas', 'Azua', 'Bahoruco', 'Barahona', 'Dajabón', 'Distrito Nacional', 'Duarte',
-  'Elías Piña', 'El Seibo', 'Espaillat', 'Hato Mayor', 'Hermanas Mirabal', 'Independencia',
-  'La Altagracia', 'La Romana', 'La Vega', 'María Trinidad Sánchez', 'Monseñor Nouel',
-  'Monte Cristi', 'Monte Plata', 'Pedernales', 'Peravia', 'Puerto Plata', 'Samaná',
-  'San Cristóbal', 'San José de Ocoa', 'San Juan', 'San Pedro de Macorís', 'Sánchez Ramírez',
-  'Santiago', 'Santiago Rodríguez', 'Santo Domingo', 'Valverde'
+  'Todas', 'Azua', 'Bahoruco', 'Barahona', 'Dajab n', 'Distrito Nacional', 'Duarte',
+  'El as Pi a', 'El Seibo', 'Espaillat', 'Hato Mayor', 'Hermanas Mirabal', 'Independencia',
+  'La Altagracia', 'La Romana', 'La Vega', 'Mar a Trinidad S nchez', 'Monse or Nouel',
+  'Monte Cristi', 'Monte Plata', 'Pedernales', 'Peravia', 'Puerto Plata', 'Saman ',
+  'San Crist bal', 'San Jos  de Ocoa', 'San Juan', 'San Pedro de Macor s', 'S nchez Ram rez',
+  'Santiago', 'Santiago Rodr guez', 'Santo Domingo', 'Valverde'
 ]
 
 const tiposAnimales = ['Todos', 'Lechon', 'Cerda', 'Varraco', 'Reproductor', 'Engorde']
@@ -83,7 +83,7 @@ export default function Marketplace() {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
         <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-xl border border-slate-200">
-          <div className="text-5xl mb-4">🔒</div>
+          <div className="text-5xl mb-4">??</div>
           <h2 className="text-xl font-bold text-slate-900 mb-2">Acceso exclusivo para miembros</h2>
           <p className="text-slate-600 text-sm leading-relaxed mb-6">
             Crea una cuenta gratuita para ver las publicaciones y contactar vendedores.
@@ -99,7 +99,7 @@ export default function Marketplace() {
               href="/login"
               className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm px-5 py-2.5 rounded-xl transition-all"
             >
-              Iniciar Sesión
+              Iniciar Sesi n
             </Link>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function Marketplace() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Marketplace Porcino</h1>
           <p className="text-blue-200 text-sm mt-1">
-            República Dominicana • {filtradas.length} publicaciones
+            Rep blica Dominicana   {filtradas.length} publicaciones
           </p>
         </div>
         <Link
@@ -127,11 +127,11 @@ export default function Marketplace() {
 
       {/* Control Panel / Filters */}
       <div className="bg-white rounded-2xl p-4 md:p-5 mb-6 shadow-sm border border-slate-200 space-y-4">
-        {/* Búsqueda */}
+        {/* B squeda */}
         <div className="relative">
           <input
             type="text"
-            placeholder="🔍 Buscar cerdos, lechones, vendedores..."
+            placeholder="?? Buscar cerdos, lechones, vendedores..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all"
@@ -174,19 +174,19 @@ export default function Marketplace() {
       {/* Grid Content */}
       {cargando ? (
         <div className="text-center py-16 text-slate-500">
-          <div className="text-5xl mb-3 animate-bounce">🐷</div>
+          <div className="text-5xl mb-3 animate-bounce">??</div>
           <p className="text-sm font-medium">Cargando publicaciones...</p>
         </div>
       ) : filtradas.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-          <div className="text-5xl mb-3">🐷</div>
+          <div className="text-5xl mb-3">??</div>
           <p className="text-slate-700 font-semibold mb-2">No hay publicaciones disponibles</p>
-          <p className="text-slate-500 text-sm mb-6">Sé el primero en publicar una oferta en el mercado.</p>
+          <p className="text-slate-500 text-sm mb-6">S  el primero en publicar una oferta en el mercado.</p>
           <Link
             href="/publicar"
             className="inline-block bg-slate-900 text-white font-bold text-sm px-6 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-md"
           >
-            Sé el primero en publicar
+            S  el primero en publicar
           </Link>
         </div>
       ) : (
@@ -205,7 +205,7 @@ export default function Marketplace() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-5xl">
-                    🐷
+                    ??
                   </div>
                 )}
                 <span
@@ -233,7 +233,7 @@ export default function Marketplace() {
                     {pub.descripcion}
                   </p>
                   <p className="text-slate-500 text-xs mb-3 flex items-center gap-1">
-                    📍 <span>{pub.provincia}</span>
+                    ?? <span>{pub.provincia}</span>
                   </p>
                 </div>
 

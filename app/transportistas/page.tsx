@@ -41,7 +41,7 @@ export default function TransportistaPerfil() {
   if (cargando) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F4F6F9', fontFamily: "'Inter', sans-serif" }}>
-        <p style={{ color: '#6B7280' }}>Cargando información...</p>
+        <p style={{ color: '#6B7280' }}>Cargando informaci n...</p>
       </div>
     )
   }
@@ -51,7 +51,7 @@ export default function TransportistaPerfil() {
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F4F6F9', fontFamily: "'Inter', sans-serif" }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ color: '#6B7280', fontSize: '16px', marginBottom: '16px' }}>Perfil de transportista no encontrado</p>
-          <Link href="/" style={{ color: '#2563A8', fontWeight: '600' }}>← Volver al inicio</Link>
+          <Link href="/" style={{ color: '#2563A8', fontWeight: '600' }}>? Volver al inicio</Link>
         </div>
       </div>
     )
@@ -66,7 +66,7 @@ export default function TransportistaPerfil() {
     <div style={{ maxWidth: '700px', margin: '0 auto', padding: '20px', fontFamily: "'Inter', sans-serif", backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <Link href="/directorio" style={{ color: '#2563A8', fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>← Volver</Link>
+        <Link href="/directorio" style={{ color: '#2563A8', fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>? Volver</Link>
         <Link href="/" style={{ color: '#6B7280', fontSize: '13px', textDecoration: 'none' }}>Inicio</Link>
       </div>
 
@@ -80,33 +80,33 @@ export default function TransportistaPerfil() {
         </div>
 
         <h1 style={{ fontSize: '22px', fontWeight: '700', margin: '0 0 6px 0' }}>{perfil.nombre}</h1>
-        <p style={{ opacity: 0.9, fontSize: '14px', margin: '0 0 8px 0' }}>📍 {perfil.provincia}, RD</p>
+        <p style={{ opacity: 0.9, fontSize: '14px', margin: '0 0 8px 0' }}>?? {perfil.provincia}, RD</p>
 
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '10px' }}>
           <span style={{ backgroundColor: '#F59E0B', color: '#78350F', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700' }}>
-            🚚 Transportista de Cerdos / Ganado
+            ?? Transportista de Cerdos / Ganado
           </span>
           {perfil.verificado && (
             <span style={{ backgroundColor: '#10B981', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>
-              ✅ Verificado
+              ? Verificado
             </span>
           )}
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '10px', alignItems: 'center' }}>
           {[1, 2, 3, 4, 5].map(n => (
-            <span key={n} style={{ color: n <= Math.round(reputacion) ? '#F59E0B' : 'rgba(255,255,255,0.3)', fontSize: '20px' }}>★</span>
+            <span key={n} style={{ color: n <= Math.round(reputacion) ? '#F59E0B' : 'rgba(255,255,255,0.3)', fontSize: '20px' }}>?</span>
           ))}
           <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', marginLeft: '6px' }}>({reputacion})</span>
         </div>
       </div>
 
-      {/* Estadísticas */}
+      {/* Estad sticas */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '16px' }}>
         {[
-          { label: 'Fletes / Rutas', valor: publicaciones.length, icon: '🚚' },
-          { label: 'Reseñas', valor: resenas.length, icon: '⭐' },
-          { label: 'Reputación', valor: reputacion > 0 ? `${reputacion}/5` : 'Nueva', icon: '🏆' },
+          { label: 'Fletes / Rutas', valor: publicaciones.length, icon: '??' },
+          { label: 'Rese as', valor: resenas.length, icon: '?' },
+          { label: 'Reputaci n', valor: reputacion > 0 ? `${reputacion}/5` : 'Nueva', icon: '??' },
         ].map(s => (
           <div key={s.label} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '16px', textAlign: 'center', border: '1px solid #E5E7EB' }}>
             <div style={{ fontSize: '20px', marginBottom: '4px' }}>{s.icon}</div>
@@ -118,7 +118,7 @@ export default function TransportistaPerfil() {
 
       {/* Detalles del Servicio */}
       <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', marginBottom: '16px', border: '1px solid #E5E7EB' }}>
-        <h3 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 14px 0', fontSize: '15px' }}>Información del Servicio</h3>
+        <h3 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 14px 0', fontSize: '15px' }}>Informaci n del Servicio</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px', borderBottom: '1px solid #F3F4F6' }}>
             <span style={{ color: '#6B7280', fontSize: '13px' }}>Base principal</span>
@@ -126,7 +126,7 @@ export default function TransportistaPerfil() {
           </div>
           {perfil.capacidad_camion && (
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px', borderBottom: '1px solid #F3F4F6' }}>
-              <span style={{ color: '#6B7280', fontSize: '13px' }}>Capacidad / Vehículo</span>
+              <span style={{ color: '#6B7280', fontSize: '13px' }}>Capacidad / Veh culo</span>
               <span style={{ color: '#111827', fontSize: '13px', fontWeight: '600' }}>{perfil.capacidad_camion}</span>
             </div>
           )}
@@ -138,7 +138,7 @@ export default function TransportistaPerfil() {
           )}
           {perfil.descripcion && (
             <div>
-              <span style={{ color: '#6B7280', fontSize: '13px', display: 'block', marginBottom: '4px' }}>Descripción / Servicios</span>
+              <span style={{ color: '#6B7280', fontSize: '13px', display: 'block', marginBottom: '4px' }}>Descripci n / Servicios</span>
               <span style={{ color: '#374151', fontSize: '13px', lineHeight: 1.6 }}>{perfil.descripcion}</span>
             </div>
           )}
@@ -155,20 +155,20 @@ export default function TransportistaPerfil() {
               rel="noopener noreferrer"
               style={{ backgroundColor: '#25D366', color: 'white', padding: '14px', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}
             >
-              💬 Cotizar por WhatsApp
+              ?? Cotizar por WhatsApp
             </a>
           )}
           <Link href={`/chat?usuario=${id}`}
             style={{ backgroundColor: '#1A3C5E', color: 'white', padding: '14px', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>
-            ✉️ Mensaje
+            ?? Mensaje
           </Link>
           <Link href={`/resena?para=${id}`}
             style={{ backgroundColor: 'white', color: '#1A3C5E', padding: '14px', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '600', fontSize: '14px', border: '1px solid #E5E7EB' }}>
-            ⭐ Dejar Reseña
+            ? Dejar Rese a
           </Link>
           <Link href={`/reportar?usuario=${id}`}
             style={{ backgroundColor: 'white', color: '#EF4444', padding: '14px', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '600', fontSize: '14px', border: '1px solid #FECACA' }}>
-            ⚠️ Reportar
+            ?? Reportar
           </Link>
         </div>
       )}
@@ -184,14 +184,14 @@ export default function TransportistaPerfil() {
               <div key={pub.id} style={{ backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E5E7EB', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 {pub.foto_url
                   ? <img src={pub.foto_url} alt="servicio" style={{ width: '100%', height: '140px', objectFit: 'cover' }} />
-                  : <div style={{ width: '100%', height: '140px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px' }}>🚚</div>
+                  : <div style={{ width: '100%', height: '140px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px' }}>??</div>
                 }
                 <div style={{ padding: '12px' }}>
                   <span style={{ backgroundColor: '#DBEAFE', color: '#1D4ED8', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>{pub.tipo_animal || 'Flete'}</span>
                   <p style={{ color: '#1D4ED8', fontWeight: '700', fontSize: '16px', margin: '6px 0 2px 0' }}>
                     {pub.precio ? `RD$ ${pub.precio.toLocaleString()}` : 'A convenir'}
                   </p>
-                  <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>📍 {pub.provincia}</p>
+                  <p style={{ color: '#6B7280', fontSize: '12px', margin: 0 }}>?? {pub.provincia}</p>
                 </div>
               </div>
             ))}
@@ -199,12 +199,12 @@ export default function TransportistaPerfil() {
         </div>
       )}
 
-      {/* Reseñas */}
+      {/* Rese as */}
       <div>
-        <h3 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 12px 0', fontSize: '15px' }}>Reseñas ({resenas.length})</h3>
+        <h3 style={{ color: '#1A3C5E', fontWeight: '700', margin: '0 0 12px 0', fontSize: '15px' }}>Rese as ({resenas.length})</h3>
         {resenas.length === 0 ? (
           <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '32px', textAlign: 'center', border: '1px solid #E5E7EB' }}>
-            <p style={{ color: '#9CA3AF', fontSize: '14px', margin: 0 }}>Este transportista aún no tiene reseñas</p>
+            <p style={{ color: '#9CA3AF', fontSize: '14px', margin: 0 }}>Este transportista a n no tiene rese as</p>
           </div>
         ) : (
           resenas.map(r => (
@@ -218,7 +218,7 @@ export default function TransportistaPerfil() {
                 </div>
                 <div style={{ display: 'flex', gap: '2px' }}>
                   {[1, 2, 3, 4, 5].map(n => (
-                    <span key={n} style={{ color: n <= r.estrellas ? '#F59E0B' : '#E5E7EB', fontSize: '14px' }}>★</span>
+                    <span key={n} style={{ color: n <= r.estrellas ? '#F59E0B' : '#E5E7EB', fontSize: '14px' }}>?</span>
                   ))}
                 </div>
               </div>
@@ -231,7 +231,7 @@ export default function TransportistaPerfil() {
       {/* Aviso legal */}
       <div style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '14px', marginTop: '20px' }}>
         <p style={{ color: '#374151', fontSize: '12px', margin: 0, lineHeight: 1.6 }}>
-          ℹ️ Porcicultores RD no se hace responsable de tratos o coordinaciones de flete realizados fuera de la plataforma. Verifica siempre los detalles del transporte antes de acordar un servicio.
+          ?? Porcicultores RD no se hace responsable de tratos o coordinaciones de flete realizados fuera de la plataforma. Verifica siempre los detalles del transporte antes de acordar un servicio.
         </p>
       </div>
     </div>
