@@ -1,4 +1,5 @@
 ﻿'use client'
+
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import Link from 'next/link'
@@ -30,78 +31,77 @@ export default function Home() {
 
   const publicacionesFiltradas = publicaciones.filter((pub) => {
     const coincideBusqueda =
-      pub.tipo_animal.toLowerCase().includes(busqueda.toLowerCase()) ||
-      pub.descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
-      pub.provincia.toLowerCase().includes(busqueda.toLowerCase())
+      pub.tipo_animal?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      pub.descripcion?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      pub.provincia?.toLowerCase().includes(busqueda.toLowerCase())
 
     const coincideCategoria =
-      categoria === 'Todos' || pub.tipo_animal.toLowerCase() === categoria.toLowerCase()
+      categoria === 'Todos' || pub.tipo_animal?.toLowerCase() === categoria.toLowerCase()
 
     const coincideProvincia =
-      provincia === 'Todas' || pub.provincia.toLowerCase() === provincia.toLowerCase()
+      provincia === 'Todas' || pub.provincia?.toLowerCase() === provincia.toLowerCase()
 
     return coincideBusqueda && coincideCategoria && coincideProvincia
   })
 
   return (
-    <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: "'Inter', sans-serif", backgroundColor: '#FFFFFF', minHeight: '100vh', boxShadow: '0 0 20px rgba(0,0,0,0.05)', paddingBottom: '80px' }}>
+    <div className="w-full max-w-7xl mx-auto min-h-screen bg-white font-sans pb-24 md:pb-12">
 
       {/* Encabezado Principal */}
-      <div style={{ backgroundColor: '#0253A3', padding: '20px', color: 'white', borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="bg-[#0253A3] p-5 md:p-8 text-white rounded-b-2xl md:rounded-2xl md:mt-4 shadow-md">
+        <div className="flex justify-between items-center">
           <div>
-            <h1 style={{ fontSize: '20px', fontWeight: '800', margin: 0 }}>Marketplace Porcino</h1>
-            <p style={{ fontSize: '12px', opacity: 0.9, margin: '4px 0 0 0' }}>
+            <h1 className="text-xl md:text-3xl font-extrabold m-0">Marketplace Porcino</h1>
+            <p className="text-xs md:text-sm opacity-90 mt-1">
               República Dominicana • {publicacionesFiltradas.length} publicaciones
             </p>
           </div>
-          <Link href="/publicar" style={{ backgroundColor: 'white', color: '#0253A3', padding: '8px 16px', borderRadius: '20px', textDecoration: 'none', fontWeight: '700', fontSize: '13px' }}>
+          <Link 
+            href="/publicar" 
+            className="bg-white text-[#0253A3] hover:bg-slate-100 px-4 py-2 md:px-6 md:py-2.5 rounded-full font-bold text-xs md:text-sm transition-all shadow-sm"
+          >
             + Publicar
           </Link>
         </div>
       </div>
 
-      <div style={{ padding: '16px 20px' }}>
+      <div className="p-4 md:p-6">
 
         {/* Buscador */}
-        <div style={{ marginBottom: '14px' }}>
+        <div className="mb-4">
           <input
             type="text"
-            placeholder="Buscar cerdos, lechones, vendedores..."
+            placeholder="🔍 Buscar cerdos, lechones, vendedores..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+            className="w-full p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-sm outline-none focus:ring-2 focus:ring-[#0253A3] focus:bg-white transition-all"
           />
         </div>
 
         {/* Filtro por Categorías */}
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '14px', scrollbarWidth: 'none' }}>
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none">
           {['Todos', 'Cerdo', 'Lechon', 'Cerda', 'Verraco', 'Reproductor', 'Engorde'].map((cat) => (
             <button
               key={cat}
               onClick={() => setCategoria(cat)}
-              style={{
-                padding: '6px 14px',
-                borderRadius: '20px',
-                border: 'none',
-                backgroundColor: categoria === cat ? '#0253A3' : '#F1F5F9',
-                color: categoria === cat ? 'white' : '#475569',
-                fontSize: '12px',
-                fontWeight: '600',
-                whiteSpace: 'nowrap',
-                cursor: 'pointer'
-              }}>
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                categoria === cat 
+                  ? 'bg-[#0253A3] text-white shadow-sm' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
               {cat}
             </button>
           ))}
         </div>
 
         {/* Filtro por Provincia */}
-        <div style={{ marginBottom: '16px' }}>
+        <div className="mb-6">
           <select
             value={provincia}
             onChange={(e) => setProvincia(e.target.value)}
-            style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC', fontSize: '13px', color: '#334155', outline: 'none' }}>
+            className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-[#0253A3]"
+          >
             <option value="Todas">Todas las provincias</option>
             <option value="Santiago">Santiago</option>
             <option value="La Vega">La Vega</option>
@@ -109,73 +109,86 @@ export default function Home() {
             <option value="Santo Domingo">Santo Domingo</option>
             <option value="Dajabón">Dajabón</option>
             <option value="Monte Plata">Monte Plata</option>
+            <option value="Valverde">Valverde</option>
           </select>
         </div>
 
-        {/* Estado Vacío / Sin Publicaciones */}
+        {/* Estado Vacío / Lista de Publicaciones */}
         {cargando ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748B', fontSize: '14px' }}>
+          <div className="text-center py-16 text-slate-500 text-sm font-medium">
+            <div className="text-4xl mb-2 animate-bounce">🐷</div>
             Cargando publicaciones...
           </div>
         ) : publicacionesFiltradas.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', margin: '20px 0' }}>
-            <p style={{ fontSize: '15px', color: '#64748B', fontWeight: '600', margin: '0 0 16px 0' }}>
+          <div className="text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 my-6 shadow-sm">
+            <div className="text-4xl mb-2">🐷</div>
+            <p className="text-base text-slate-600 font-semibold mb-4">
               No hay publicaciones disponibles
             </p>
-            <Link href="/publicar" style={{ backgroundColor: '#0253A3', color: 'white', textDecoration: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', display: 'inline-block' }}>
+            <Link 
+              href="/publicar" 
+              className="bg-[#0253A3] hover:bg-blue-800 text-white px-5 py-2.5 rounded-xl text-xs font-bold inline-block transition-all shadow-md"
+            >
               Sé el primero en publicar
             </Link>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {publicacionesFiltradas.map((item) => (
-              <div key={item.id} style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <div key={item.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                 
-                {/* Imagen */}
-                <div style={{ width: '100%', height: '180px', backgroundColor: '#F1F5F9', position: 'relative' }}>
-                  {item.foto_url ? (
-                    <img src={item.foto_url} alt={item.tipo_animal} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: '13px' }}>
-                      Sin imagen
+                <div>
+                  {/* Imagen */}
+                  <div className="w-full h-48 bg-slate-100 relative">
+                    {item.foto_url ? (
+                      <img src={item.foto_url} alt={item.tipo_animal} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">
+                        Sin imagen
+                      </div>
+                    )}
+                    <div className="absolute top-3 right-3 bg-slate-900/80 text-white px-2.5 py-1 rounded-full text-[11px] font-semibold backdrop-blur-sm">
+                      📍 {item.provincia}
                     </div>
-                  )}
-                  <div style={{ position: 'absolute', top: '12px', right: '12px', backgroundColor: 'rgba(30, 41, 59, 0.8)', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600' }}>
-                    {item.provincia}
+                  </div>
+
+                  {/* Detalles */}
+                  <div className="p-4">
+                    <div className="flex justify-between items-baseline mb-1.5">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#0253A3]">
+                        {item.tipo_animal}
+                      </span>
+                      <span className="text-lg font-extrabold text-slate-900">
+                        RD$ {item.precio ? Number(item.precio).toLocaleString('es-DO') : '0'}
+                      </span>
+                    </div>
+
+                    {item.peso && (
+                      <div className="text-xs text-slate-500 mb-2 font-medium">
+                        Peso: {item.peso} lbs
+                      </div>
+                    )}
+
+                    <p className="text-slate-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                      {item.descripcion}
+                    </p>
                   </div>
                 </div>
 
-                {/* Detalles */}
-                <div style={{ padding: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', color: '#0253A3' }}>
-                      {item.tipo_animal}
-                    </span>
-                    <span style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B' }}>
-                      RD$ {item.precio ? Number(item.precio).toLocaleString('es-DO') : '0'}
-                    </span>
-                  </div>
-
-                  {item.peso && (
-                    <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '8px' }}>
-                      Peso: {item.peso} lbs
-                    </div>
+                <div className="px-4 pb-4 border-t border-slate-100 pt-3 flex justify-between items-center">
+                  <span className="text-xs text-slate-500 font-semibold truncate max-w-[150px]">
+                    {item.perfiles?.nombre || 'Vendedor'}
+                  </span>
+                  {item.perfiles?.telefono && (
+                    <a 
+                      href={`https://wa.me/1${item.perfiles.telefono.replace(/\D/g, '')}`} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="bg-[#25D366] hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                    >
+                      Contactar
+                    </a>
                   )}
-
-                  <p style={{ color: '#475569', fontSize: '13px', margin: '0 0 14px 0', lineHeight: '1.4' }}>
-                    {item.descripcion}
-                  </p>
-
-                  <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '12px', color: '#64748B', fontWeight: '500' }}>
-                      {item.perfiles?.nombre || 'Vendedor'}
-                    </span>
-                    {item.perfiles?.telefono && (
-                      <a href={`https://wa.me/809${item.perfiles.telefono.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" style={{ backgroundColor: '#25D366', color: 'white', textDecoration: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '700' }}>
-                        Contactar
-                      </a>
-                    )}
-                  </div>
                 </div>
 
               </div>
@@ -185,18 +198,18 @@ export default function Home() {
 
       </div>
 
-      {/* Barra de Navegación Inferior */}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '440px', backgroundColor: '#FFFFFF', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-around', padding: '10px 0 12px 0', zIndex: 20 }}>
-        <Link href="/" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: '#0253A3', fontSize: '11px', fontWeight: '700' }}>
+      {/* Barra de Navegación Inferior en Móviles */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around py-3 z-30 shadow-lg">
+        <Link href="/" className="flex flex-col items-center text-[#0253A3] text-[11px] font-bold">
           Inicio
         </Link>
-        <Link href="/directorio" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: '#64748B', fontSize: '11px', fontWeight: '500' }}>
+        <Link href="/directorio" className="flex flex-col items-center text-slate-500 text-[11px] font-medium">
           Directorio
         </Link>
-        <Link href="/chat" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: '#64748B', fontSize: '11px', fontWeight: '500' }}>
+        <Link href="/chat" className="flex flex-col items-center text-slate-500 text-[11px] font-medium">
           Chat
         </Link>
-        <Link href="/perfil" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: '#64748B', fontSize: '11px', fontWeight: '500' }}>
+        <Link href="/perfil" className="flex flex-col items-center text-slate-500 text-[11px] font-medium">
           Perfil
         </Link>
       </div>
