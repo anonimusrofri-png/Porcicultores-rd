@@ -6,16 +6,15 @@ export default function Home() {
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#F8FAFC', fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", margin: 0, padding: 0 }}>
       
-      {/* Navbar Superior */}
-      <header style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '36px', height: '36px', backgroundColor: '#FFFFFF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
-            🐷
-          </div>
-          <span style={{ fontWeight: '800', fontSize: '18px', letterSpacing: '0.5px' }}>
-            PORCICULTORES RD
-          </span>
-        </div>
+      {/* Navbar Superior con Logo Oficial */}
+      <header style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <img 
+            src="/LOGO NUEVO DE PORCICULTORES.png" 
+            alt="Logo Porcicultores RD" 
+            style={{ height: '48px', width: 'auto', objectFit: 'contain' }} 
+          />
+        </Link>
 
         <nav style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '14px', fontWeight: '600' }}>
           <Link href="/marketplace" style={{ color: '#E2E8F0', textDecoration: 'none' }}>Marketplace</Link>
