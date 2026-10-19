@@ -6,11 +6,12 @@ export default function Home() {
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#F8FAFC', fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", margin: 0, padding: 0 }}>
       
-      {/* Navbar Superior con Logo Integrado */}
+      {/* Navbar Superior */}
       <header style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-          {/* Logo SVG Nativo */}
-          <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+          
+          {/* Icono Mantenido */}
+          <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
             <rect width="100" height="100" rx="20" fill="#0B2545"/>
             <path d="M15 35C15 25 25 20 50 20C75 20 85 25 85 35V65C85 75 75 80 50 80C25 80 15 75 15 65V35Z" fill="#134074" stroke="#FFFFFF" strokeWidth="3"/>
             {/* Bandera RD */}
@@ -28,8 +29,17 @@ export default function Home() {
             <path d="M22 34C20 26 28 28 32 32" stroke="#0B2545" strokeWidth="2.5" strokeLinecap="round" fill="#FFC0CB"/>
             <path d="M58 34C60 26 52 28 48 32" stroke="#0B2545" strokeWidth="2.5" strokeLinecap="round" fill="#FFC0CB"/>
           </svg>
-          <span style={{ fontWeight: '900', fontSize: '20px', color: '#FFFFFF', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
-            PORCICULTORES-RD
+
+          {/* Tipografía Destacada y Moderna */}
+          <span style={{ 
+            fontWeight: '900', 
+            fontSize: '22px', 
+            color: '#FFFFFF', 
+            letterSpacing: '1.2px', 
+            fontFamily: "'Trebuchet MS', 'Montserrat', 'Arial Black', sans-serif",
+            textTransform: 'uppercase'
+          }}>
+            PORCICULTORES <span style={{ color: '#C81D25' }}>RD</span>
           </span>
         </Link>
 
