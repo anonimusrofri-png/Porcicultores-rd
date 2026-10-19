@@ -19,7 +19,7 @@ export default function Home() {
     localStorage.setItem('tema_porcicultores', nuevoTema ? 'oscuro' : 'claro')
   }
 
-  // Paleta inteligente según el modo elegido
+  // Paleta inteligente según el modo elegido por el usuario
   const t = {
     bgPrincipal: esOscuro ? '#0B132B' : '#F1F5F9',
     bgHeader: '#0B2545',
@@ -35,7 +35,7 @@ export default function Home() {
     bordeNeonMorado: esOscuro ? 'rgba(232, 121, 249, 0.4)' : '#C084FC',
     sombraNeonMorado: esOscuro ? '0 0 25px rgba(232, 121, 249, 0.15)' : '0 4px 12px rgba(192, 132, 252, 0.15)',
     bgMiniBox: esOscuro ? '#0B132B' : '#F8FAFC',
-    svgStroke: esOscuro ? '#E2E8F0' : '#334155'
+    svgStroke: esOscuro ? '#E2E8F0' : '#1E293B'
   }
 
   return (
@@ -108,13 +108,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contenedor Inferior Tecnológico */}
+      {/* Contenedor Inferior Estilo Referencia */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px 60px 20px' }}>
 
-        {/* 3 Tarjetas Superiores con los Dibujos Vectoriales Exactos */}
+        {/* 3 Tarjetas Superiores */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px', marginBottom: '45px' }}>
           
-          {/* Tarjeta 1: Marketplace con Cerditos Ilustrados */}
+          {/* Tarjeta 1: Marketplace Porcino (Ilustración exacta de los cerditos) */}
           <Link href="/marketplace" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ 
               backgroundColor: t.bgTarjeta, 
@@ -130,14 +130,18 @@ export default function Home() {
             }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
-                  <svg width="90" height="42" viewBox="0 0 120 60" fill="none" stroke={t.svgStroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    {/* Cerdito grande */}
-                    <path d="M75 30 C75 20 95 20 95 30 C105 30 110 38 105 45 L95 45 L95 52 L85 52 L85 45 L70 45 L70 52 L60 52 L60 45 C55 38 65 30 75 30 Z" fill="none"/>
-                    <circle cx="98" cy="28" r="2"/>
-                    <path d="M105 32 Q112 33 108 38"/>
-                    {/* Lechones pequeños */}
-                    <path d="M25 38 C25 32 35 32 35 38 C40 38 43 43 40 48 L35 48 L35 52 L30 52 L30 48 L22 48 L22 52 L18 52 L18 48 C15 43 20 38 25 38 Z"/>
-                    <path d="M55 42 C55 38 62 38 62 42 C66 42 68 46 66 50 L62 50 L62 54 L58 54 L58 50 L52 50 L52 54 L48 54 L48 50 C46 46 50 42 55 42 Z"/>
+                  <svg width="120" height="48" viewBox="0 0 140 55" fill="none" stroke={t.svgStroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {/* Cerdo grande */}
+                    <path d="M75 22 C75 12 100 12 105 22 C115 22 122 30 115 40 L105 40 L102 48 L92 48 L92 40 L75 40 L72 48 L62 48 L62 40 C55 30 65 22 75 22 Z"/>
+                    <circle cx="108" cy="20" r="1.5" fill={t.svgStroke}/>
+                    <path d="M115 25 Q122 26 118 30"/>
+                    <path d="M68 40 L65 48"/>
+                    <path d="M110 40 L112 48"/>
+                    {/* Lechón mediano */}
+                    <path d="M35 30 C35 24 50 24 52 30 C58 30 62 36 58 44 L52 44 L50 50 L42 50 L42 44 L32 44 L30 50 L24 50 L24 44 C20 36 28 30 35 30 Z"/>
+                    <circle cx="54" cy="28" r="1.2" fill={t.svgStroke}/>
+                    {/* Lechón pequeño */}
+                    <path d="M10 38 C10 34 20 34 22 38 C25 38 27 42 25 46 L22 46 L20 50 L16 50 L16 46 L10 46 Z"/>
                   </svg>
                 </div>
                 <h3 style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 8px 0', color: t.textPrincipal }}>Marketplace Porcino</h3>
@@ -148,7 +152,7 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* Tarjeta 2: Directorio con Estetoscopio, Cruz y Trigo */}
+          {/* Tarjeta 2: Directorio de Servicios (Estetoscopio, Cruz médica y trigo exactos) */}
           <Link href="/directorio" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ 
               backgroundColor: t.bgTarjeta, 
@@ -164,14 +168,15 @@ export default function Home() {
             }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
-                  <svg width="105" height="42" viewBox="0 0 130 60" fill="none" stroke={t.svgStroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="125" height="48" viewBox="0 0 140 55" fill="none" stroke={t.svgStroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     {/* Estetoscopio */}
-                    <path d="M25 12 C15 12 12 22 18 32 C22 38 25 42 25 48 C25 53 20 56 16 56"/>
-                    <circle cx="16" cy="56" r="4"/>
+                    <path d="M28 10 C15 10 12 22 18 35 C22 41 26 45 26 50 C26 53 22 55 18 53"/>
+                    <circle cx="18" cy="53" r="3.5"/>
+                    <path d="M28 10 L32 8"/>
                     {/* Cruz */}
-                    <path d="M55 20 V40 M45 30 H65" strokeWidth="3"/>
-                    {/* Trigo / Planta */}
-                    <path d="M95 50 V15 M95 25 Q105 20 102 15 M95 32 Q85 27 88 22 M95 40 Q105 35 102 30"/>
+                    <path d="M68 15 V38 M56 26 H80" strokeWidth="2.5"/>
+                    {/* Espiga de trigo */}
+                    <path d="M110 50 V10 M110 20 Q122 15 118 10 M110 28 Q98 23 102 18 M110 38 Q122 33 118 28 M110 45 Q98 40 102 35"/>
                   </svg>
                 </div>
                 <h3 style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 8px 0', color: t.textPrincipal }}>Directorio de Servicios</h3>
@@ -182,7 +187,7 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* Tarjeta 3: Precios por Provincia con Gráficos y Mapa */}
+          {/* Tarjeta 3: Precios por Provincia (Gráfico de barras y Mapa con tendencia exactos) */}
           <Link href="/precios" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ 
               backgroundColor: t.bgTarjeta, 
@@ -198,11 +203,13 @@ export default function Home() {
             }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
-                  <svg width="105" height="42" viewBox="0 0 130 60" fill="none" stroke={t.svgStroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    {/* Gráfico de barras */}
-                    <path d="M15 50 V30 M25 50 V18 M35 50 V38 M10 50 H42"/>
-                    {/* Tendencia ascendente */}
-                    <path d="M70 42 L82 30 L92 36 L108 16 M98 16 H108 V26"/>
+                  <svg width="135" height="48" viewBox="0 0 150 55" fill="none" stroke={t.svgStroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {/* Gráfico de barras estadísticas */}
+                    <path d="M15 45 V30 M27 45 V18 M39 45 V26 M10 45 H45"/>
+                    <path d="M18 30 L27 18 L39 26" strokeWidth="1.5" strokeDasharray="2 2"/>
+                    {/* Silueta de mapa con flecha de tendencia ascendente */}
+                    <path d="M85 38 C90 25 105 20 120 15 C130 20 140 32 135 42 C125 45 100 45 85 38 Z" fill={esOscuro ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'}/>
+                    <path d="M78 44 L96 32 L110 38 L138 12 M126 12 H138 V24" strokeWidth="2.5"/>
                   </svg>
                 </div>
                 <h3 style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 8px 0', color: t.textPrincipal }}>Precios por Provincia</h3>
@@ -215,7 +222,7 @@ export default function Home() {
 
         </div>
 
-        {/* Sección de Novedades y Noticias con Dibujo de Balanza */}
+        {/* Sección de Novedades y Noticias */}
         <div>
           <h2 style={{ fontSize: '22px', fontWeight: '800', color: t.textPrincipal, marginBottom: '20px' }}>Novedades y Noticias</h2>
           
@@ -234,10 +241,12 @@ export default function Home() {
                 </Link>
               </div>
               <div style={{ backgroundColor: t.bgMiniBox, padding: '12px', borderRadius: '12px', border: `1px solid ${t.bordeTarjeta}`, textAlign: 'center', minWidth: '95px' }}>
-                {/* Dibujo Vectorial de Balanza */}
-                <svg width="60" height="50" viewBox="0 0 60 50" fill="none" stroke={t.svgStroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
-                  <path d="M30 8 V38 M18 38 H42 M22 46 H38 M30 18 L15 28 M30 18 L45 28"/>
-                  <path d="M12 28 C12 33 18 33 18 28 Z M48 28 C48 33 42 33 42 28 Z"/>
+                {/* Ilustración Balanza detallada */}
+                <svg width="60" height="45" viewBox="0 0 60 45" fill="none" stroke={t.svgStroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
+                  <path d="M30 6 V34 M18 34 H42 M24 40 H36 M30 14 L12 22 M30 14 L48 22"/>
+                  <path d="M8 22 C8 27 16 27 16 22 Z M52 22 C52 27 44 27 44 22 Z"/>
+                  {/* Pequeño cerdo en la balanza */}
+                  <path d="M28 20 C28 17 32 17 33 20 C35 20 37 23 35 26 L33 26 Z"/>
                 </svg>
                 <span style={{ fontSize: '10px', color: t.textSecundario, display: 'block', marginTop: '4px' }}>Balanza RD</span>
               </div>
@@ -260,9 +269,10 @@ export default function Home() {
                 </Link>
               </div>
               <div style={{ backgroundColor: t.bgMiniBox, padding: '12px', borderRadius: '12px', border: `1px solid ${t.bordeTarjeta}`, textAlign: 'center', minWidth: '95px' }}>
-                {/* Dibujo Vectorial de Gráfico de Tendencia */}
-                <svg width="60" height="50" viewBox="0 0 60 50" fill="none" stroke={t.svgStroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
-                  <path d="M10 40 H50 M15 40 V20 M25 40 V12 M35 40 V28 M45 40 V15"/>
+                {/* Ilustración Gráfico detallado */}
+                <svg width="60" height="45" viewBox="0 0 60 45" fill="none" stroke={t.svgStroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
+                  <path d="M8 38 H52 M12 38 V22 M22 38 V14 M32 38 V26 M42 38 V16"/>
+                  <path d="M12 22 L22 14 L32 26 L42 16" strokeWidth="2" strokeDasharray="2 2"/>
                 </svg>
                 <span style={{ fontSize: '10px', color: t.textSecundario, display: 'block', marginTop: '4px' }}>Tendencia</span>
               </div>
