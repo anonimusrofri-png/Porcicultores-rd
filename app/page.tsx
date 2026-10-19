@@ -19,16 +19,15 @@ export default function Home() {
     localStorage.setItem('tema_porcicultores', nuevoTema ? 'oscuro' : 'claro')
   }
 
-  // Paleta de colores inteligente que varía según el modo elegido por el usuario
+  // Paleta inteligente según el modo elegido
   const t = {
     bgPrincipal: esOscuro ? '#0B132B' : '#F1F5F9',
-    bgHeader: '#0B2545', // Encabezado azul profesional fijo
+    bgHeader: '#0B2545',
     textPrincipal: esOscuro ? '#FFFFFF' : '#0F172A',
     textSecundario: esOscuro ? '#94A3B8' : '#64748B',
     bgTarjeta: esOscuro ? '#111936' : '#FFFFFF',
     bordeTarjeta: esOscuro ? 'rgba(255,255,255,0.08)' : '#E2E8F0',
     textoHeroDesc: '#DCE6F1',
-    // Colores de los brillos neón de las 3 tarjetas superiores
     bordeNeonVerde: esOscuro ? 'rgba(74, 222, 128, 0.4)' : '#16A34A',
     sombraNeonVerde: esOscuro ? '0 0 25px rgba(74, 222, 128, 0.15)' : '0 4px 12px rgba(22, 163, 74, 0.15)',
     bordeNeonAzul: esOscuro ? 'rgba(56, 189, 248, 0.4)' : '#0284C7',
@@ -36,6 +35,7 @@ export default function Home() {
     bordeNeonMorado: esOscuro ? 'rgba(232, 121, 249, 0.4)' : '#C084FC',
     sombraNeonMorado: esOscuro ? '0 0 25px rgba(232, 121, 249, 0.15)' : '0 4px 12px rgba(192, 132, 252, 0.15)',
     bgMiniBox: esOscuro ? '#0B132B' : '#F8FAFC',
+    svgStroke: esOscuro ? '#E2E8F0' : '#334155'
   }
 
   return (
@@ -60,7 +60,6 @@ export default function Home() {
             <Link href="/perfil" style={{ color: '#E2E8F0', textDecoration: 'none' }}>Mi Perfil</Link>
           </nav>
 
-          {/* Botón selector de Tema dinámico */}
           <button
             onClick={cambiarTema}
             style={{
@@ -109,13 +108,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contenedor Inferior Estilo Tecnológico Avanzado */}
+      {/* Contenedor Inferior Tecnológico */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px 60px 20px' }}>
 
-        {/* 3 Tarjetas Superiores con Bordes Iluminados y Adaptables */}
+        {/* 3 Tarjetas Superiores con los Dibujos Vectoriales Exactos */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px', marginBottom: '45px' }}>
           
-          {/* Tarjeta 1 */}
+          {/* Tarjeta 1: Marketplace con Cerditos Ilustrados */}
           <Link href="/marketplace" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ 
               backgroundColor: t.bgTarjeta, 
@@ -130,8 +129,16 @@ export default function Home() {
               justifyContent: 'space-between'
             }}>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px', fontSize: '26px' }}>
-                  🐖 🐄 🐖
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+                  <svg width="90" height="42" viewBox="0 0 120 60" fill="none" stroke={t.svgStroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    {/* Cerdito grande */}
+                    <path d="M75 30 C75 20 95 20 95 30 C105 30 110 38 105 45 L95 45 L95 52 L85 52 L85 45 L70 45 L70 52 L60 52 L60 45 C55 38 65 30 75 30 Z" fill="none"/>
+                    <circle cx="98" cy="28" r="2"/>
+                    <path d="M105 32 Q112 33 108 38"/>
+                    {/* Lechones pequeños */}
+                    <path d="M25 38 C25 32 35 32 35 38 C40 38 43 43 40 48 L35 48 L35 52 L30 52 L30 48 L22 48 L22 52 L18 52 L18 48 C15 43 20 38 25 38 Z"/>
+                    <path d="M55 42 C55 38 62 38 62 42 C66 42 68 46 66 50 L62 50 L62 54 L58 54 L58 50 L52 50 L52 54 L48 54 L48 50 C46 46 50 42 55 42 Z"/>
+                  </svg>
                 </div>
                 <h3 style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 8px 0', color: t.textPrincipal }}>Marketplace Porcino</h3>
                 <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.5' }}>
@@ -141,7 +148,7 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* Tarjeta 2 */}
+          {/* Tarjeta 2: Directorio con Estetoscopio, Cruz y Trigo */}
           <Link href="/directorio" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ 
               backgroundColor: t.bgTarjeta, 
@@ -156,8 +163,16 @@ export default function Home() {
               justifyContent: 'space-between'
             }}>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px', fontSize: '26px' }}>
-                  🩺 ➕ 🌾
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+                  <svg width="105" height="42" viewBox="0 0 130 60" fill="none" stroke={t.svgStroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    {/* Estetoscopio */}
+                    <path d="M25 12 C15 12 12 22 18 32 C22 38 25 42 25 48 C25 53 20 56 16 56"/>
+                    <circle cx="16" cy="56" r="4"/>
+                    {/* Cruz */}
+                    <path d="M55 20 V40 M45 30 H65" strokeWidth="3"/>
+                    {/* Trigo / Planta */}
+                    <path d="M95 50 V15 M95 25 Q105 20 102 15 M95 32 Q85 27 88 22 M95 40 Q105 35 102 30"/>
+                  </svg>
                 </div>
                 <h3 style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 8px 0', color: t.textPrincipal }}>Directorio de Servicios</h3>
                 <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.5' }}>
@@ -167,7 +182,7 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* Tarjeta 3 */}
+          {/* Tarjeta 3: Precios por Provincia con Gráficos y Mapa */}
           <Link href="/precios" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ 
               backgroundColor: t.bgTarjeta, 
@@ -182,8 +197,13 @@ export default function Home() {
               justifyContent: 'space-between'
             }}>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px', fontSize: '26px' }}>
-                  📊 🗺️ 📈
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+                  <svg width="105" height="42" viewBox="0 0 130 60" fill="none" stroke={t.svgStroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    {/* Gráfico de barras */}
+                    <path d="M15 50 V30 M25 50 V18 M35 50 V38 M10 50 H42"/>
+                    {/* Tendencia ascendente */}
+                    <path d="M70 42 L82 30 L92 36 L108 16 M98 16 H108 V26"/>
+                  </svg>
                 </div>
                 <h3 style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 8px 0', color: t.textPrincipal }}>Precios por Provincia</h3>
                 <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.5' }}>
@@ -195,7 +215,7 @@ export default function Home() {
 
         </div>
 
-        {/* Sección de Novedades y Noticias Moderna */}
+        {/* Sección de Novedades y Noticias con Dibujo de Balanza */}
         <div>
           <h2 style={{ fontSize: '22px', fontWeight: '800', color: t.textPrincipal, marginBottom: '20px' }}>Novedades y Noticias</h2>
           
@@ -214,7 +234,11 @@ export default function Home() {
                 </Link>
               </div>
               <div style={{ backgroundColor: t.bgMiniBox, padding: '12px', borderRadius: '12px', border: `1px solid ${t.bordeTarjeta}`, textAlign: 'center', minWidth: '95px' }}>
-                <div style={{ fontSize: '30px' }}>⚖️</div>
+                {/* Dibujo Vectorial de Balanza */}
+                <svg width="60" height="50" viewBox="0 0 60 50" fill="none" stroke={t.svgStroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
+                  <path d="M30 8 V38 M18 38 H42 M22 46 H38 M30 18 L15 28 M30 18 L45 28"/>
+                  <path d="M12 28 C12 33 18 33 18 28 Z M48 28 C48 33 42 33 42 28 Z"/>
+                </svg>
                 <span style={{ fontSize: '10px', color: t.textSecundario, display: 'block', marginTop: '4px' }}>Balanza RD</span>
               </div>
             </div>
@@ -236,7 +260,10 @@ export default function Home() {
                 </Link>
               </div>
               <div style={{ backgroundColor: t.bgMiniBox, padding: '12px', borderRadius: '12px', border: `1px solid ${t.bordeTarjeta}`, textAlign: 'center', minWidth: '95px' }}>
-                <div style={{ fontSize: '30px' }}>📈</div>
+                {/* Dibujo Vectorial de Gráfico de Tendencia */}
+                <svg width="60" height="50" viewBox="0 0 60 50" fill="none" stroke={t.svgStroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
+                  <path d="M10 40 H50 M15 40 V20 M25 40 V12 M35 40 V28 M45 40 V15"/>
+                </svg>
                 <span style={{ fontSize: '10px', color: t.textSecundario, display: 'block', marginTop: '4px' }}>Tendencia</span>
               </div>
             </div>
