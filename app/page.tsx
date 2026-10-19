@@ -4,57 +4,47 @@ import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="w-full min-h-screen bg-slate-50 font-sans">
+    <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#F8FAFC', fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", margin: 0, padding: 0 }}>
       
-      {/* Barra de Navegación Superior */}
-      <header className="bg-[#0B2545] text-white py-4 px-6 flex justify-between items-center shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center font-bold text-[#0B2545] text-xs">
-            🐷 RD
+      {/* Navbar Superior */}
+      <header style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ width: '36px', height: '36px', backgroundColor: '#FFFFFF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+            🐷
           </div>
-          <span className="font-extrabold text-lg tracking-wide hidden sm:inline">
+          <span style={{ fontWeight: '800', fontSize: '18px', letterSpacing: '0.5px' }}>
             PORCICULTORES RD
           </span>
         </div>
 
-        <nav className="flex items-center gap-6 text-sm font-semibold text-slate-200">
-          <Link href="/marketplace" className="hover:text-white transition-colors">
-            Marketplace
-          </Link>
-          <Link href="/directorio" className="hover:text-white transition-colors">
-            Directorio
-          </Link>
-          <Link href="/precios" className="hover:text-white transition-colors">
-            Precios
-          </Link>
-          <Link href="/perfil" className="hover:text-white transition-colors">
-            Mi Perfil
-          </Link>
-          <span className="text-xl">🔔</span>
+        <nav style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '14px', fontWeight: '600' }}>
+          <Link href="/marketplace" style={{ color: '#E2E8F0', textDecoration: 'none' }}>Marketplace</Link>
+          <Link href="/directorio" style={{ color: '#E2E8F0', textDecoration: 'none' }}>Directorio</Link>
+          <Link href="/precios" style={{ color: '#E2E8F0', textDecoration: 'none' }}>Precios</Link>
+          <Link href="/perfil" style={{ color: '#E2E8F0', textDecoration: 'none' }}>Mi Perfil</Link>
         </nav>
       </header>
 
-      {/* Hero Header Principal (Banner Azul) */}
-      <section className="bg-gradient-to-b from-[#0B2545] to-[#134074] text-white pt-16 pb-24 px-4 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 leading-tight">
+      {/* Hero Banner Principal (Azul) */}
+      <section style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '60px 20px 90px 20px', textAlign: 'center' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <h1 style={{ fontSize: '38px', fontWeight: '900', lineHeight: '1.2', margin: '0 0 16px 0' }}>
             Impulsando tu Negocio<br />Porcino Dominicano
           </h1>
-          <p className="text-blue-100 text-sm md:text-base max-w-2xl mx-auto mb-8 opacity-90 leading-relaxed">
-            Conectamos productores, compradores, y servicios para un mercado más justo y transparente en la República Dominicana.
+          <p style={{ fontSize: '16px', color: '#DCE6F1', maxWidth: '650px', margin: '0 auto 32px auto', lineHeight: '1.5', opacity: 0.9 }}>
+            Conectamos productores, compradores y servicios para un mercado más justo y transparente en la República Dominicana.
           </p>
           
-          {/* Botones de Acción Principales */}
-          <div className="flex flex-wrap justify-center gap-4">
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link
               href="/marketplace"
-              className="bg-[#C81D25] hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md text-sm"
+              style={{ backgroundColor: '#C81D25', color: '#FFFFFF', fontWeight: '700', padding: '14px 28px', borderRadius: '12px', textDecoration: 'none', fontSize: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.15)' }}
             >
               Ver Marketplace
             </Link>
             <Link
               href="/precios"
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/30 font-semibold px-6 py-3 rounded-xl transition-all text-sm backdrop-blur-sm"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.12)', color: '#FFFFFF', fontWeight: '600', padding: '14px 28px', borderRadius: '12px', textDecoration: 'none', fontSize: '15px', border: '1px solid rgba(255,255,255,0.3)' }}
             >
               Consultar Precios por Provincia
             </Link>
@@ -62,53 +52,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3 Tarjetas de Accesos Rápidos */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 -mt-12 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Tarjetas Flotantes */}
+      <section style={{ maxWidth: '1100px', margin: '-45px auto 40px auto', padding: '0 20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           
-          {/* Tarjeta 1: Marketplace */}
-          <Link
-            href="/marketplace"
-            className="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border border-slate-100 flex flex-col justify-between group"
-          >
-            <div>
-              <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                🐷
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-1">Marketplace Porcino</h3>
-              <p className="text-slate-500 text-xs leading-relaxed">
+          {/* Tarjeta 1 */}
+          <Link href="/marketplace" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', height: '100%', boxSizing: 'border-box' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>🐷</div>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 6px 0', color: '#0F172A' }}>Marketplace Porcino</h3>
+              <p style={{ fontSize: '13px', color: '#64748B', margin: 0, lineHeight: '1.4' }}>
                 Compra y vende cerdos, lechones y reproductores de forma directa.
               </p>
             </div>
           </Link>
 
-          {/* Tarjeta 2: Directorio */}
-          <Link
-            href="/directorio"
-            className="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border border-slate-100 flex flex-col justify-between group"
-          >
-            <div>
-              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                🏥
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-1">Directorio de Servicios</h3>
-              <p className="text-slate-500 text-xs leading-relaxed">
+          {/* Tarjeta 2 */}
+          <Link href="/directorio" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', height: '100%', boxSizing: 'border-box' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>🏥</div>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 6px 0', color: '#0F172A' }}>Directorio de Servicios</h3>
+              <p style={{ fontSize: '13px', color: '#64748B', margin: 0, lineHeight: '1.4' }}>
                 Veterinarios, agroveterinarias y servicios para el fomento del sector.
               </p>
             </div>
           </Link>
 
-          {/* Tarjeta 3: Precios */}
-          <Link
-            href="/precios"
-            className="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border border-slate-100 flex flex-col justify-between group"
-          >
-            <div>
-              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                📈
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-1">Precios por Provincia</h3>
-              <p className="text-slate-500 text-xs leading-relaxed">
+          {/* Tarjeta 3 */}
+          <Link href="/precios" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', height: '100%', boxSizing: 'border-box' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>📈</div>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 6px 0', color: '#0F172A' }}>Precios por Provincia</h3>
+              <p style={{ fontSize: '13px', color: '#64748B', margin: 0, lineHeight: '1.4' }}>
                 Precios de referencia por libra/kilo actualizados por provincia.
               </p>
             </div>
@@ -117,29 +92,21 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Sección Novedades y Noticias */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 pb-16">
-        <h2 className="text-xl font-bold text-slate-900 mb-6">Novedades y Noticias</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Noticias */}
+      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 20px 60px 20px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#0F172A', marginBottom: '20px' }}>Novedades y Noticias</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h4 className="text-base font-bold text-slate-900 mb-1">
-              Nuevo Filtro por Peso Añadido al Marketplace
-            </h4>
-            <p className="text-xs text-slate-400 mb-3">16 dic 2026</p>
-            <p className="text-slate-600 text-xs leading-relaxed">
-              Guía de Seguridad: Cómo Evitar Estafas en transacciones comerciales.
-            </p>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', margin: '0 0 4px 0' }}>Nuevo Filtro por Peso Añadido al Marketplace</h4>
+            <span style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '8px' }}>16 dic 2026</span>
+            <p style={{ fontSize: '13px', color: '#475569', margin: 0 }}>Guía de Seguridad: Cómo Evitar Estafas en transacciones comerciales.</p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h4 className="text-base font-bold text-slate-900 mb-1">
-              Reporte Semanal de Precios
-            </h4>
-            <p className="text-xs text-slate-400 mb-3">28 nov 2026</p>
-            <p className="text-slate-600 text-xs leading-relaxed">
-              Consulta las variaciones del mercado porcino en las principales provincias.
-            </p>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', margin: '0 0 4px 0' }}>Reporte Semanal de Precios</h4>
+            <span style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '8px' }}>28 nov 2026</span>
+            <p style={{ fontSize: '13px', color: '#475569', margin: 0 }}>Consulta las variaciones del mercado porcino en las principales provincias.</p>
           </div>
 
         </div>
