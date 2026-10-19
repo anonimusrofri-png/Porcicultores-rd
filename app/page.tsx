@@ -7,39 +7,18 @@ export default function Home() {
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#F8FAFC', fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", margin: 0, padding: 0 }}>
       
       {/* Navbar Superior */}
-      <header style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-          
-          {/* Icono Mantenido */}
-          <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-            <rect width="100" height="100" rx="20" fill="#0B2545"/>
-            <path d="M15 35C15 25 25 20 50 20C75 20 85 25 85 35V65C85 75 75 80 50 80C25 80 15 75 15 65V35Z" fill="#134074" stroke="#FFFFFF" strokeWidth="3"/>
-            {/* Bandera RD */}
-            <path d="M55 25H80V45H55V25Z" fill="#C81D25"/>
-            <path d="M55 50H80V70H55V50Z" fill="#0253A3"/>
-            <path d="M65 25H70V70H65V25Z" fill="#FFFFFF"/>
-            <path d="M55 43H80V47H55V43Z" fill="#FFFFFF"/>
-            {/* Cerdo */}
-            <circle cx="40" cy="50" r="22" fill="#FFC0CB" stroke="#0B2545" strokeWidth="2.5"/>
-            <circle cx="33" cy="45" r="3" fill="#0B2545"/>
-            <circle cx="47" cy="45" r="3" fill="#0B2545"/>
-            <ellipse cx="40" cy="54" rx="9" ry="6" fill="#FF9999" stroke="#0B2545" strokeWidth="2"/>
-            <circle cx="37" cy="54" r="1.5" fill="#0B2545"/>
-            <circle cx="43" cy="54" r="1.5" fill="#0B2545"/>
-            <path d="M22 34C20 26 28 28 32 32" stroke="#0B2545" strokeWidth="2.5" strokeLinecap="round" fill="#FFC0CB"/>
-            <path d="M58 34C60 26 52 28 48 32" stroke="#0B2545" strokeWidth="2.5" strokeLinecap="round" fill="#FFC0CB"/>
-          </svg>
-
-          {/* Tipografía Destacada y Moderna */}
+      <header style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          {/* Nombre en Tipografía Serif elegante */}
           <span style={{ 
-            fontWeight: '900', 
-            fontSize: '22px', 
+            fontWeight: '700', 
+            fontSize: '24px', 
             color: '#FFFFFF', 
-            letterSpacing: '1.2px', 
-            fontFamily: "'Trebuchet MS', 'Montserrat', 'Arial Black', sans-serif",
+            letterSpacing: '0.5px', 
+            fontFamily: "Georgia, 'Times New Roman', Times, serif",
             textTransform: 'uppercase'
           }}>
-            PORCICULTORES <span style={{ color: '#C81D25' }}>RD</span>
+            PORCICULTORES-RD
           </span>
         </Link>
 
