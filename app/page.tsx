@@ -10,7 +10,7 @@ export default function Home() {
       <header style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
           <img 
-            src="/LOGO NUEVO DE PORCICULTORES.png" 
+            src="/LOGO NUEVO DE PORCICULTORES.jfif" 
             alt="Logo Porcicultores RD" 
             style={{ height: '48px', width: 'auto', objectFit: 'contain' }} 
           />
