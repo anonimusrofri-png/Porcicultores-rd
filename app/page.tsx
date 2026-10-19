@@ -5,12 +5,21 @@ import Link from 'next/link'
 
 export default function Home() {
   const [esOscuro, setEsOscuro] = useState(true)
+  const [estaLogueado, setEstaLogueado] = useState(false)
+  const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
     const temaGuardado = localStorage.getItem('tema_porcicultores')
     if (temaGuardado) {
       setEsOscuro(temaGuardado === 'oscuro')
     }
+
+    // Comprobar si el usuario ya inició sesión
+    const token = localStorage.getItem('token_porcicultores')
+    if (token) {
+      setEstaLogueado(true)
+    }
+    setCargando(false)
   }, [])
 
   const cambiarTema = () => {
@@ -39,6 +48,92 @@ export default function Home() {
     btnBotonSecundarioText: esOscuro ? '#FFFFFF' : '#0F172A',
   }
 
+  if (cargando) {
+    return null
+  }
+
+  // SI NO ESTÁ LOGUEADO: Muestra la barra superior con el tema y el aviso centrado profesional
+  if (!estaLogueado) {
+    return (
+      <div style={{ width: '100%', minHeight: '100vh', backgroundColor: t.bgPrincipal, fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", margin: 0, padding: 0, color: t.textPrincipal, transition: 'background-color 0.3s ease', display: 'flex', flexDirection: 'column' }}>
+        
+        {/* Barra superior para poder cambiar el modo claro/oscuro incluso sin iniciar sesión */}
+        <header style={{ backgroundColor: t.bgHeaderYBanner, color: t.textHeaderYBanner, padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', borderBottom: `1px solid ${t.bordeTarjeta}` }}>
+          <span style={{ fontWeight: '700', fontSize: '22px', color: t.textHeaderYBanner, letterSpacing: '0.8px', fontFamily: "Georgia, 'Times New Roman', Times, serif", textTransform: 'uppercase' }}>
+            PORCICULTORES-RD
+          </span>
+          <button
+            onClick={cambiarTema}
+            style={{
+              backgroundColor: esOscuro ? 'rgba(255, 255, 255, 0.15)' : '#E2E8F0',
+              color: t.textHeaderYBanner,
+              border: `1px solid ${esOscuro ? 'rgba(255, 255, 255, 0.3)' : '#CBD5E1'}`,
+              padding: '8px 12px',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            {esOscuro ? '☀️ Claro' : '🌙 Oscuro'}
+          </button>
+        </header>
+
+        {/* Aviso Centrado Elegante */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+          <div style={{ 
+            backgroundColor: t.bgTarjeta, 
+            padding: '40px 32px', 
+            borderRadius: '24px', 
+            border: `1px solid ${t.bordeTarjeta}`, 
+            boxShadow: esOscuro ? '0 10px 30px rgba(0,0,0,0.5)' : '0 10px 30px rgba(0,0,0,0.08)',
+            textAlign: 'center',
+            maxWidth: '460px',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
+            <div style={{ fontSize: '40px', marginBottom: '16px' }}>🔒</div>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', margin: '0 0 10px 0', color: t.textPrincipal, fontFamily: "Georgia, 'Times New Roman', Times, serif" }}>
+              Acceso Exclusivo para Miembros
+            </h2>
+            <p style={{ fontSize: '14px', color: t.textSecundario, margin: '0 0 28px 0', lineHeight: '1.6' }}>
+              Crea una cuenta gratuita o inicia sesión para ver el marketplace, directorio, precios y reportes del mercado porcino.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px' }}>
+              <Link 
+                href="/registro" 
+                style={{ backgroundColor: '#C81D25', color: '#FFFFFF', padding: '12px 20px', borderRadius: '12px', textDecoration: 'none', fontSize: '14px', fontWeight: '700', flex: 1 }}
+              >
+                Crear Cuenta
+              </Link>
+              <Link 
+                href="/login" 
+                style={{ backgroundColor: esOscuro ? '#1E293B' : '#F1F5F9', color: t.textPrincipal, padding: '12px 20px', borderRadius: '12px', textDecoration: 'none', fontSize: '14px', fontWeight: '700', border: `1px solid ${t.bordeTarjeta}`, flex: 1 }}
+              >
+                Iniciar Sesión
+              </Link>
+            </div>
+            {/* Botón de prueba para simular sesión y ver la página */}
+            <button
+              onClick={() => {
+                localStorage.setItem('token_porcicultores', 'activo_demo')
+                setEstaLogueado(true)
+              }}
+              style={{ background: 'none', border: 'none', color: t.textSecundario, fontSize: '12px', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              [Modo Demo: Simular inicio de sesión]
+            </button>
+          </div>
+        </div>
+
+      </div>
+    )
+  }
+
+  // SI YA ESTÁ LOGUEADO: Muestra todo tu diseño original completo con normalidad
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: t.bgPrincipal, fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", margin: 0, padding: 0, color: t.textPrincipal, transition: 'background-color 0.3s ease' }}>
       
