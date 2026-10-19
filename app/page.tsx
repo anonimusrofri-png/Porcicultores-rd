@@ -6,14 +6,31 @@ export default function Home() {
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#F8FAFC', fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", margin: 0, padding: 0 }}>
       
-      {/* Navbar Superior con Logo Oficial */}
+      {/* Navbar Superior con Logo Integrado */}
       <header style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          <img 
-            src="/LOGO NUEVO DE PORCICULTORES.JFIF" 
-            alt="Logo Porcicultores RD" 
-            style={{ height: '48px', width: 'auto', objectFit: 'contain' }} 
-          />
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+          {/* Logo SVG Nativo */}
+          <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+            <rect width="100" height="100" rx="20" fill="#0B2545"/>
+            <path d="M15 35C15 25 25 20 50 20C75 20 85 25 85 35V65C85 75 75 80 50 80C25 80 15 75 15 65V35Z" fill="#134074" stroke="#FFFFFF" strokeWidth="3"/>
+            {/* Bandera RD */}
+            <path d="M55 25H80V45H55V25Z" fill="#C81D25"/>
+            <path d="M55 50H80V70H55V50Z" fill="#0253A3"/>
+            <path d="M65 25H70V70H65V25Z" fill="#FFFFFF"/>
+            <path d="M55 43H80V47H55V43Z" fill="#FFFFFF"/>
+            {/* Cerdo */}
+            <circle cx="40" cy="50" r="22" fill="#FFC0CB" stroke="#0B2545" strokeWidth="2.5"/>
+            <circle cx="33" cy="45" r="3" fill="#0B2545"/>
+            <circle cx="47" cy="45" r="3" fill="#0B2545"/>
+            <ellipse cx="40" cy="54" rx="9" ry="6" fill="#FF9999" stroke="#0B2545" strokeWidth="2"/>
+            <circle cx="37" cy="54" r="1.5" fill="#0B2545"/>
+            <circle cx="43" cy="54" r="1.5" fill="#0B2545"/>
+            <path d="M22 34C20 26 28 28 32 32" stroke="#0B2545" strokeWidth="2.5" strokeLinecap="round" fill="#FFC0CB"/>
+            <path d="M58 34C60 26 52 28 48 32" stroke="#0B2545" strokeWidth="2.5" strokeLinecap="round" fill="#FFC0CB"/>
+          </svg>
+          <span style={{ fontWeight: '900', fontSize: '20px', color: '#FFFFFF', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+            PORCICULTORES-RD
+          </span>
         </Link>
 
         <nav style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '14px', fontWeight: '600' }}>
@@ -24,7 +41,7 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* Hero Banner Principal (Azul) */}
+      {/* Hero Banner Principal */}
       <section style={{ backgroundColor: '#0B2545', color: '#FFFFFF', padding: '60px 20px 90px 20px', textAlign: 'center' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <h1 style={{ fontSize: '38px', fontWeight: '900', lineHeight: '1.2', margin: '0 0 16px 0' }}>
@@ -55,7 +72,6 @@ export default function Home() {
       <section style={{ maxWidth: '1100px', margin: '-45px auto 40px auto', padding: '0 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           
-          {/* Tarjeta 1 */}
           <Link href="/marketplace" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', height: '100%', boxSizing: 'border-box' }}>
               <div style={{ fontSize: '28px', marginBottom: '12px' }}>🐷</div>
@@ -66,7 +82,6 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* Tarjeta 2 */}
           <Link href="/directorio" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', height: '100%', boxSizing: 'border-box' }}>
               <div style={{ fontSize: '28px', marginBottom: '12px' }}>🏥</div>
@@ -77,7 +92,6 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* Tarjeta 3 */}
           <Link href="/precios" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', height: '100%', boxSizing: 'border-box' }}>
               <div style={{ fontSize: '28px', marginBottom: '12px' }}>📈</div>
