@@ -51,7 +51,7 @@ export default function TerminosPage() {
             2. Moneda oficial (DOP) y reporte de infracciones
           </h3>
           <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.6' }}>
-            Todas las publicaciones y negociaciones deben realizarse exclusivamente en <strong>Pesos Dominicanos (DOP)</strong>. Queda estrictamente prohibida la publicación de precios en dólares u otras divisas extranjeras. Si detecta a un usuario ofreciendo precios en dólares, por favor <strong>repórtelo de inmediato</strong> con la administración para suspender la cuenta infractora.
+            Todas las publicaciones y negociaciones deben realizarse exclusivamente en <strong>Pesos Dominicanos (DOP)</strong>. Queda strictly prohibida la publicación de precios en dólares u otras divisas extranjeras. Si detecta a un usuario ofreciendo precios en dólares, por favor <strong>repórtelo de inmediato</strong> con la administración para suspender la cuenta infractora.
           </p>
         </div>
 
@@ -85,12 +85,12 @@ export default function TerminosPage() {
           </p>
         </div>
 
-        {/* Botones inferiores de navegación */}
+        {/* Botones inferiores de navegación hacia la ruta existente */}
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-          <Link href="/privacidad" style={{ backgroundColor: '#0284C7', color: '#FFFFFF', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>
+          <Link href="/terminos/privacidad" style={{ backgroundColor: '#0284C7', color: '#FFFFFF', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>
             Política de Privacidad
           </Link>
-          <Link href="/contacto" style={{ backgroundColor: t.bgTarjeta, color: t.textPrincipal, padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', border: `1px solid ${t.bordeTarjeta}` }}>
+          <Link href="/terminos/contacto" style={{ backgroundColor: t.bgTarjeta, color: t.textPrincipal, padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', border: `1px solid ${t.bordeTarjeta}` }}>
             Contacto
           </Link>
         </div>
