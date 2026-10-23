@@ -1,28 +1,100 @@
 ﻿'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
-export default function Terminos() {
+export default function TerminosPage() {
+  const [esOscuro, setEsOscuro] = useState(true)
+
+  useEffect(() => {
+    const temaGuardado = localStorage.getItem('tema_porcicultores')
+    if (temaGuardado) {
+      setEsOscuro(temaGuardado === 'oscuro')
+    }
+  }, [])
+
+  const t = {
+    bgPrincipal: esOscuro ? '#0B132B' : '#F8FAFC',
+    textPrincipal: esOscuro ? '#FFFFFF' : '#0F172A',
+    textSecundario: esOscuro ? '#94A3B8' : '#64748B',
+    bgTarjeta: esOscuro ? '#111936' : '#FFFFFF',
+    bordeTarjeta: esOscuro ? 'rgba(255,255,255,0.08)' : '#E2E8F0',
+  }
+
   return (
-    <div style={{ maxWidth: '680px', margin: '0 auto', padding: '20px', fontFamily: 'Inter, sans-serif', backgroundColor: '#F4F6F9', minHeight: '100vh' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ color: '#1A3C5E', fontSize: '20px', fontWeight: '700', margin: 0 }}>\uD83D\uDCDC T\u00e9rminos de Uso</h1>
-        <Link href="/" style={{ color: '#2563A8', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>\u2190 Inicio</Link>
-      </div>
-      {[
-        { titulo: '1. Uso de la plataforma', texto: 'Porcicultores RD es una plataforma de contacto entre compradores, vendedores y proveedores de servicios del sector porcino dominicano. No participamos directamente en las negociaciones ni garantizamos las transacciones.' },
-        { titulo: '2. Responsabilidad', texto: 'Porcicultores RD no se hace responsable de estafas, fraudes o negocios mal realizados entre usuarios. Recomendamos verificar siempre la identidad de los usuarios antes de realizar pagos o transacciones.' },
-        { titulo: '3. Publicaciones', texto: 'Toda publicaci\u00f3n debe ser verídica y corresponder a animales reales disponibles para la venta. Las publicaciones falsas o enga\u00f1osas ser\u00e1n eliminadas y el usuario podr\u00e1 ser suspendido.' },
-        { titulo: '4. Comportamiento', texto: 'Los usuarios deben comportarse de manera respetuosa. Queda prohibido el acoso, amenazas, difamaci\u00f3n o cualquier comportamiento inapropiado dentro de la plataforma.' },
-        { titulo: '5. Modificaciones', texto: 'Porcicultores RD se reserva el derecho de modificar estos t\u00e9rminos en cualquier momento. El uso continuado de la plataforma implica la aceptaci\u00f3n de los nuevos t\u00e9rminos.' },
-      ].map(s => (
-        <div key={s.titulo} style={{ backgroundColor: 'white', borderRadius: '14px', padding: '20px', marginBottom: '12px', border: '1px solid #E5E7EB' }}>
-          <h3 style={{ color: '#1A3C5E', fontWeight: '700', fontSize: '14px', margin: '0 0 8px 0' }}>{s.titulo}</h3>
-          <p style={{ color: '#6B7280', fontSize: '13px', margin: 0, lineHeight: 1.7 }}>{s.texto}</p>
+    <div style={{ width: '100%', minHeight: '100vh', backgroundColor: t.bgPrincipal, fontFamily: "system-ui, -apple-system, sans-serif", margin: 0, padding: '40px 20px', color: t.textPrincipal }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        
+        {/* Encabezado sin caracteres rotos */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: '800', margin: 0, fontFamily: "Georgia, 'Times New Roman', serif" }}>
+            Términos de Uso
+          </h1>
+          <Link href="/" style={{ color: '#0284C7', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
+            Volver al Inicio
+          </Link>
         </div>
-      ))}
-      <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-        <Link href="/terminos/privacidad" style={{ flex: 1, backgroundColor: '#1A3C5E', color: 'white', padding: '12px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '13px', textAlign: 'center' }}>Privacidad</Link>
-        <Link href="/terminos/contacto" style={{ flex: 1, backgroundColor: 'white', color: '#1A3C5E', padding: '12px', borderRadius: '10px', textDecoration: 'none', fontWeight: '600', fontSize: '13px', textAlign: 'center', border: '1px solid #E5E7EB' }}>Contacto</Link>
+
+        {/* Sección 1 */}
+        <div style={{ backgroundColor: t.bgTarjeta, borderRadius: '16px', padding: '24px', marginBottom: '16px', border: `1px solid ${t.bordeTarjeta}` }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0', color: t.textPrincipal }}>
+            1. Uso de la plataforma
+          </h3>
+          <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.6' }}>
+            Porcicultores RD es una plataforma de contacto entre compradores, vendedores y proveedores de servicios del sector porcino dominicano. No participamos directamente en las negociaciones ni garantizamos las transacciones.
+          </p>
+        </div>
+
+        {/* Sección 2: Moneda Obligatoria y Reportes */}
+        <div style={{ backgroundColor: t.bgTarjeta, borderRadius: '16px', padding: '24px', marginBottom: '16px', border: `1px solid ${t.bordeTarjeta}` }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0', color: '#C81D25' }}>
+            2. Moneda oficial (DOP) y reporte de infracciones
+          </h3>
+          <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.6' }}>
+            Todas las publicaciones y negociaciones deben realizarse exclusivamente en <strong>Pesos Dominicanos (DOP)</strong>. Queda estrictamente prohibida la publicación de precios en dólares u otras divisas extranjeras. Si detecta a un usuario ofreciendo precios en dólares, por favor <strong>repórtelo de inmediato</strong> con la administración para suspender la cuenta infractora.
+          </p>
+        </div>
+
+        {/* Sección 3 */}
+        <div style={{ backgroundColor: t.bgTarjeta, borderRadius: '16px', padding: '24px', marginBottom: '16px', border: `1px solid ${t.bordeTarjeta}` }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0', color: t.textPrincipal }}>
+            3. Responsabilidad y Seguridad
+          </h3>
+          <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.6' }}>
+            Porcicultores RD no se hace responsable de estafas, fraudes o negocios mal realizados entre usuarios. Recomendamos verificar siempre la identidad de los usuarios y la calidad del ganado o producto antes de realizar pagos.
+          </p>
+        </div>
+
+        {/* Sección 4 */}
+        <div style={{ backgroundColor: t.bgTarjeta, borderRadius: '16px', padding: '24px', marginBottom: '16px', border: `1px solid ${t.bordeTarjeta}` }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0', color: t.textPrincipal }}>
+            4. Publicaciones
+          </h3>
+          <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.6' }}>
+            Toda publicación debe ser verídica y corresponder a animales reales disponibles para la venta. Las publicaciones falsas o engañosas serán eliminadas y el usuario podrá ser suspendido.
+          </p>
+        </div>
+
+        {/* Sección 5 */}
+        <div style={{ backgroundColor: t.bgTarjeta, borderRadius: '16px', padding: '24px', marginBottom: '24px', border: `1px solid ${t.bordeTarjeta}` }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 8px 0', color: t.textPrincipal }}>
+            5. Modificaciones
+          </h3>
+          <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.6' }}>
+            Porcicultores RD se reserva el derecho de modificar estos términos en cualquier momento. El uso continuado de la plataforma implica la aceptación de los nuevos términos.
+          </p>
+        </div>
+
+        {/* Botones inferiores de navegación */}
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+          <Link href="/privacidad" style={{ backgroundColor: '#0284C7', color: '#FFFFFF', padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>
+            Política de Privacidad
+          </Link>
+          <Link href="/contacto" style={{ backgroundColor: t.bgTarjeta, color: t.textPrincipal, padding: '12px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', border: `1px solid ${t.bordeTarjeta}` }}>
+            Contacto
+          </Link>
+        </div>
+
       </div>
     </div>
   )
