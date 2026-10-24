@@ -68,7 +68,7 @@ export default function ApoyanosPage() {
           </h1>
           <p
             style={{
-              color: '#6B7280',
+              color: '#fbfcfd',
               fontSize: '13px',
               margin: 0,
             }}
