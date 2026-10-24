@@ -144,7 +144,7 @@ export default function Home() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <nav style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '14px', fontWeight: '600' }}>
-            <Link href="/apoyanos" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Apóyanos 🤝</Link>
+            <Link href="/apoyanos" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Apóyanos</Link>
             <Link href="/terminos" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Términos</Link>
             <Link href="/terminos/privacidad" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Privacidad</Link>
             <Link href="/terminos/contacto" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Contacto</Link>
