@@ -14,7 +14,6 @@ export default function Home() {
       setEsOscuro(temaGuardado === 'oscuro')
     }
 
-    // Comprobar si el usuario ya inició sesión
     const token = localStorage.getItem('token_porcicultores')
     if (token) {
       setEstaLogueado(true)
@@ -52,12 +51,9 @@ export default function Home() {
     return null
   }
 
-  // SI NO ESTÁ LOGUEADO: Muestra la barra superior con el tema y el aviso centrado profesional
   if (!estaLogueado) {
     return (
       <div style={{ width: '100%', minHeight: '100vh', backgroundColor: t.bgPrincipal, fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", margin: 0, padding: 0, color: t.textPrincipal, transition: 'background-color 0.3s ease', display: 'flex', flexDirection: 'column' }}>
-        
-        {/* Barra superior para poder cambiar el modo claro/oscuro incluso sin iniciar sesión */}
         <header style={{ backgroundColor: t.bgHeaderYBanner, color: t.textHeaderYBanner, padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', borderBottom: `1px solid ${t.bordeTarjeta}` }}>
           <span style={{ fontWeight: '700', fontSize: '22px', color: t.textHeaderYBanner, letterSpacing: '0.8px', fontFamily: "Georgia, 'Times New Roman', Times, serif", textTransform: 'uppercase' }}>
             PORCICULTORES-RD
@@ -82,7 +78,6 @@ export default function Home() {
           </button>
         </header>
 
-        {/* Aviso Centrado Elegante */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
           <div style={{ 
             backgroundColor: t.bgTarjeta, 
@@ -116,7 +111,6 @@ export default function Home() {
                 Iniciar Sesión
               </Link>
             </div>
-            {/* Botón de prueba para simular sesión y ver la página */}
             <button
               onClick={() => {
                 localStorage.setItem('token_porcicultores', 'activo_demo')
@@ -128,15 +122,12 @@ export default function Home() {
             </button>
           </div>
         </div>
-
       </div>
     )
   }
 
-  // SI YA ESTÁ LOGUEADO: Muestra todo tu diseño original completo con normalidad
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: t.bgPrincipal, fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", margin: 0, padding: 0, color: t.textPrincipal, transition: 'background-color 0.3s ease' }}>
-      
       <header style={{ backgroundColor: t.bgHeaderYBanner, color: t.textHeaderYBanner, padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', borderBottom: `1px solid ${t.bordeTarjeta}`, transition: 'all 0.3s ease' }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
           <span style={{ 
@@ -153,9 +144,9 @@ export default function Home() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <nav style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '14px', fontWeight: '600' }}>
-            <Link href="/marketplace" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Marketplace</Link>
-            <Link href="/directorio" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Directorio</Link>
-            <Link href="/precios" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Precios</Link>
+            <Link href="/terminos" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Términos</Link>
+            <Link href="/terminos/privacidad" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Privacidad</Link>
+            <Link href="/terminos/contacto" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Contacto</Link>
             <Link href="/perfil" style={{ color: t.textHeaderYBanner, textDecoration: 'none', opacity: 0.9 }}>Mi Perfil</Link>
           </nav>
 
@@ -208,7 +199,6 @@ export default function Home() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px 60px 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px', marginBottom: '45px' }}>
-          
           <Link href="/marketplace" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ backgroundColor: t.bgTarjeta, borderRadius: '20px', padding: '28px', border: `1px solid ${t.bordeNeonVerde}`, boxShadow: t.sombraNeonVerde, height: '100%', boxSizing: 'border-box' }}>
               <h3 style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 8px 0', color: t.textPrincipal }}>Marketplace Porcino</h3>
@@ -229,7 +219,6 @@ export default function Home() {
               <p style={{ fontSize: '14px', color: t.textSecundario, margin: 0, lineHeight: '1.5' }}>Precios de referencia por libra/kilo actualizados por provincia.</p>
             </div>
           </Link>
-
         </div>
 
         <div>
