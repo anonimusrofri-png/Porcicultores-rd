@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -25,11 +26,8 @@ export default function Login() {
       setErrorMsg('Correo o contraseña incorrectos.')
       setCargando(false)
     } else {
-      // Guardar el indicador de token para la app
       localStorage.setItem('token_porcicultores', data.session?.access_token || 'activo')
       document.cookie = `token_porcicultores=${data.session?.access_token}; path=/;`
-      
-      // Redirigir al inicio
       router.push('/')
       router.refresh()
     }
@@ -52,7 +50,7 @@ export default function Login() {
           <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '6px', color: '#334155' }}>Correo Electrónico</label>
           <input
             type="email"
-            placeholder="ejemplo@correo.com"
+            placeholder="anonimusrofri@gmail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -80,6 +78,12 @@ export default function Login() {
           {cargando ? 'Iniciando sesión...' : 'Entrar'}
         </button>
       </form>
+
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <Link href="/" style={{ fontSize: '13px', color: '#64748B', textDecoration: 'none' }}>
+          ← Volver al Inicio
+        </Link>
+      </div>
     </div>
   )
 }
